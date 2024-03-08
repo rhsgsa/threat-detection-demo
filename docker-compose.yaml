@@ -1,0 +1,28 @@
+version: "3.5"
+
+services:
+
+  image-acquirer:
+    container_name: image-acquirer
+    image: "ghcr.io/kwkoo/image-acquirer"
+    environment:
+    - CAMERA=/videos/video.mp4
+    - INTERESTED_CLASSES=1,2
+    - MQTT_SERVER=mqtt
+    - MQTT_PORT=1883
+    - MQTT_TOPIC=alerts
+    ports:
+    - 8080:8080
+    volumes:
+    - ../redhat-pins-ai-demo/container/video.mp4:/videos/video.mp4
+    - ./image-acquirer/app/app.py:/app/app.py
+    depends_on:
+    - mqtt
+
+  mqtt:
+    container_name: mqtt
+    image: "docker.io/library/eclipse-mosquitto:2.0.18-openssl"
+    ports:
+    - 1883:1883
+    volumes:
+    - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro,z

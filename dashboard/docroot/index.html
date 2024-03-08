@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+  <title>Threats Dashboard</title>
+  <meta charset='utf-8'>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="main.css" type="text/css" media="all">
+  <script src="capture.js">
+  </script>
+</head>
+<body>
+<div class="grid-columns">
+  <div class="grid-item">
+    <img id="photo"/>
+    <div class="label">Choose from the following prompts:</div>
+    <div class="prompt-choices">
+      <a class="prompt-choice">
+        Please describe this image
+      </a>
+      <a class="prompt-choice">
+        Is this person a threat?
+      </a>
+    </div>
+  </div>
+  <div class="grid-item">
+    <div class="prompt">Please describe this image</div>
+    <textarea id="llava-response" rows="20" cols="80" readonly></textarea>
+  </div>
+</div>
+</body>
+</html>
