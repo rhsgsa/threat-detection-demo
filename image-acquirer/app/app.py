@@ -139,9 +139,13 @@ def detection_task(camera_device, force_cpu, interested_classes, mqttc, mqtt_top
         im_b64 = base64.b64encode(im_encoded.tobytes()).decode('ascii')
 
         if interesting_objects.update(result.boxes) and mqttc is not None:
+            frame_encoded = cv2.imencode('.jpg', frame)[1]
+            frame_b64 = base64.b64encode(frame_encoded.tobytes()).decode('ascii')
+
             # a new object has been detected - publish to MQTT
             mqtt_message = {
-                "image": im_b64
+                "annotated_image": im_b64,
+                "raw_image": frame_b64
             }
             mqttc.publish(mqtt_topic, json.dumps(mqtt_message), qos=1)
 
@@ -190,6 +194,14 @@ def listen():
 
 if __name__ == '__main__':
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
+    port_str = os.getenv('PORT', '8080')
+    port = 0
+    try:
+        port = int(port_str)
+    except ValueError:
+        logging.error(f'could not convert PORT ({port_str}) to integer')
+        sys.exit(1)
 
     camera_device = os.getenv('CAMERA', '/dev/video0')
 
@@ -242,7 +254,7 @@ if __name__ == '__main__':
         )
         background_thread.start()
 
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=port)
     stop_detection_task()
     if mqttc is not None:
         mqttc.loop_stop()
