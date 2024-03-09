@@ -22,12 +22,11 @@ import (
 var content embed.FS
 
 type Config struct {
-	Port              int    `default:"8080" usage:"HTTP listener port"`
-	Docroot           string `usage:"HTML document root - will use the embedded docroot if not specified"`
-	MQTTBroker        string `usage:"MQTT broker URL" default:"tcp://localhost:1883" mandatory:"true"`
-	AlertsTopic       string `usage:"MQTT topic for incoming alerts" default:"alerts"`
-	LLMRequestsTopic  string `usage:"MQTT topic for requests to the LLM" default:"llmreq"`
-	LLMResponsesTopic string `usage:"MQTT topic for responses from the LLM" default:"llmresp"`
+	Port        int    `default:"8080" usage:"HTTP listener port"`
+	Docroot     string `usage:"HTML document root - will use the embedded docroot if not specified"`
+	MQTTBroker  string `usage:"MQTT broker URL" default:"tcp://localhost:1883" mandatory:"true"`
+	AlertsTopic string `usage:"MQTT topic for incoming alerts" default:"alerts"`
+	LLMURL      string `usage:"URL for the LLM REST endpoint" default:"http://localhost:11434/api/generate"`
 }
 
 func main() {
@@ -83,12 +82,9 @@ func initializeMQTTClient(config Config, sseCh chan internal.SSEEvent) MQTT.Clie
 	opts.AddBroker(config.MQTTBroker)
 	opts.SetAutoReconnect(true)
 	opts.OnConnect = func(mqttClient MQTT.Client) {
-		controller := internal.NewAlertsController(sseCh, config.LLMRequestsTopic)
+		controller := internal.NewAlertsController(sseCh, config.LLMURL)
 		if token := mqttClient.Subscribe(config.AlertsTopic, 1, controller.AlertsHandler); token.Wait() && token.Error() != nil {
 			log.Fatalf("could not subscribe to %s: %v", config.AlertsTopic, token.Error())
-		}
-		if token := mqttClient.Subscribe(config.LLMResponsesTopic, 1, controller.LLMResponseHandler); token.Wait() && token.Error() != nil {
-			log.Fatalf("could not subscribe to %s: %v", config.LLMResponsesTopic, token.Error())
 		}
 	}
 

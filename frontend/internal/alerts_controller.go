@@ -1,9 +1,12 @@
 package internal
 
 import (
+	"bufio"
+	"bytes"
 	"encoding/json"
+	"io"
 	"log"
-	"sync"
+	"net/http"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
@@ -20,17 +23,16 @@ type llmRequest struct {
 }
 
 type AlertsController struct {
-	sseCh       chan SSEEvent
-	llmReqTopic string
-	prompt      string
-	mux         sync.Mutex // ensures that we don't have multiple in-flight requests to the LLM
+	sseCh  chan SSEEvent
+	llmURL string
+	prompt string
 }
 
-func NewAlertsController(ch chan SSEEvent, llmReqTopic string) *AlertsController {
+func NewAlertsController(ch chan SSEEvent, llmURL string) *AlertsController {
 	c := AlertsController{
-		sseCh:       ch,
-		llmReqTopic: llmReqTopic,
-		prompt:      "Describe this picture",
+		sseCh:  ch,
+		llmURL: llmURL,
+		prompt: "Describe this picture",
 	}
 	return &c
 }
@@ -54,13 +56,49 @@ func (controller *AlertsController) AlertsHandler(client MQTT.Client, mqttMessag
 		Data:      []byte{},
 	}
 
-	log.Print("making LLM request...")
-	controller.mux.Lock()
-	if err := publishLLMRequest(client, controller.llmReqTopic, controller.prompt, msg.RawImage); err != nil {
-		controller.mux.Unlock()
+	body := makeLLMRequest(controller.llmURL, controller.prompt, msg.RawImage)
+	if body == nil {
+		return
+	}
+	defer body.Close()
+	scanner := bufio.NewScanner(body)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		controller.sseCh <- SSEEvent{
+			EventType: "llm_response",
+			Data:      []byte(scanner.Text()),
+		}
 	}
 }
 
+func makeLLMRequest(llmURL, prompt, image string) io.ReadCloser {
+	llmReq := llmRequest{
+		Model:  "llava",
+		Prompt: prompt,
+		Images: []string{image},
+	}
+	payload, err := json.Marshal(llmReq)
+	if err != nil {
+		log.Printf("error trying to marshal JSON for LLM request: %v", err)
+		return nil
+	}
+
+	req, err := http.NewRequest(http.MethodPost, llmURL, bytes.NewReader(payload))
+	if err != nil {
+		log.Printf("error creating request to %s: %v", llmURL, err)
+		return nil
+	}
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Printf("error making request to %s: %v", llmURL, err)
+		return nil
+	}
+	log.Printf("response status code %d", res.StatusCode)
+	return res.Body
+}
+
+/*
 func publishLLMRequest(client MQTT.Client, topic, prompt, image string) error {
 	llmReq := llmRequest{
 		Model:  "llava",
@@ -101,3 +139,4 @@ func (controller *AlertsController) LLMResponseHandler(client MQTT.Client, mqttM
 		Data:      mqttMessage.Payload(),
 	}
 }
+*/
