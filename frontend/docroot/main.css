@@ -54,7 +54,7 @@ body {
     background-color: aqua;
 }
 
-#llava-response {
+#llm-response {
     width: 80%;
     display: block;
     /*margin-left: auto;

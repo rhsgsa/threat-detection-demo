@@ -2,8 +2,19 @@ var photo = null;
 var rawImage = null;
 var annotatedImage = null;
 var showAnnotated = null;
-var defects = null;
+var llmResponse = null;
 var sseErrors = 0;
+
+function clearLLMResponseBox(event) {
+  llmResponse.value = '';
+}
+
+function processLLMResponse(event) {
+  if (event == null || event.data == null) return;
+  const obj = JSON.parse(event.data);
+  if (obj == null || obj.response == null) return;
+  llmResponse.value += obj.response;
+}
 
 function refreshPhoto() {
   let data = (showAnnotated.checked?annotatedImage:rawImage);
@@ -30,10 +41,13 @@ function startup() {
   clearPhoto();
 
   showAnnotated = document.getElementById('show-annotated');
+  llmResponse = document.getElementById('llm-response');
 
   const evtSource = new EventSource("/api/sse");
   evtSource.addEventListener("annotated_image", processImageEvent);
   evtSource.addEventListener("raw_image", processImageEvent);
+  evtSource.addEventListener("starting_llm_request", clearLLMResponseBox);
+  evtSource.addEventListener("llm_response", processLLMResponse);
   evtSource.onerror = (e) => {
     sseErrors++;
     if (sseErrors > 50) {

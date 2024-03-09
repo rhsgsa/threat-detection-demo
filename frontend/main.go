@@ -42,18 +42,18 @@ func main() {
 	http.HandleFunc("/healthz", healthHandler)
 
 	sse := initializeSSEBroadcaster("/api/sse")
-	alertsCh := make(chan internal.SSEEvent)
+	sseCh := make(chan internal.SSEEvent)
 	wg.Add(1)
 	go func() {
-		sse.Listen(alertsCh)
+		sse.Listen(sseCh)
 		wg.Done()
 	}()
 	go func() {
 		<-shutdownCtx.Done()
-		close(alertsCh)
+		close(sseCh)
 	}()
 
-	mqttClient := initializeMQTTClient(config, alertsCh)
+	mqttClient := initializeMQTTClient(config, sseCh)
 	wg.Add(1)
 	go func() {
 		<-shutdownCtx.Done()
@@ -78,14 +78,17 @@ func main() {
 	log.Print("all goroutines terminated")
 }
 
-func initializeMQTTClient(config Config, alertsCh chan internal.SSEEvent) MQTT.Client {
+func initializeMQTTClient(config Config, sseCh chan internal.SSEEvent) MQTT.Client {
 	opts := MQTT.NewClientOptions()
 	opts.AddBroker(config.MQTTBroker)
 	opts.SetAutoReconnect(true)
 	opts.OnConnect = func(mqttClient MQTT.Client) {
-		controller := internal.NewAlertsController(alertsCh)
+		controller := internal.NewAlertsController(sseCh, config.LLMRequestsTopic)
 		if token := mqttClient.Subscribe(config.AlertsTopic, 1, controller.AlertsHandler); token.Wait() && token.Error() != nil {
 			log.Fatalf("could not subscribe to %s: %v", config.AlertsTopic, token.Error())
+		}
+		if token := mqttClient.Subscribe(config.LLMResponsesTopic, 1, controller.LLMResponseHandler); token.Wait() && token.Error() != nil {
+			log.Fatalf("could not subscribe to %s: %v", config.LLMResponsesTopic, token.Error())
 		}
 	}
 
