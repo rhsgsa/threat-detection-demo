@@ -15,6 +15,12 @@ body {
     margin-bottom: 20px;
 }
 
+.show-annotated {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
 .grid-columns {
     display: grid;
     grid-gap: 10px;
