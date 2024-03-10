@@ -19,14 +19,16 @@ type alertMessage struct {
 }
 
 type AlertsController struct {
-	sseCh          chan SSEEvent
-	llmURL         string
-	prompt         string
-	annotatedImage []byte
-	rawImage       []byte
-	prompts        []string
-	promptMux      sync.RWMutex
-	llmCh          chan alertMessage
+	sseCh       chan SSEEvent
+	llmURL      string
+	prompt      string
+	latestAlert struct {
+		annotatedImage []byte
+		rawImage       []byte
+	}
+	prompts   []string
+	promptMux sync.RWMutex
+	llmCh     chan alertMessage
 }
 
 func NewAlertsController(ch chan SSEEvent, llmURL string) *AlertsController {
@@ -77,11 +79,11 @@ func (controller *AlertsController) AlertsHandler(client MQTT.Client, mqttMessag
 func (controller *AlertsController) broadcastImages() {
 	controller.sseCh <- SSEEvent{
 		EventType: "annotated_image",
-		Data:      controller.annotatedImage,
+		Data:      controller.latestAlert.annotatedImage,
 	}
 	controller.sseCh <- SSEEvent{
 		EventType: "raw_image",
-		Data:      controller.rawImage,
+		Data:      controller.latestAlert.rawImage,
 	}
 	controller.sseCh <- SSEEvent{
 		EventType: "llm_request_start",
@@ -93,10 +95,10 @@ func (controller *AlertsController) broadcastImages() {
 func (controller *AlertsController) LLMRequester() {
 	for alertMsg := range controller.llmCh {
 		if alertMsg.AnnotatedImage != "" {
-			controller.annotatedImage = []byte(alertMsg.AnnotatedImage)
+			controller.latestAlert.annotatedImage = []byte(alertMsg.AnnotatedImage)
 		}
 		if alertMsg.RawImage != "" {
-			controller.rawImage = []byte(alertMsg.RawImage)
+			controller.latestAlert.rawImage = []byte(alertMsg.RawImage)
 		}
 		controller.broadcastImages()
 
