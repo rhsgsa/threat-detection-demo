@@ -52,7 +52,18 @@ func main() {
 		close(sseCh)
 	}()
 
-	mqttClient := initializeMQTTClient(config, sseCh)
+	alertsController := internal.NewAlertsController(sseCh, config.LLMURL)
+	wg.Add(1)
+	go func() {
+		alertsController.LLMRequester()
+		wg.Done()
+	}()
+	go func() {
+		<-shutdownCtx.Done()
+		alertsController.Shutdown()
+	}()
+
+	mqttClient := initializeMQTTClient(config, alertsController)
 	wg.Add(1)
 	go func() {
 		<-shutdownCtx.Done()
@@ -77,12 +88,11 @@ func main() {
 	log.Print("all goroutines terminated")
 }
 
-func initializeMQTTClient(config Config, sseCh chan internal.SSEEvent) MQTT.Client {
+func initializeMQTTClient(config Config, controller *internal.AlertsController) MQTT.Client {
 	opts := MQTT.NewClientOptions()
 	opts.AddBroker(config.MQTTBroker)
 	opts.SetAutoReconnect(true)
 	opts.OnConnect = func(mqttClient MQTT.Client) {
-		controller := internal.NewAlertsController(sseCh, config.LLMURL)
 		http.HandleFunc("/api/prompt", controller.PromptHandler)
 		if token := mqttClient.Subscribe(config.AlertsTopic, 1, controller.AlertsHandler); token.Wait() && token.Error() != nil {
 			log.Fatalf("could not subscribe to %s: %v", config.AlertsTopic, token.Error())
