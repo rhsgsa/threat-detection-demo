@@ -1,3 +1,4 @@
+var timestamp = null;
 var photo = null;
 var rawImage = null;
 var annotatedImage = null;
@@ -76,6 +77,14 @@ function refreshPhoto() {
   photo.setAttribute('src', 'data:image/jpeg;charset=utf-8;base64,' + data);
 }
 
+function processTimestampEvent(event) {
+  if (event == null || event.data == null) return;
+
+  let date = new Date(event.data * 1000);
+  let time = date.toString().split(' ')[4];
+  timestamp.innerText = time;
+}
+
 function processImageEvent(event) {
   sseErrors = 0;
   if (event == null || event.data == null || event.type == null) return;
@@ -87,6 +96,7 @@ function processImageEvent(event) {
 }
 
 function startup() {
+  timestamp = document.getElementById('timestamp');
   photo = document.getElementById('photo');
   clearPhoto();
 
@@ -98,6 +108,7 @@ function startup() {
   promptChoicesSpinner = document.getElementById('prompt-choices-spinner');
 
   const evtSource = new EventSource("/api/sse");
+  evtSource.addEventListener("timestamp", processTimestampEvent);
   evtSource.addEventListener("annotated_image", processImageEvent);
   evtSource.addEventListener("raw_image", processImageEvent);
   evtSource.addEventListener("llm_request_start", showLLMResponseSpinner);

@@ -145,7 +145,8 @@ def detection_task(camera_device, force_cpu, interested_classes, mqttc, mqtt_top
             # a new object has been detected - publish to MQTT
             mqtt_message = {
                 "annotated_image": im_b64,
-                "raw_image": frame_b64
+                "raw_image": frame_b64,
+                "timestamp": int(time.time())
             }
             mqttc.publish(mqtt_topic, json.dumps(mqtt_message), qos=1)
 

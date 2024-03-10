@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"sync"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
@@ -15,6 +16,7 @@ import (
 type alertMessage struct {
 	AnnotatedImage string `json:"annotated_image"`
 	RawImage       string `json:"raw_image"`
+	Timestamp      int64  `json:"timestamp"`
 	Prompt         string `json:"prompt"`
 }
 
@@ -25,6 +27,7 @@ type AlertsController struct {
 	latestAlert struct {
 		annotatedImage []byte
 		rawImage       []byte
+		timestamp      int64
 	}
 	prompts   []string
 	promptMux sync.RWMutex
@@ -78,6 +81,10 @@ func (controller *AlertsController) AlertsHandler(client MQTT.Client, mqttMessag
 
 func (controller *AlertsController) broadcastImages() {
 	controller.sseCh <- SSEEvent{
+		EventType: "timestamp",
+		Data:      []byte(strconv.FormatInt(controller.latestAlert.timestamp, 10)),
+	}
+	controller.sseCh <- SSEEvent{
 		EventType: "annotated_image",
 		Data:      controller.latestAlert.annotatedImage,
 	}
@@ -100,6 +107,7 @@ func (controller *AlertsController) LLMRequester() {
 		if alertMsg.RawImage != "" {
 			controller.latestAlert.rawImage = []byte(alertMsg.RawImage)
 		}
+		controller.latestAlert.timestamp = alertMsg.Timestamp
 		controller.broadcastImages()
 
 		controller.sseCh <- SSEEvent{

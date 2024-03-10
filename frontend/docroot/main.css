@@ -6,6 +6,13 @@ body {
     color: #000;
 }
 
+#timestamp {
+    display: block;
+    text-align: center;
+    font-size: 0.75em;
+    margin-bottom: 5px;
+}
+
 #photo {
     width: 80%;
     height: auto;
