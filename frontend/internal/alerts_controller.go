@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"io"
 	"log"
 	"net/http"
+	"sync"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
@@ -28,6 +28,7 @@ type AlertsController struct {
 	prompt         string
 	annotatedImage []byte
 	rawImage       []byte
+	llmMux         sync.Mutex
 }
 
 func NewAlertsController(ch chan SSEEvent, llmURL string) *AlertsController {
@@ -45,35 +46,8 @@ func (controller *AlertsController) AlertsHandler(client MQTT.Client, mqttMessag
 		log.Printf("error trying to unmarshal alert MQTT message: %v", err)
 		return
 	}
-	controller.annotatedImage = []byte(msg.AnnotatedImage)
-	controller.rawImage = []byte(msg.RawImage)
-	controller.broadcastImages()
 
-	body := makeLLMRequest(controller.llmURL, controller.prompt, msg.RawImage)
-	if body == nil {
-		return
-	}
-	defer body.Close()
-	scanner := bufio.NewScanner(body)
-	scanner.Split(bufio.ScanLines)
-	waitForFirstLine := true
-	for scanner.Scan() {
-		if waitForFirstLine {
-			controller.sseCh <- SSEEvent{
-				EventType: "llm_response_start",
-				Data:      []byte{},
-			}
-			waitForFirstLine = false
-		}
-		controller.sseCh <- SSEEvent{
-			EventType: "llm_response",
-			Data:      []byte(scanner.Text()),
-		}
-	}
-	controller.sseCh <- SSEEvent{
-		EventType: "llm_response_stop",
-		Data:      []byte{},
-	}
+	controller.makeLLMRequest([]byte(msg.AnnotatedImage), []byte(msg.RawImage))
 }
 
 func (controller *AlertsController) broadcastImages() {
@@ -87,33 +61,63 @@ func (controller *AlertsController) broadcastImages() {
 	}
 	controller.sseCh <- SSEEvent{
 		EventType: "llm_request_start",
-		Data:      []byte{},
+		Data:      nil,
 	}
 }
 
-func makeLLMRequest(llmURL, prompt, image string) io.ReadCloser {
+func (controller *AlertsController) makeLLMRequest(annotatedImage, rawImage []byte) {
+	controller.llmMux.Lock()
+	defer controller.llmMux.Unlock()
+	if annotatedImage != nil {
+		controller.annotatedImage = annotatedImage
+	}
+	if rawImage != nil {
+		controller.rawImage = rawImage
+	}
+	controller.broadcastImages()
 	llmReq := llmRequest{
 		Model:  "llava",
-		Prompt: prompt,
-		Images: []string{image},
+		Prompt: controller.prompt,
+		Images: []string{string(controller.rawImage)},
 	}
 	payload, err := json.Marshal(llmReq)
 	if err != nil {
 		log.Printf("error trying to marshal JSON for LLM request: %v", err)
-		return nil
+		return
 	}
 
-	req, err := http.NewRequest(http.MethodPost, llmURL, bytes.NewReader(payload))
+	req, err := http.NewRequest(http.MethodPost, controller.llmURL, bytes.NewReader(payload))
 	if err != nil {
-		log.Printf("error creating request to %s: %v", llmURL, err)
-		return nil
+		log.Printf("error creating request to %s: %v", controller.llmURL, err)
+		return
 	}
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Printf("error making request to %s: %v", llmURL, err)
-		return nil
+		log.Printf("error making request to %s: %v", controller.llmURL, err)
+		return
 	}
 	log.Printf("response status code %d", res.StatusCode)
-	return res.Body
+
+	defer res.Body.Close()
+	scanner := bufio.NewScanner(res.Body)
+	scanner.Split(bufio.ScanLines)
+	waitForFirstLine := true
+	for scanner.Scan() {
+		if waitForFirstLine {
+			controller.sseCh <- SSEEvent{
+				EventType: "llm_response_start",
+				Data:      nil,
+			}
+			waitForFirstLine = false
+		}
+		controller.sseCh <- SSEEvent{
+			EventType: "llm_response",
+			Data:      []byte(scanner.Text()),
+		}
+	}
+	controller.sseCh <- SSEEvent{
+		EventType: "llm_response_stop",
+		Data:      nil,
+	}
 }

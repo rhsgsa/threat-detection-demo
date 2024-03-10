@@ -38,7 +38,9 @@ func (b *SSEBroadcaster) Listen(in chan SSEEvent) {
 		buf.WriteString("event: ")
 		buf.WriteString(event.EventType)
 		buf.WriteString("\ndata: ")
-		buf.Write(event.Data)
+		if event.Data != nil {
+			buf.Write(event.Data)
+		}
 		buf.WriteString("\n\n")
 		formattedMsg := buf.Bytes()
 		b.clientMux.RLock()
