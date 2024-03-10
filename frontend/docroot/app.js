@@ -9,12 +9,21 @@ var promptChoices = null;
 var promptChoicesSpinner = null;
 var sseErrors = 0;
 
+function setNewPromptOnServer(p) {
+  fetch('/api/prompt', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ prompt: p })
+  });
+}
+
 function loadPromptChoices() {
   // clear out existing choices
   promptChoices.innerHTML = '';
   promptChoices.style.display = 'none';
   promptChoicesSpinner.style.display = 'block';
-  // todo: fire off REST call to /api/prompt
   fetch('/api/prompt', {
     method: 'GET',
     headers: {
@@ -30,6 +39,7 @@ function loadPromptChoices() {
       let d = document.createElement('div');
       d.className = 'prompt-choice';
       d.innerText = p;
+      d.onclick = function() { setNewPromptOnServer(p) };
       promptChoices.appendChild(d);
     })
   })

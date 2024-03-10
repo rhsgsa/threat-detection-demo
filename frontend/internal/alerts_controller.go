@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -46,7 +47,15 @@ func (controller *AlertsController) Shutdown() {
 // PromptHandler gets invoked when a REST call is made to list the available prompts or to set the prompt
 func (controller *AlertsController) PromptHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost || r.Method == http.MethodPut {
-		// todo: extract prompt from json body and set prompt here
+		in := struct {
+			Prompt string `json:"prompt"`
+		}{}
+		if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+			http.Error(w, fmt.Sprintf("error decoding HTTP request body for prompt endpoint: %v", err), http.StatusInternalServerError)
+			return
+		}
+		controller.setPrompt(in.Prompt)
+		w.Write([]byte("OK"))
 		return
 	}
 
@@ -63,7 +72,6 @@ func (controller *AlertsController) AlertsHandler(client MQTT.Client, mqttMessag
 
 	msg.Prompt = controller.getPrompt()
 	controller.llmCh <- msg
-	//controller.makeLLMRequest([]byte(msg.AnnotatedImage), []byte(msg.RawImage))
 }
 
 func (controller *AlertsController) broadcastImages() {
