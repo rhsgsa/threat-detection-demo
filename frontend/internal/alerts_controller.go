@@ -23,9 +23,11 @@ type llmRequest struct {
 }
 
 type AlertsController struct {
-	sseCh  chan SSEEvent
-	llmURL string
-	prompt string
+	sseCh          chan SSEEvent
+	llmURL         string
+	prompt         string
+	annotatedImage []byte
+	rawImage       []byte
 }
 
 func NewAlertsController(ch chan SSEEvent, llmURL string) *AlertsController {
@@ -43,18 +45,9 @@ func (controller *AlertsController) AlertsHandler(client MQTT.Client, mqttMessag
 		log.Printf("error trying to unmarshal alert MQTT message: %v", err)
 		return
 	}
-	controller.sseCh <- SSEEvent{
-		EventType: "annotated_image",
-		Data:      []byte(msg.AnnotatedImage),
-	}
-	controller.sseCh <- SSEEvent{
-		EventType: "raw_image",
-		Data:      []byte(msg.RawImage),
-	}
-	controller.sseCh <- SSEEvent{
-		EventType: "starting_llm_request",
-		Data:      []byte{},
-	}
+	controller.annotatedImage = []byte(msg.AnnotatedImage)
+	controller.rawImage = []byte(msg.RawImage)
+	controller.broadcastImages()
 
 	body := makeLLMRequest(controller.llmURL, controller.prompt, msg.RawImage)
 	if body == nil {
@@ -63,11 +56,38 @@ func (controller *AlertsController) AlertsHandler(client MQTT.Client, mqttMessag
 	defer body.Close()
 	scanner := bufio.NewScanner(body)
 	scanner.Split(bufio.ScanLines)
+	waitForFirstLine := true
 	for scanner.Scan() {
+		if waitForFirstLine {
+			controller.sseCh <- SSEEvent{
+				EventType: "llm_response_start",
+				Data:      []byte{},
+			}
+			waitForFirstLine = false
+		}
 		controller.sseCh <- SSEEvent{
 			EventType: "llm_response",
 			Data:      []byte(scanner.Text()),
 		}
+	}
+	controller.sseCh <- SSEEvent{
+		EventType: "llm_response_stop",
+		Data:      []byte{},
+	}
+}
+
+func (controller *AlertsController) broadcastImages() {
+	controller.sseCh <- SSEEvent{
+		EventType: "annotated_image",
+		Data:      controller.annotatedImage,
+	}
+	controller.sseCh <- SSEEvent{
+		EventType: "raw_image",
+		Data:      controller.rawImage,
+	}
+	controller.sseCh <- SSEEvent{
+		EventType: "llm_request_start",
+		Data:      []byte{},
 	}
 }
 
@@ -97,46 +117,3 @@ func makeLLMRequest(llmURL, prompt, image string) io.ReadCloser {
 	log.Printf("response status code %d", res.StatusCode)
 	return res.Body
 }
-
-/*
-func publishLLMRequest(client MQTT.Client, topic, prompt, image string) error {
-	llmReq := llmRequest{
-		Model:  "llava",
-		Prompt: prompt,
-		Images: []string{image},
-	}
-	req, err := json.Marshal(llmReq)
-	if err != nil {
-		log.Printf("error trying to marshal JSON for LLM request: %v", err)
-		return err
-	}
-	token := client.Publish(topic, 1, false, req)
-	<-token.Done()
-	if token.Error() != nil {
-		log.Printf("error trying to publish to responses topic: %v", token.Error())
-		return token.Error()
-	}
-	return nil
-}
-
-func (controller *AlertsController) LLMResponseHandler(client MQTT.Client, mqttMessage MQTT.Message) {
-	type llmResp struct {
-		Error string `json:"error"`
-		Done  bool   `json:"done"`
-	}
-	payload := mqttMessage.Payload()
-	var resp llmResp
-	if err := json.Unmarshal(payload, &resp); err != nil {
-		log.Printf("error trying to unmarshal LLM response: %v", err)
-		return
-	}
-	if resp.Error != "" || resp.Done {
-		controller.mux.Unlock()
-	}
-
-	controller.sseCh <- SSEEvent{
-		EventType: "llm_response",
-		Data:      mqttMessage.Payload(),
-	}
-}
-*/

@@ -3,10 +3,18 @@ var rawImage = null;
 var annotatedImage = null;
 var showAnnotated = null;
 var llmResponse = null;
+var llmResponseSpinner = null;
 var sseErrors = 0;
 
-function clearLLMResponseBox(event) {
+function showLLMResponseSpinner(event) {
   llmResponse.value = '';
+  llmResponse.style.display = 'none';
+  llmResponseSpinner.style.display = 'block';
+}
+
+function hideLLMResponseSpinner(event) {
+  llmResponseSpinner.style.display = 'none';
+  llmResponse.style.display = 'block';
 }
 
 function processLLMResponse(event) {
@@ -42,12 +50,15 @@ function startup() {
 
   showAnnotated = document.getElementById('show-annotated');
   llmResponse = document.getElementById('llm-response');
+  llmResponseSpinner = document.getElementById('llm-response-spinner');
 
   const evtSource = new EventSource("/api/sse");
   evtSource.addEventListener("annotated_image", processImageEvent);
   evtSource.addEventListener("raw_image", processImageEvent);
-  evtSource.addEventListener("starting_llm_request", clearLLMResponseBox);
+  evtSource.addEventListener("llm_request_start", showLLMResponseSpinner);
   evtSource.addEventListener("llm_response", processLLMResponse);
+  evtSource.addEventListener("llm_response_start", hideLLMResponseSpinner);
+
   evtSource.onerror = (e) => {
     sseErrors++;
     if (sseErrors > 50) {

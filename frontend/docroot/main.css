@@ -54,11 +54,18 @@ body {
     background-color: aqua;
 }
 
+.llm-response-container {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
 #llm-response {
     width: 80%;
     display: block;
-    /*margin-left: auto;
-    margin-right: auto;*/
-    margin-top: 10px;
-    margin-bottom: 10px;
+}
+
+#llm-response-spinner {
+    display: none;
+    margin-left: auto;
+    margin-right: auto;
 }

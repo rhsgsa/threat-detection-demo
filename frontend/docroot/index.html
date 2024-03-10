@@ -28,7 +28,10 @@
   </div>
   <div class="grid-item">
     <div class="prompt">Please describe this image</div>
-    <textarea id="llm-response" rows="20" cols="80" readonly></textarea>
+    <div class="llm-response-container">
+        <textarea id="llm-response" rows="20" cols="80" readonly></textarea>
+        <img src="ajax-loader.gif" id="llm-response-spinner"/>
+    </div>
   </div>
 </div>
 </body>
