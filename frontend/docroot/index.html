@@ -17,17 +17,11 @@
       <input type="checkbox" id="show-annotated" onchange="refreshPhoto()" checked/>
     </div>
     <div class="label">Choose from the following prompts:</div>
-    <div class="prompt-choices">
-      <a class="prompt-choice">
-        Please describe this image
-      </a>
-      <a class="prompt-choice">
-        Is this person a threat?
-      </a>
-    </div>
+    <img src="ajax-loader.gif" id="prompt-choices-spinner"/>
+    <div id="prompt-choices"></div>
   </div>
   <div class="grid-item">
-    <div class="prompt">Please describe this image</div>
+    <div id="prompt">&nbsp;</div>
     <div class="llm-response-container">
         <textarea id="llm-response" rows="20" cols="80" readonly></textarea>
         <img src="ajax-loader.gif" id="llm-response-spinner"/>

@@ -4,7 +4,39 @@ var annotatedImage = null;
 var showAnnotated = null;
 var llmResponse = null;
 var llmResponseSpinner = null;
+var prompt = null;
+var promptChoices = null;
+var promptChoicesSpinner = null;
 var sseErrors = 0;
+
+function loadPromptChoices() {
+  // clear out existing choices
+  promptChoices.innerHTML = '';
+  promptChoices.style.display = 'none';
+  promptChoicesSpinner.style.display = 'block';
+  // todo: fire off REST call to /api/prompt
+  fetch('/api/prompt', {
+    method: 'GET',
+    headers: {
+        'Accept': 'application/json',
+    },
+  })
+  .then(response => response.json())
+  .then(response => {
+    promptChoicesSpinner.style.display = 'none';
+    promptChoices.style.display = 'block';
+    if (response == null) return;
+    response.forEach(p => {
+      let d = document.createElement('div');
+      d.className = 'prompt-choice';
+      d.innerText = p;
+      promptChoices.appendChild(d);
+    })
+  })
+}
+function setPrompt(event) {
+  prompt.innerText = event.data;
+}
 
 function showLLMResponseSpinner(event) {
   llmResponse.value = '';
@@ -51,6 +83,9 @@ function startup() {
   showAnnotated = document.getElementById('show-annotated');
   llmResponse = document.getElementById('llm-response');
   llmResponseSpinner = document.getElementById('llm-response-spinner');
+  prompt = document.getElementById('prompt');
+  promptChoices = document.getElementById('prompt-choices');
+  promptChoicesSpinner = document.getElementById('prompt-choices-spinner');
 
   const evtSource = new EventSource("/api/sse");
   evtSource.addEventListener("annotated_image", processImageEvent);
@@ -58,6 +93,7 @@ function startup() {
   evtSource.addEventListener("llm_request_start", showLLMResponseSpinner);
   evtSource.addEventListener("llm_response", processLLMResponse);
   evtSource.addEventListener("llm_response_start", hideLLMResponseSpinner);
+  evtSource.addEventListener("prompt", setPrompt);
 
   evtSource.onerror = (e) => {
     sseErrors++;
@@ -66,6 +102,8 @@ function startup() {
       alert("connection error threshold exceeded, terminating SSE event source");
     }
   };
+
+  loadPromptChoices();
 }
 
 // Fill the photo with an indication that none has been

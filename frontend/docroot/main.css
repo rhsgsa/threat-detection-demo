@@ -39,12 +39,19 @@ body {
     font-weight: bold;
 }
 
-.prompt-choices {
+#prompt-choices {
     margin-top: 10px;
+    display: block;
+}
+
+#prompt-choices-spinner {
+    display: none;
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .prompt-choice {
-    /* color: blue;*/
     margin-top: 5px;
     display: block;
     cursor: pointer;

@@ -83,6 +83,7 @@ func initializeMQTTClient(config Config, sseCh chan internal.SSEEvent) MQTT.Clie
 	opts.SetAutoReconnect(true)
 	opts.OnConnect = func(mqttClient MQTT.Client) {
 		controller := internal.NewAlertsController(sseCh, config.LLMURL)
+		http.HandleFunc("/api/prompt", controller.PromptHandler)
 		if token := mqttClient.Subscribe(config.AlertsTopic, 1, controller.AlertsHandler); token.Wait() && token.Error() != nil {
 			log.Fatalf("could not subscribe to %s: %v", config.AlertsTopic, token.Error())
 		}

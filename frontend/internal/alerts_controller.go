@@ -29,17 +29,31 @@ type AlertsController struct {
 	annotatedImage []byte
 	rawImage       []byte
 	llmMux         sync.Mutex
+	prompts        []string
+	promptMux      sync.RWMutex
 }
 
 func NewAlertsController(ch chan SSEEvent, llmURL string) *AlertsController {
 	c := AlertsController{
-		sseCh:  ch,
-		llmURL: llmURL,
-		prompt: "Describe this picture",
+		sseCh:   ch,
+		llmURL:  llmURL,
+		prompt:  "Describe this picture",
+		prompts: []string{"Describe this picture", "Is this person a threat?"},
 	}
 	return &c
 }
 
+// PromptHandler gets invoked when a REST call is made to list the available prompts or to set the prompt
+func (controller *AlertsController) PromptHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost || r.Method == http.MethodPut {
+		// todo: extract prompt from json body and set prompt here
+		return
+	}
+
+	streamResponse(w, controller.prompts)
+}
+
+// AlertsHandler gets invoked when a message is received on the alerts MQTT topic
 func (controller *AlertsController) AlertsHandler(client MQTT.Client, mqttMessage MQTT.Message) {
 	var msg alertMessage
 	if err := json.Unmarshal(mqttMessage.Payload(), &msg); err != nil {
@@ -75,9 +89,14 @@ func (controller *AlertsController) makeLLMRequest(annotatedImage, rawImage []by
 		controller.rawImage = rawImage
 	}
 	controller.broadcastImages()
+	prompt := controller.getPrompt()
+	controller.sseCh <- SSEEvent{
+		EventType: "prompt",
+		Data:      []byte(prompt),
+	}
 	llmReq := llmRequest{
 		Model:  "llava",
-		Prompt: controller.prompt,
+		Prompt: prompt,
 		Images: []string{string(controller.rawImage)},
 	}
 	payload, err := json.Marshal(llmReq)
@@ -119,5 +138,24 @@ func (controller *AlertsController) makeLLMRequest(annotatedImage, rawImage []by
 	controller.sseCh <- SSEEvent{
 		EventType: "llm_response_stop",
 		Data:      nil,
+	}
+}
+
+func (controller *AlertsController) getPrompt() string {
+	controller.promptMux.RLock()
+	defer controller.promptMux.RUnlock()
+	return controller.prompt
+}
+
+func (controller *AlertsController) setPrompt(newprompt string) {
+	controller.promptMux.Lock()
+	controller.prompt = newprompt
+	controller.promptMux.Unlock()
+}
+
+func streamResponse(w http.ResponseWriter, v any) {
+	w.Header().Add("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(v); err != nil {
+		log.Printf("error converting response to JSON: %v", err)
 	}
 }
