@@ -10,6 +10,21 @@ var promptChoices = null;
 var promptChoicesSpinner = null;
 var sseErrors = 0;
 
+// https://www.w3schools.com/howto/howto_js_snackbar.asp
+function showMessage(msg) {
+  var x = document.getElementById("snackbar");
+
+  x.innerText = msg;
+
+  // Add the "show" class to DIV
+  x.className = "show";
+
+  // After 3 seconds, remove the show class from DIV
+  setTimeout(function(){
+    x.className = x.className.replace("show", "");
+  }, 3000);
+}
+
 function setNewPromptOnServer(p) {
   fetch('/api/prompt', {
     method: 'POST',
@@ -17,6 +32,12 @@ function setNewPromptOnServer(p) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ prompt: p })
+  })
+  .then(response => {
+    showMessage('setting prompt');
+  })
+  .catch(error => {
+    showMessage(error);
   });
 }
 
@@ -43,6 +64,9 @@ function loadPromptChoices() {
       d.onclick = function() { setNewPromptOnServer(p) };
       promptChoices.appendChild(d);
     })
+  })
+  .catch(error => {
+    showMessage(error);
   })
 }
 function setPrompt(event) {
