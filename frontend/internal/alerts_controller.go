@@ -13,25 +13,31 @@ import (
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
 
-type alertMessage struct {
+// Alert coming from the image-acquirer via MQTT
+type alertMQTT struct {
 	AnnotatedImage string `json:"annotated_image"`
 	RawImage       string `json:"raw_image"`
 	Timestamp      int64  `json:"timestamp"`
 	Prompt         string `json:"prompt"`
 }
 
+// Alert going to the browsers via SSE
+type alertEvent struct {
+	annotatedImage []byte
+	rawImage       []byte
+	timestamp      int64
+	prompt         string
+}
+
 type AlertsController struct {
-	sseCh       chan SSEEvent
-	llmURL      string
-	prompt      string
-	latestAlert struct {
-		annotatedImage []byte
-		rawImage       []byte
-		timestamp      int64
-	}
-	prompts   []string
-	promptMux sync.RWMutex
-	llmCh     chan alertMessage
+	sseCh          chan SSEEvent
+	llmURL         string
+	prompt         string
+	latestAlert    alertEvent
+	latestAlertMux sync.RWMutex
+	prompts        []string
+	promptMux      sync.RWMutex
+	llmCh          chan alertEvent
 }
 
 func NewAlertsController(ch chan SSEEvent, llmURL string) *AlertsController {
@@ -40,7 +46,7 @@ func NewAlertsController(ch chan SSEEvent, llmURL string) *AlertsController {
 		llmURL:  llmURL,
 		prompt:  "Describe this picture",
 		prompts: []string{"Describe this picture", "Is this person a threat?"},
-		llmCh:   make(chan alertMessage, 10),
+		llmCh:   make(chan alertEvent, 10),
 	}
 	return &c
 }
@@ -60,6 +66,9 @@ func (controller *AlertsController) PromptHandler(w http.ResponseWriter, r *http
 			return
 		}
 		controller.setPrompt(in.Prompt)
+		event := controller.getLatestAlert()
+		event.prompt = in.Prompt
+		controller.llmCh <- event
 		w.Write([]byte("OK"))
 		return
 	}
@@ -69,28 +78,34 @@ func (controller *AlertsController) PromptHandler(w http.ResponseWriter, r *http
 
 // AlertsHandler gets invoked when a message is received on the alerts MQTT topic
 func (controller *AlertsController) AlertsHandler(client MQTT.Client, mqttMessage MQTT.Message) {
-	var msg alertMessage
+	var msg alertMQTT
 	if err := json.Unmarshal(mqttMessage.Payload(), &msg); err != nil {
 		log.Printf("error trying to unmarshal alert MQTT message: %v", err)
 		return
 	}
 
-	msg.Prompt = controller.getPrompt()
-	controller.llmCh <- msg
+	event := alertEvent{
+		annotatedImage: []byte(msg.AnnotatedImage),
+		rawImage:       []byte(msg.RawImage),
+		timestamp:      msg.Timestamp,
+		prompt:         controller.getPrompt(),
+	}
+	controller.llmCh <- event
 }
 
 func (controller *AlertsController) broadcastImages() {
+	latestAlert := controller.getLatestAlert()
 	controller.sseCh <- SSEEvent{
 		EventType: "timestamp",
-		Data:      []byte(strconv.FormatInt(controller.latestAlert.timestamp, 10)),
+		Data:      []byte(strconv.FormatInt(latestAlert.timestamp, 10)),
 	}
 	controller.sseCh <- SSEEvent{
 		EventType: "annotated_image",
-		Data:      controller.latestAlert.annotatedImage,
+		Data:      latestAlert.annotatedImage,
 	}
 	controller.sseCh <- SSEEvent{
 		EventType: "raw_image",
-		Data:      controller.latestAlert.rawImage,
+		Data:      latestAlert.rawImage,
 	}
 	controller.sseCh <- SSEEvent{
 		EventType: "llm_request_start",
@@ -100,19 +115,13 @@ func (controller *AlertsController) broadcastImages() {
 
 // Start this in a goroutine - close the llmCh to exit the goroutine
 func (controller *AlertsController) LLMRequester() {
-	for alertMsg := range controller.llmCh {
-		if alertMsg.AnnotatedImage != "" {
-			controller.latestAlert.annotatedImage = []byte(alertMsg.AnnotatedImage)
-		}
-		if alertMsg.RawImage != "" {
-			controller.latestAlert.rawImage = []byte(alertMsg.RawImage)
-		}
-		controller.latestAlert.timestamp = alertMsg.Timestamp
+	for event := range controller.llmCh {
+		controller.setLatestAlert(event)
 		controller.broadcastImages()
 
 		controller.sseCh <- SSEEvent{
 			EventType: "prompt",
-			Data:      []byte(alertMsg.Prompt),
+			Data:      []byte(event.prompt),
 		}
 
 		llmReq := struct {
@@ -121,8 +130,8 @@ func (controller *AlertsController) LLMRequester() {
 			Images []string `json:"images"`
 		}{
 			Model:  "llava",
-			Prompt: alertMsg.Prompt,
-			Images: []string{alertMsg.RawImage},
+			Prompt: event.prompt,
+			Images: []string{string(event.rawImage)},
 		}
 
 		payload, err := json.Marshal(llmReq)
@@ -178,6 +187,26 @@ func (controller *AlertsController) setPrompt(newprompt string) {
 	controller.promptMux.Lock()
 	controller.prompt = newprompt
 	controller.promptMux.Unlock()
+}
+
+func (controller *AlertsController) getLatestAlert() alertEvent {
+	controller.latestAlertMux.RLock()
+	dup := alertEvent{
+		annotatedImage: make([]byte, len(controller.latestAlert.annotatedImage)),
+		rawImage:       make([]byte, len(controller.latestAlert.rawImage)),
+		timestamp:      controller.latestAlert.timestamp,
+		prompt:         controller.latestAlert.prompt,
+	}
+	copy(dup.annotatedImage, controller.latestAlert.annotatedImage)
+	copy(dup.rawImage, controller.latestAlert.rawImage)
+	controller.latestAlertMux.RUnlock()
+	return dup
+}
+
+func (controller *AlertsController) setLatestAlert(newAlert alertEvent) {
+	controller.latestAlertMux.Lock()
+	controller.latestAlert = newAlert
+	controller.latestAlertMux.Unlock()
 }
 
 func streamResponse(w http.ResponseWriter, v any) {
