@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"mosquitto"}]'
+  labels:
+    app: image-acquirer
+  name: image-acquirer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-acquirer
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: image-acquirer
+    spec:
+      containers:
+      - image: ghcr.io/kwkoo/image-acquirer
+        name: image-acquirer
+        env:
+        - name: INTERESTED_CLASSES
+          value: "1,2"
+        - name: MQTT_PORT
+          value: "1883"
+        - name: MQTT_TOPIC
+          value: alerts
+        - name: PORT
+          value: "8080"
+        ports:
+        - name: http
+          containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+        resources: {}
+status: {}

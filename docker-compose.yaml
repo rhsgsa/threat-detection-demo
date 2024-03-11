@@ -2,22 +2,22 @@ version: "3.5"
 
 services:
 
-#  image-acquirer:
-#    container_name: image-acquirer
-#    image: "ghcr.io/kwkoo/image-acquirer"
-#    environment:
-#    - CAMERA=/videos/video.mp4
-#    - INTERESTED_CLASSES=1,2
-#    - MQTT_SERVER=mqtt
-#    - MQTT_PORT=1883
-#    - MQTT_TOPIC=alerts
-#    ports:
-#    - 8080:8080
-#    volumes:
-#    - ../redhat-pins-ai-demo/container/video.mp4:/videos/video.mp4
-#    - ./image-acquirer/app/app.py:/app/app.py
-#    depends_on:
-#    - mqtt
+  image-acquirer:
+    container_name: image-acquirer
+    image: "ghcr.io/kwkoo/image-acquirer"
+    environment:
+    - CAMERA=/videos/video.mp4
+    - INTERESTED_CLASSES=1,2
+    - MQTT_SERVER=mqtt
+    - MQTT_PORT=1883
+    - MQTT_TOPIC=alerts
+    ports:
+    - 8000:8080
+    volumes:
+    - ../redhat-pins-ai-demo/container/video.mp4:/videos/video.mp4
+    - ./image-acquirer/app/app.py:/app/app.py
+    depends_on:
+    - mqtt
 
   mqtt:
     container_name: mqtt
@@ -26,3 +26,39 @@ services:
     - 1883:1883
     volumes:
     - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro,z
+
+  frontend:
+    container_name: frontend
+    image: "ghcr.io/kwkoo/threat-frontend"
+    environment:
+    - MQTTBROKER=tcp://mqtt:1883
+    - PORT=8080
+    #- DOCROOT=/docroot
+    - ALERTSTOPIC=alerts
+    - LLMURL=http://ollama:11434/api/generate
+    ports:
+    - 8080:8080
+    depends_on:
+    - mqtt
+
+  ollama:
+    container_name: ollama
+    image: "ollama/ollama:0.1.28"
+    environment:
+    - OLLAMA_ORIGINS=*
+    ports:
+    - 11434:11434
+
+  imagepull:
+    container_name: imagepull
+    image: "curlimages/curl:7.78.0"
+    command:
+    - sh
+    - "-c"
+    - |
+      until curl ollama:11434 >/dev/null 2>/dev/null; do
+        sleep 5
+      done
+      curl ollama:11434/api/pull -d '{"name":"llava"}'
+    depends_on:
+    - ollama

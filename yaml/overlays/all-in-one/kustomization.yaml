@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../base/frontend
+- ../../base/image-acquirer
+- ../../base/mqtt
+- ../../base/ollama
+
+patches:
+- target: 
+    kind: Deployment
+    name: image-acquirer
+  patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/env/-
+      value: { "name": "CAMERA", "value": "https://github.com/kwkoo/redhat-pins-ai-demo/raw/main/container/video.mp4" }
+    - op: add
+      path: /spec/template/spec/containers/0/env/-
+      value: { "name": "MQTT_SERVER", "value": "mosquitto" }

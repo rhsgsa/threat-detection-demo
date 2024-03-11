@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"StatefulSet","name":"ollama"},{"apiVersion":"apps/v1","kind":"Deployment","name":"mosquitto"}]'
+  labels:
+    app: frontend
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - image: ghcr.io/kwkoo/threat-frontend
+        name: frontend
+        env:
+        - name: MQTTBROKER
+          value: tcp://mosquitto:1883
+        - name: PORT
+          value: "8080"
+        - name: ALERTSTOPIC
+          value: alerts
+        - name: LLMURL
+          value: http://ollama:11434/api/generate
+        ports:
+        - name: http
+          containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+        resources: {}
+status: {}

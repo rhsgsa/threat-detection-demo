@@ -128,19 +128,19 @@ func (controller *AlertsController) LLMRequester() {
 		payload, err := json.Marshal(llmReq)
 		if err != nil {
 			log.Printf("error trying to marshal JSON for LLM request: %v", err)
-			return
+			continue
 		}
 
 		req, err := http.NewRequest(http.MethodPost, controller.llmURL, bytes.NewReader(payload))
 		if err != nil {
 			log.Printf("error creating request to %s: %v", controller.llmURL, err)
-			return
+			continue
 		}
 
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			log.Printf("error making request to %s: %v", controller.llmURL, err)
-			return
+			continue
 		}
 		log.Printf("response status code %d", res.StatusCode)
 

@@ -1,0 +1,16 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app: image-acquirer
+  name: image-acquirer
+spec:
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+  port:
+    targetPort: 8080
+  to:
+    name: image-acquirer
+    weight: null
+status: {}

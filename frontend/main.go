@@ -12,6 +12,7 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	_ "time/tzdata"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/kwkoo/configparser"

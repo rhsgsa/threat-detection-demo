@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mosquitto
+  name: mosquitto
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mosquitto
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: mosquitto
+    spec:
+      containers:
+      - image: docker.io/library/eclipse-mosquitto:2.0.18-openssl
+        name: eclipse-mosquitto
+        ports:
+        - name: mqtt
+          containerPort: 1883
+        - name: websockets
+          containerPort: 9001
+        volumeMounts:
+        - name: config
+          mountPath: "/mosquitto/config"
+          readOnly: true
+        readinessProbe:
+          tcpSocket:
+            port: 1883
+        livenessProbe:
+          tcpSocket:
+            port: 1883
+        resources: {}
+      volumes:
+      - name: config
+        configMap:
+          name: mosquitto
+status: {}

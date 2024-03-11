@@ -24,10 +24,7 @@ WORKDIR /app
 EXPOSE 8080
 COPY --chown=:0 ./app/requirements.txt /app/
 
-RUN \
-  pip3 install -r requirements.txt \
-  && \
-  rm -rf /root/.cache
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY --chown=:0 best.pt /app/
 COPY --chown=:0 ./app/ /app/
