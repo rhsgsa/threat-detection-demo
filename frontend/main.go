@@ -28,6 +28,7 @@ type Config struct {
 	MQTTBroker  string `usage:"MQTT broker URL" default:"tcp://localhost:1883" mandatory:"true"`
 	AlertsTopic string `usage:"MQTT topic for incoming alerts" default:"alerts"`
 	LLMURL      string `usage:"URL for the LLM REST endpoint" default:"http://localhost:11434/api/generate"`
+	Prompts     string `usage:"Path to file containing prompts to use - will use hardcoded prompts if this is not set"`
 }
 
 func main() {
@@ -53,7 +54,7 @@ func main() {
 		close(sseCh)
 	}()
 
-	alertsController := internal.NewAlertsController(sseCh, config.LLMURL)
+	alertsController := internal.NewAlertsController(sseCh, config.LLMURL, config.Prompts)
 	wg.Add(1)
 	go func() {
 		alertsController.LLMRequester()

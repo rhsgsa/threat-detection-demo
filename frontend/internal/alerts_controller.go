@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"sync"
 
@@ -40,15 +41,44 @@ type AlertsController struct {
 	llmCh          chan alertEvent
 }
 
-func NewAlertsController(ch chan SSEEvent, llmURL string) *AlertsController {
+func NewAlertsController(ch chan SSEEvent, llmURL, promptsFile string) *AlertsController {
+	var prompts []string
+	if promptsFile == "" {
+		log.Print("no prompts file provided - will use hardcoded prompts")
+		prompts = []string{"Describe this picture", "Is this person a threat?"}
+	} else {
+		var err error
+		prompts, err = readLinesFromFile(promptsFile)
+		if err != nil {
+			log.Fatalf("could not open prompt file %s: %v", promptsFile, err)
+		}
+		log.Printf("loaded %d prompts from %s", len(prompts), promptsFile)
+	}
+	if len(prompts) == 0 {
+		log.Fatalf("no prompts defined")
+	}
 	c := AlertsController{
 		sseCh:   ch,
 		llmURL:  llmURL,
-		prompt:  "Describe this picture",
-		prompts: []string{"Describe this picture", "Is this person a threat?"},
+		prompt:  prompts[0],
+		prompts: prompts,
 		llmCh:   make(chan alertEvent, 10),
 	}
 	return &c
+}
+
+func readLinesFromFile(filename string) ([]string, error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	var lines []string
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	return lines, nil
 }
 
 func (controller *AlertsController) Shutdown() {
