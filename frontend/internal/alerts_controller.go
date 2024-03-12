@@ -46,6 +46,8 @@ type AlertsController struct {
 	llmCh          chan alertEvent
 }
 
+// Ensure that ch is a buffered channel - if the channel is not buffered,
+// sending events to this channel will fail
 func NewAlertsController(ch chan SSEEvent, llmURL, promptsFile string) *AlertsController {
 	var prompts []string
 	if promptsFile == "" {
@@ -144,6 +146,17 @@ func (controller *AlertsController) AlertsHandler(client MQTT.Client, mqttMessag
 		log.Print(msg)
 	}
 
+}
+
+func (controller *AlertsController) StatusHandler(w http.ResponseWriter, r *http.Request) {
+	status := struct {
+		SSEChannel int `json:"sse_channel"`
+		LLMChannel int `json:"llm_channel"`
+	}{
+		SSEChannel: len(controller.sseCh),
+		LLMChannel: len(controller.llmCh),
+	}
+	json.NewEncoder(w).Encode(&status)
 }
 
 func (controller *AlertsController) broadcastImages() {

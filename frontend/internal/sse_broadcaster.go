@@ -2,6 +2,7 @@ package internal
 
 import (
 	"bytes"
+	"encoding/json"
 	"log"
 	"net/http"
 	"sync"
@@ -18,14 +19,14 @@ type SSEEvent struct {
 
 type SSEBroadcaster struct {
 	clientMux    sync.RWMutex
-	clients      map[chan []byte]struct{}
+	clients      map[chan []byte]string
 	wg           sync.WaitGroup
 	shuttingDown bool // Set to true when shutting down, so we can't add any new clients
 }
 
 func NewSSEBroadcaster() *SSEBroadcaster {
 	s := SSEBroadcaster{
-		clients:      make(map[chan []byte]struct{}),
+		clients:      make(map[chan []byte]string),
 		shuttingDown: false,
 	}
 	return &s
@@ -86,7 +87,7 @@ func (b *SSEBroadcaster) HTTPHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	log.Print("registering new SSE client...")
-	ch := b.registerClient()
+	ch := b.registerClient(r.RemoteAddr)
 	if ch == nil {
 		http.Error(w, "shutting down, unable to add new clients", http.StatusInternalServerError)
 		return
@@ -123,14 +124,29 @@ func (b *SSEBroadcaster) HTTPHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (b *SSEBroadcaster) StatusHandler(w http.ResponseWriter, r *http.Request) {
+	clientChannels := make(map[string]int)
+	b.clientMux.RLock()
+	for ch, address := range b.clients {
+		clientChannels[address] = len(ch)
+	}
+	b.clientMux.RUnlock()
+	status := struct {
+		ClientChannels map[string]int `json:"client_channels"`
+	}{
+		ClientChannels: clientChannels,
+	}
+	json.NewEncoder(w).Encode(&status)
+}
+
 // The returned channel expects a formatted SSE event message
-func (b *SSEBroadcaster) registerClient() chan []byte {
+func (b *SSEBroadcaster) registerClient(clientAddress string) chan []byte {
 	if b.shuttingDown {
 		return nil
 	}
 	b.clientMux.Lock()
 	ch := make(chan []byte, clientChannelSize)
-	b.clients[ch] = struct{}{}
+	b.clients[ch] = clientAddress
 	b.clientMux.Unlock()
 
 	return ch

@@ -45,6 +45,7 @@ func main() {
 	http.HandleFunc("/healthz", healthHandler)
 
 	sse := initializeSSEBroadcaster("/api/sse")
+	http.HandleFunc("/api/ssestatus", sse.StatusHandler)
 	sseCh := make(chan internal.SSEEvent, sseChannelSize)
 	wg.Add(1)
 	go func() {
@@ -57,6 +58,8 @@ func main() {
 	}()
 
 	alertsController := internal.NewAlertsController(sseCh, config.LLMURL, config.Prompts)
+	http.HandleFunc("/api/prompt", alertsController.PromptHandler)
+	http.HandleFunc("/api/alertsstatus", alertsController.StatusHandler)
 	wg.Add(1)
 	go func() {
 		alertsController.LLMChannelProcessor(shutdownCtx)
@@ -97,7 +100,6 @@ func initializeMQTTClient(config Config, controller *internal.AlertsController) 
 	opts.AddBroker(config.MQTTBroker)
 	opts.SetAutoReconnect(true)
 	opts.OnConnect = func(mqttClient MQTT.Client) {
-		http.HandleFunc("/api/prompt", controller.PromptHandler)
 		if token := mqttClient.Subscribe(config.AlertsTopic, 1, controller.AlertsHandler); token.Wait() && token.Error() != nil {
 			log.Fatalf("could not subscribe to %s: %v", config.AlertsTopic, token.Error())
 		}
