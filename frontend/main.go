@@ -59,12 +59,8 @@ func main() {
 	wg.Add(1)
 	go func() {
 		alertsController.LLMChannelProcessor(shutdownCtx)
-		wg.Done()
-	}()
-	go func() {
-		<-shutdownCtx.Done()
-		alertsController.Shutdown()
 		close(sseCh)
+		wg.Done()
 	}()
 
 	mqttClient := initializeMQTTClient(config, alertsController)

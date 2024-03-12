@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -44,9 +45,6 @@ type AlertsController struct {
 	prompts        []string
 	promptMux      sync.RWMutex
 	llmCh          chan alertEvent
-	llmCtx         context.Context
-	llmCancel      context.CancelFunc
-	llmWG          sync.WaitGroup
 }
 
 // Ensure that ch is a buffered channel - if the channel is not buffered,
@@ -67,15 +65,12 @@ func NewAlertsController(ch chan SSEEvent, llmURL, promptsFile string) *AlertsCo
 	if len(prompts) == 0 {
 		log.Fatalf("no prompts defined")
 	}
-	llmCtx, cancel := context.WithCancel(context.Background())
 	c := AlertsController{
-		sseCh:     ch,
-		llmURL:    llmURL,
-		prompt:    prompts[0],
-		prompts:   prompts,
-		llmCh:     make(chan alertEvent, llmChannelSize),
-		llmCtx:    llmCtx,
-		llmCancel: cancel,
+		sseCh:   ch,
+		llmURL:  llmURL,
+		prompt:  prompts[0],
+		prompts: prompts,
+		llmCh:   make(chan alertEvent, llmChannelSize),
 	}
 	return &c
 }
@@ -92,12 +87,6 @@ func readLinesFromFile(filename string) ([]string, error) {
 		lines = append(lines, scanner.Text())
 	}
 	return lines, nil
-}
-
-func (controller *AlertsController) Shutdown() {
-	controller.llmCancel()
-	controller.llmWG.Wait()
-	close(controller.llmCh)
 }
 
 // PromptHandler gets invoked when a REST call is made to list the available prompts or to set the prompt
@@ -187,13 +176,11 @@ func (controller *AlertsController) broadcastImages() {
 	}
 }
 
-// Start this in a goroutine - call Shutdown() to exit the goroutine
+// Start this in a goroutine - cancel the Context to terminate the goroutine
 func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
-	controller.llmWG.Add(1)
-	defer controller.llmWG.Done()
 	for {
 		select {
-		case <-controller.llmCtx.Done():
+		case <-ctx.Done():
 			return
 		case event, ok := <-controller.llmCh:
 			if !ok {
@@ -203,16 +190,10 @@ func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 			controller.setLatestAlert(event)
 			controller.broadcastImages()
 
-			select {
-			case controller.sseCh <- SSEEvent{
+			controller.sendToSSECh(SSEEvent{
 				EventType: "prompt",
 				Data:      []byte(event.prompt),
-			}:
-				// sent successfully
-			default:
-				log.Print("could not send prompt to SSE channel")
-				continue
-			}
+			})
 
 			llmReq := struct {
 				Model  string   `json:"model"`
@@ -277,12 +258,14 @@ func (controller *AlertsController) llmRequest(ctx context.Context, payload []by
 	})
 }
 
-func (controller *AlertsController) sendToSSECh(event SSEEvent) {
+func (controller *AlertsController) sendToSSECh(event SSEEvent) error {
 	select {
 	case controller.sseCh <- event:
-		return
+		return nil
 	default:
-		log.Print("SSE channel is full")
+		msg := fmt.Sprintf("SSE channel is full - could not send %s", event.EventType)
+		log.Print(msg)
+		return errors.New(msg)
 	}
 }
 
