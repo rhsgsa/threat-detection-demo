@@ -3,6 +3,7 @@ package internal
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -10,9 +11,13 @@ import (
 	"os"
 	"strconv"
 	"sync"
+	"time"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
+
+const llmRequestTimeoutSeconds = 30
+const llmChannelSize = 20
 
 // Alert coming from the image-acquirer via MQTT
 type alertMQTT struct {
@@ -45,7 +50,7 @@ func NewAlertsController(ch chan SSEEvent, llmURL, promptsFile string) *AlertsCo
 	var prompts []string
 	if promptsFile == "" {
 		log.Print("no prompts file provided - will use hardcoded prompts")
-		prompts = []string{"Describe this picture", "Is this person a threat?"}
+		prompts = []string{"Please describe this image", "Is this person a threat?"}
 	} else {
 		var err error
 		prompts, err = readLinesFromFile(promptsFile)
@@ -62,7 +67,7 @@ func NewAlertsController(ch chan SSEEvent, llmURL, promptsFile string) *AlertsCo
 		llmURL:  llmURL,
 		prompt:  prompts[0],
 		prompts: prompts,
-		llmCh:   make(chan alertEvent, 10),
+		llmCh:   make(chan alertEvent, llmChannelSize),
 	}
 	return &c
 }
@@ -87,23 +92,31 @@ func (controller *AlertsController) Shutdown() {
 
 // PromptHandler gets invoked when a REST call is made to list the available prompts or to set the prompt
 func (controller *AlertsController) PromptHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost || r.Method == http.MethodPut {
-		in := struct {
-			Prompt string `json:"prompt"`
-		}{}
-		if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-			http.Error(w, fmt.Sprintf("error decoding HTTP request body for prompt endpoint: %v", err), http.StatusInternalServerError)
-			return
-		}
-		controller.setPrompt(in.Prompt)
-		event := controller.getLatestAlert()
-		event.prompt = in.Prompt
-		controller.llmCh <- event
-		w.Write([]byte("OK"))
+	// get prompts
+	if r.Method != http.MethodPost && r.Method != http.MethodPut {
+		streamResponse(w, controller.prompts)
 		return
 	}
 
-	streamResponse(w, controller.prompts)
+	// set prompts
+	in := struct {
+		Prompt string `json:"prompt"`
+	}{}
+	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+		http.Error(w, fmt.Sprintf("error decoding HTTP request body for prompt endpoint: %v", err), http.StatusInternalServerError)
+		return
+	}
+	controller.setPrompt(in.Prompt)
+	event := controller.getLatestAlert()
+	event.prompt = in.Prompt
+	select {
+	case controller.llmCh <- event:
+		w.Write([]byte("OK"))
+	default:
+		msg := "LLM channel is full"
+		log.Print(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
+	}
 }
 
 // AlertsHandler gets invoked when a message is received on the alerts MQTT topic
@@ -114,13 +127,23 @@ func (controller *AlertsController) AlertsHandler(client MQTT.Client, mqttMessag
 		return
 	}
 
+	log.Print("received alert MQTT message")
+
 	event := alertEvent{
 		annotatedImage: []byte(msg.AnnotatedImage),
 		rawImage:       []byte(msg.RawImage),
 		timestamp:      msg.Timestamp,
 		prompt:         controller.getPrompt(),
 	}
-	controller.llmCh <- event
+
+	select {
+	case controller.llmCh <- event:
+		log.Print("added alertEvent to LLM channel")
+	default:
+		msg := "LLM channel is full"
+		log.Print(msg)
+	}
+
 }
 
 func (controller *AlertsController) broadcastImages() {
@@ -144,7 +167,7 @@ func (controller *AlertsController) broadcastImages() {
 }
 
 // Start this in a goroutine - close the llmCh to exit the goroutine
-func (controller *AlertsController) LLMRequester() {
+func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 	for event := range controller.llmCh {
 		controller.setLatestAlert(event)
 		controller.broadcastImages()
@@ -169,41 +192,59 @@ func (controller *AlertsController) LLMRequester() {
 			log.Printf("error trying to marshal JSON for LLM request: %v", err)
 			continue
 		}
+		controller.llmRequest(ctx, payload)
+	}
+}
 
-		req, err := http.NewRequest(http.MethodPost, controller.llmURL, bytes.NewReader(payload))
-		if err != nil {
-			log.Printf("error creating request to %s: %v", controller.llmURL, err)
-			continue
-		}
+func (controller *AlertsController) llmRequest(ctx context.Context, payload []byte) {
+	ctx, cancel := context.WithTimeout(ctx, llmRequestTimeoutSeconds*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, controller.llmURL, bytes.NewReader(payload))
+	if err != nil {
+		log.Printf("error creating request to %s: %v", controller.llmURL, err)
+		return
+	}
 
-		res, err := http.DefaultClient.Do(req)
-		if err != nil {
-			log.Printf("error making request to %s: %v", controller.llmURL, err)
-			continue
-		}
-		log.Printf("response status code %d", res.StatusCode)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Printf("error making request to %s: %v", controller.llmURL, err)
+		return
+	}
+	log.Printf("LLM response status code %d", res.StatusCode)
+	if res.StatusCode != 200 {
+		log.Print("skipping processing of LLM response")
+		return
+	}
+	defer res.Body.Close()
 
-		scanner := bufio.NewScanner(res.Body)
-		scanner.Split(bufio.ScanLines)
-		waitForFirstLine := true
-		for scanner.Scan() {
-			if waitForFirstLine {
-				controller.sseCh <- SSEEvent{
-					EventType: "llm_response_start",
-					Data:      nil,
-				}
-				waitForFirstLine = false
-			}
-			controller.sseCh <- SSEEvent{
-				EventType: "llm_response",
-				Data:      []byte(scanner.Text()),
-			}
+	scanner := bufio.NewScanner(res.Body)
+	scanner.Split(bufio.ScanLines)
+	waitForFirstLine := true
+	for scanner.Scan() {
+		if waitForFirstLine {
+			controller.sendToSSECh(SSEEvent{
+				EventType: "llm_response_start",
+				Data:      nil,
+			})
+			waitForFirstLine = false
 		}
-		res.Body.Close()
-		controller.sseCh <- SSEEvent{
-			EventType: "llm_response_stop",
-			Data:      nil,
-		}
+		controller.sendToSSECh(SSEEvent{
+			EventType: "llm_response",
+			Data:      []byte(scanner.Text()),
+		})
+	}
+	controller.sendToSSECh(SSEEvent{
+		EventType: "llm_response_stop",
+		Data:      nil,
+	})
+}
+
+func (controller *AlertsController) sendToSSECh(event SSEEvent) {
+	select {
+	case controller.sseCh <- event:
+		return
+	default:
+		log.Print("SSE channel is full")
 	}
 }
 

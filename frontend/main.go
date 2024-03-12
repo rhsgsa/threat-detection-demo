@@ -19,6 +19,8 @@ import (
 	"github.com/kwkoo/threat-detection-frontend/internal"
 )
 
+const sseChannelSize = 50
+
 //go:embed docroot/*
 var content embed.FS
 
@@ -43,7 +45,7 @@ func main() {
 	http.HandleFunc("/healthz", healthHandler)
 
 	sse := initializeSSEBroadcaster("/api/sse")
-	sseCh := make(chan internal.SSEEvent)
+	sseCh := make(chan internal.SSEEvent, sseChannelSize)
 	wg.Add(1)
 	go func() {
 		sse.Listen(sseCh)
@@ -57,7 +59,7 @@ func main() {
 	alertsController := internal.NewAlertsController(sseCh, config.LLMURL, config.Prompts)
 	wg.Add(1)
 	go func() {
-		alertsController.LLMRequester()
+		alertsController.LLMChannelProcessor(shutdownCtx)
 		wg.Done()
 	}()
 	go func() {
@@ -139,7 +141,8 @@ func initializeSSEBroadcaster(uri string) *internal.SSEBroadcaster {
 
 func initWebServer(shutdownCtx context.Context, port int) *http.Server {
 	server := http.Server{
-		Addr: fmt.Sprintf(":%d", port),
+		Addr:        fmt.Sprintf(":%d", port),
+		ReadTimeout: 5 * time.Second,
 	}
 
 	go func(shutdownCtx context.Context) {

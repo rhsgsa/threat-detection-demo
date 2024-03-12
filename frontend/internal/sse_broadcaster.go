@@ -8,7 +8,8 @@ import (
 	"time"
 )
 
-const pingIntervalSeconds = 30
+const pingIntervalSeconds = 15
+const clientChannelSize = 50
 
 type SSEEvent struct {
 	EventType string
@@ -38,14 +39,20 @@ func (b *SSEBroadcaster) Listen(in chan SSEEvent) {
 		buf.WriteString("event: ")
 		buf.WriteString(event.EventType)
 		buf.WriteString("\ndata: ")
-		if event.Data != nil {
+		if event.Data != nil && len(event.Data) > 0 {
 			buf.Write(event.Data)
 		}
 		buf.WriteString("\n\n")
 		formattedMsg := buf.Bytes()
 		b.clientMux.RLock()
 		for clientCh := range b.clients {
-			clientCh <- formattedMsg
+			select {
+			case clientCh <- formattedMsg:
+				// sent successfully
+				continue
+			default:
+				log.Printf("SSE client channel %v full", clientCh)
+			}
 		}
 		b.clientMux.RUnlock()
 	}
@@ -53,12 +60,11 @@ func (b *SSEBroadcaster) Listen(in chan SSEEvent) {
 	log.Print("starting SSEBroadcaster.Listen() graceful shutdown...")
 	b.clientMux.Lock()
 	b.shuttingDown = true
-	b.clientMux.Unlock()
-	b.clientMux.RLock()
 	for clientCh := range b.clients {
 		close(clientCh)
+		delete(b.clients, clientCh)
 	}
-	b.clientMux.RUnlock()
+	b.clientMux.Unlock()
 	log.Print("waiting for all SSE clients to terminate...")
 	b.wg.Wait()
 	log.Print("SSEBroadcaster.Listen() graceful shutdown complete")
@@ -91,13 +97,18 @@ func (b *SSEBroadcaster) HTTPHandler(w http.ResponseWriter, r *http.Request) {
 		b.deregisterClient(ch)
 		log.Print("SSE client connection shutdown")
 	}()
+	log.Print("SSE HTTP handler loop")
 	for {
 		select {
 		case <-r.Context().Done():
 			log.Print("SSE client connection terminated")
 			return
 		case <-pingTicker.C:
-			w.Write([]byte("event: ping\n\n"))
+			if _, err := w.Write([]byte("event: ping\n\n")); err != nil {
+				log.Printf("error writing to SSE client: %v", err)
+				return
+			}
+			flusher.Flush()
 		case msg, ok := <-ch:
 			if !ok {
 				log.Print("SSE client channel closed")
@@ -105,7 +116,7 @@ func (b *SSEBroadcaster) HTTPHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			if _, err := w.Write(msg); err != nil {
 				log.Printf("error writing to SSE client: %v", err)
-				continue
+				return
 			}
 			flusher.Flush()
 		}
@@ -118,7 +129,7 @@ func (b *SSEBroadcaster) registerClient() chan []byte {
 		return nil
 	}
 	b.clientMux.Lock()
-	ch := make(chan []byte)
+	ch := make(chan []byte, clientChannelSize)
 	b.clients[ch] = struct{}{}
 	b.clientMux.Unlock()
 

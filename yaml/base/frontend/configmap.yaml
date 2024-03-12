@@ -1,7 +1,7 @@
 apiVersion: v1
 data:
   prompts.txt: |
-    Describe this picture
+    Please describe this picture
     Is this person a threat?
     Identify the weapon in the picture
     Is this situation dangerous?
