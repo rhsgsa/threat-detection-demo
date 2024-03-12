@@ -52,10 +52,6 @@ func main() {
 		sse.Listen(sseCh)
 		wg.Done()
 	}()
-	go func() {
-		<-shutdownCtx.Done()
-		close(sseCh)
-	}()
 
 	alertsController := internal.NewAlertsController(sseCh, config.LLMURL, config.Prompts)
 	http.HandleFunc("/api/prompt", alertsController.PromptHandler)
@@ -68,6 +64,7 @@ func main() {
 	go func() {
 		<-shutdownCtx.Done()
 		alertsController.Shutdown()
+		close(sseCh)
 	}()
 
 	mqttClient := initializeMQTTClient(config, alertsController)

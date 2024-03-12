@@ -44,6 +44,9 @@ type AlertsController struct {
 	prompts        []string
 	promptMux      sync.RWMutex
 	llmCh          chan alertEvent
+	llmCtx         context.Context
+	llmCancel      context.CancelFunc
+	llmWG          sync.WaitGroup
 }
 
 // Ensure that ch is a buffered channel - if the channel is not buffered,
@@ -64,12 +67,15 @@ func NewAlertsController(ch chan SSEEvent, llmURL, promptsFile string) *AlertsCo
 	if len(prompts) == 0 {
 		log.Fatalf("no prompts defined")
 	}
+	llmCtx, cancel := context.WithCancel(context.Background())
 	c := AlertsController{
-		sseCh:   ch,
-		llmURL:  llmURL,
-		prompt:  prompts[0],
-		prompts: prompts,
-		llmCh:   make(chan alertEvent, llmChannelSize),
+		sseCh:     ch,
+		llmURL:    llmURL,
+		prompt:    prompts[0],
+		prompts:   prompts,
+		llmCh:     make(chan alertEvent, llmChannelSize),
+		llmCtx:    llmCtx,
+		llmCancel: cancel,
 	}
 	return &c
 }
@@ -89,6 +95,8 @@ func readLinesFromFile(filename string) ([]string, error) {
 }
 
 func (controller *AlertsController) Shutdown() {
+	controller.llmCancel()
+	controller.llmWG.Wait()
 	close(controller.llmCh)
 }
 
@@ -179,33 +187,50 @@ func (controller *AlertsController) broadcastImages() {
 	}
 }
 
-// Start this in a goroutine - close the llmCh to exit the goroutine
+// Start this in a goroutine - call Shutdown() to exit the goroutine
 func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
-	for event := range controller.llmCh {
-		controller.setLatestAlert(event)
-		controller.broadcastImages()
+	controller.llmWG.Add(1)
+	defer controller.llmWG.Done()
+	for {
+		select {
+		case <-controller.llmCtx.Done():
+			return
+		case event, ok := <-controller.llmCh:
+			if !ok {
+				log.Print("LLM channel processor could not read from LLM channel")
+				return
+			}
+			controller.setLatestAlert(event)
+			controller.broadcastImages()
 
-		controller.sseCh <- SSEEvent{
-			EventType: "prompt",
-			Data:      []byte(event.prompt),
-		}
+			select {
+			case controller.sseCh <- SSEEvent{
+				EventType: "prompt",
+				Data:      []byte(event.prompt),
+			}:
+				// sent successfully
+			default:
+				log.Print("could not send prompt to SSE channel")
+				continue
+			}
 
-		llmReq := struct {
-			Model  string   `json:"model"`
-			Prompt string   `json:"prompt"`
-			Images []string `json:"images"`
-		}{
-			Model:  "llava",
-			Prompt: event.prompt,
-			Images: []string{string(event.rawImage)},
-		}
+			llmReq := struct {
+				Model  string   `json:"model"`
+				Prompt string   `json:"prompt"`
+				Images []string `json:"images"`
+			}{
+				Model:  "llava",
+				Prompt: event.prompt,
+				Images: []string{string(event.rawImage)},
+			}
 
-		payload, err := json.Marshal(llmReq)
-		if err != nil {
-			log.Printf("error trying to marshal JSON for LLM request: %v", err)
-			continue
+			payload, err := json.Marshal(llmReq)
+			if err != nil {
+				log.Printf("error trying to marshal JSON for LLM request: %v", err)
+				continue
+			}
+			controller.llmRequest(ctx, payload)
 		}
-		controller.llmRequest(ctx, payload)
 	}
 }
 

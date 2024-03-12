@@ -52,7 +52,7 @@ func (b *SSEBroadcaster) Listen(in chan SSEEvent) {
 				// sent successfully
 				continue
 			default:
-				log.Printf("SSE client channel %v full", clientCh)
+				log.Printf("SSE client channel %s full", b.clients[clientCh])
 			}
 		}
 		b.clientMux.RUnlock()
@@ -81,6 +81,9 @@ func (b *SSEBroadcaster) HTTPHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Used to set write timeouts
+	rc := http.NewResponseController(w)
+
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
@@ -102,26 +105,35 @@ func (b *SSEBroadcaster) HTTPHandler(w http.ResponseWriter, r *http.Request) {
 	for {
 		select {
 		case <-r.Context().Done():
-			log.Print("SSE client connection terminated")
+			log.Printf("SSE client connection %s terminated", r.RemoteAddr)
 			return
 		case <-pingTicker.C:
-			if _, err := w.Write([]byte("event: ping\n\n")); err != nil {
-				log.Printf("error writing to SSE client: %v", err)
+			if err := writeWithTimeout(rc, w, []byte("event: ping\n\n")); err != nil {
+				log.Printf("error writing to SSE client %s: %v", r.RemoteAddr, err)
 				return
 			}
 			flusher.Flush()
 		case msg, ok := <-ch:
 			if !ok {
-				log.Print("SSE client channel closed")
+				log.Printf("SSE client channel %s closed", r.RemoteAddr)
 				return
 			}
-			if _, err := w.Write(msg); err != nil {
-				log.Printf("error writing to SSE client: %v", err)
+			if err := writeWithTimeout(rc, w, msg); err != nil {
+				log.Printf("error writing to SSE client %s: %v", r.RemoteAddr, err)
 				return
 			}
 			flusher.Flush()
 		}
 	}
+}
+
+func writeWithTimeout(rc *http.ResponseController, w http.ResponseWriter, data []byte) error {
+	err := rc.SetWriteDeadline(time.Now().Add(5 * time.Second))
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(data)
+	return err
 }
 
 func (b *SSEBroadcaster) StatusHandler(w http.ResponseWriter, r *http.Request) {
