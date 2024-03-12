@@ -1,11 +1,13 @@
-FROM docker.io/golang:1.22.1 AS builder
+FROM --platform=$BUILDPLATFORM docker.io/golang:1.22.1 AS builder
+
+ARG TARGETARCH
 
 COPY . /app/
 
 RUN \
   cd /app/ \
   && \
-  CGO_ENABLED=0 go build -a -installsuffix cgo -o ./threat-frontend .
+  GOOS=linux GOARCH=$TARGETARCH CGO_ENABLED=0 go build -a -installsuffix cgo -o ./threat-frontend .
 
 FROM scratch
 
