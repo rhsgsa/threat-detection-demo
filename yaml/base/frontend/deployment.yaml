@@ -29,9 +29,15 @@ spec:
           value: alerts
         - name: LLMURL
           value: http://ollama:11434/api/generate
+        - name: PROMPTS
+          value: "/frontend/config/prompts.txt"
         ports:
         - name: http
           containerPort: 8080
+        volumeMounts:
+        - name: config
+          mountPath: "/frontend/config"
+          readOnly: true
         livenessProbe:
           httpGet:
             path: /
@@ -41,4 +47,8 @@ spec:
             path: /
             port: http
         resources: {}
+      volumes:
+      - name: config
+        configMap:
+          name: frontend-config
 status: {}

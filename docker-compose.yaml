@@ -51,7 +51,7 @@ services:
 
   imagepull:
     container_name: imagepull
-    image: "curlimages/curl:7.78.0"
+    image: "docker.io/curlimages/curl:7.78.0"
     command:
     - sh
     - "-c"
