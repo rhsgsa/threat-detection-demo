@@ -50,6 +50,10 @@ type AlertsController struct {
 // Ensure that ch is a buffered channel - if the channel is not buffered,
 // sending events to this channel will fail
 func NewAlertsController(ch chan SSEEvent, llmURL, promptsFile string) *AlertsController {
+	if cap(ch) < 1 {
+		log.Fatal("SSEEvent channel cannot be unbuffered")
+	}
+
 	var prompts []string
 	if promptsFile == "" {
 		log.Print("no prompts file provided - will use hardcoded prompts")
