@@ -48,6 +48,26 @@ sequenceDiagram
 		echo "http://$frontend"
 
 
+## Running all components with `docker compose`
+
+To run all components on your local computer with `docker compose`
+
+	cd yaml/docker-compose
+
+	docker compose up
+
+
+## Frontend with mocks
+
+If you wish to make changes to the static content for the frontend, you can run the frontend with a mock `image-acquirer` and a mock `ollama`
+
+	cd yaml/docker-compose
+
+	docker compose -f frontend-with-mocks.yaml up
+
+Any changes you make to the files in `frontend/docroot/` should be reflected immediately.
+
+
 ## Resources
 
 *   [Paho Python Docs](https://eclipse.dev/paho/files/paho.mqtt.python/html/)

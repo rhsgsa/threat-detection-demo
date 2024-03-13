@@ -2,6 +2,7 @@ PROJ=demo
 IMAGE_ACQUIRER=ghcr.io/kwkoo/image-acquirer
 IMAGE_ACQUIRER_BASE_IMAGE=nvcr.io/nvidia/cuda:12.3.1-devel-ubi9
 FRONTEND_IMAGE=ghcr.io/kwkoo/threat-frontend
+MOCK_OLLAMA_IMAGE=ghcr.io/kwkoo/mock-ollama
 BUILDERNAME=multiarch-builder
 
 BASE:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
@@ -46,4 +47,17 @@ image-frontend:
 	  -t $(FRONTEND_IMAGE) \
 	  $(BASE)/frontend
 	#docker build --rm -t $(FRONTEND_IMAGE) $(BASE)/frontend
+
+image-mock-ollama:
+	-mkdir -p $(BASE)/docker-cache
+	docker buildx use $(BUILDERNAME) || docker buildx create --name $(BUILDERNAME) --use
+	docker buildx build \
+	  --push \
+	  --platform=linux/amd64,linux/arm64 \
+	  --cache-to type=local,dest=$(BASE)/docker-cache,mode=max \
+	  --cache-from type=local,src=$(BASE)/docker-cache \
+	  --rm \
+	  -t $(MOCK_OLLAMA_IMAGE) \
+	  $(BASE)/mock-ollama
+	#docker build --rm -t $(MOCK_OLLAMA_IMAGE) $(BASE)/mock-ollama
 

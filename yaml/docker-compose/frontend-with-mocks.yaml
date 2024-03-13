@@ -1,0 +1,55 @@
+version: "3.5"
+
+services:
+
+  mock-image-acquirer:
+    container_name: mock-image-acquirer
+    image: "docker.io/library/eclipse-mosquitto:2.0.18-openssl"
+    entrypoint:
+    - sh
+    - "-c"
+    - |
+      while true; do
+        while read -r line; do
+          echo "$$line"
+          sleep 15
+        done < /mocks/mqtt.txt
+      done | mosquitto_pub -h mqtt -t alerts -l
+    volumes:
+    - ../../mocks/mqtt.txt:/mocks/mqtt.txt:ro,z
+    depends_on:
+    - mqtt
+
+  mqtt:
+    container_name: mqtt
+    image: "docker.io/library/eclipse-mosquitto:2.0.18-openssl"
+    ports:
+    - 1883:1883
+    volumes:
+    - ../../mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro,z
+
+  frontend:
+    container_name: frontend
+    image: "ghcr.io/kwkoo/threat-frontend"
+    environment:
+    - MQTTBROKER=tcp://mqtt:1883
+    - PORT=8080
+    - DOCROOT=/docroot
+    - ALERTSTOPIC=alerts
+    - LLMURL=http://mock-ollama:11434/api/generate
+    ports:
+    - 8080:8080
+    volumes:
+    - ../../frontend/docroot:/docroot:ro,z
+    depends_on:
+    - mqtt
+
+  mock-ollama:
+    container_name: mock-ollama
+    image: "ghcr.io/kwkoo/mock-ollama"
+    environment:
+    - PORT=11434
+    - SOURCE=/mocks/ollama.txt
+    - LINESLEEPMSECS=100
+    volumes:
+    - ../../mocks/ollama.txt:/mocks/ollama.txt:ro,z

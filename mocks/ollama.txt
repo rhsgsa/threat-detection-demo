@@ -1,0 +1,112 @@
+{"model":"llava","created_at":"2024-03-13T15:22:00.67370335Z","response":" The","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:01.056744826Z","response":" image","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:01.442494764Z","response":" you","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:01.824980663Z","response":"'","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:02.206592312Z","response":"ve","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:02.589893113Z","response":" provided","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:02.970467474Z","response":" appears","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:03.353539365Z","response":" to","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:03.735568769Z","response":" be","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:04.118722553Z","response":" a","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:04.501275254Z","response":" photograph","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:04.882130808Z","response":" of","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:05.265158209Z","response":" a","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:05.649379782Z","response":" person","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:06.030209866Z","response":" standing","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:06.414178993Z","response":" out","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:06.79665077Z","response":"doors","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:07.185573821Z","response":" during","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:07.567786296Z","response":" the","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:07.951023006Z","response":" day","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:08.337355427Z","response":".","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:08.720375331Z","response":" The","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:09.110656738Z","response":" person","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:09.496099799Z","response":" is","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:09.883251824Z","response":" wearing","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:10.264738094Z","response":" casual","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:10.645491372Z","response":" clothing","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:11.030731482Z","response":" and","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:11.414364508Z","response":" seems","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:11.799702593Z","response":" to","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:12.180824012Z","response":" be","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:12.561355026Z","response":" facing","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:12.943885149Z","response":" away","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:13.338517436Z","response":" from","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:13.724813688Z","response":" the","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:14.107363406Z","response":" camera","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:14.487719082Z","response":",","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:14.866799148Z","response":" towards","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:15.247573262Z","response":" something","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:15.629973762Z","response":" out","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:16.011164912Z","response":" of","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:16.394160181Z","response":" frame","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:16.776077278Z","response":".","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:17.157145705Z","response":" It","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:17.539033219Z","response":"'","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:17.925634467Z","response":"s","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:18.316412094Z","response":" not","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:18.697179496Z","response":" possible","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:19.079830777Z","response":" to","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:19.461465508Z","response":" provide","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:19.842697698Z","response":" more","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:20.231257737Z","response":" specific","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:20.614373297Z","response":" details","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:20.997167661Z","response":" about","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:21.381321483Z","response":" the","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:21.762262345Z","response":" person","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:22.143893888Z","response":" or","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:22.534755792Z","response":" their","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:22.915498122Z","response":" surroundings","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:23.298819695Z","response":" without","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:23.681744639Z","response":" additional","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:24.068766623Z","response":" context","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:24.450975155Z","response":" or","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:24.843334131Z","response":" information","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:25.227243228Z","response":".","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:25.611232832Z","response":" ","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:25.995283221Z","response":"","done":true,"context":[733,16289,28793,5919,6685,456,5754,733,28748,16289,28793,415,3469,368,28742,333,3857,8045,298,347,264,9180,302,264,1338,6328,575,25261,1938,272,1370,28723,415,1338,349,8192,13316,13278,304,3969,298,347,11981,1753,477,272,7555,28725,5083,1545,575,302,4108,28723,661,28742,28713,459,2572,298,3084,680,2948,4162,684,272,1338,442,652,28220,1671,4870,2758,442,1871,28723,28705],"total_duration":25711535755,"load_duration":2416399,"prompt_eval_count":1,"prompt_eval_duration":384790000,"eval_count":67,"eval_duration":25321349000}
+{"model":"llava","created_at":"2024-03-13T15:22:26.387467452Z","response":" The","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:26.771062375Z","response":" image","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:27.152117031Z","response":" shows","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:27.531441209Z","response":" a","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:27.917656786Z","response":" person","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:28.29878564Z","response":"'","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:28.68015268Z","response":"s","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:29.060045798Z","response":" hand","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:29.440078837Z","response":" holding","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:29.819473244Z","response":" what","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:30.200873137Z","response":" appears","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:30.581284897Z","response":" to","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:30.961459056Z","response":" be","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:31.341609592Z","response":" a","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:31.7338992Z","response":" small","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:32.113473352Z","response":",","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:32.493685841Z","response":" round","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:32.878160094Z","response":" object","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:33.258097289Z","response":" with","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:33.641124149Z","response":" a","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:34.021626142Z","response":" pattern","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:34.40179649Z","response":"ed","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:34.782602212Z","response":" surface","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:35.162922721Z","response":".","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:35.543592022Z","response":" It","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:35.928090994Z","response":" is","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:36.314180906Z","response":" not","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:36.702863246Z","response":" possible","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:37.091196128Z","response":" to","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:37.476924825Z","response":" disc","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:37.874287709Z","response":"ern","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:38.257586314Z","response":" the","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:38.63996942Z","response":" specific","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:39.022248073Z","response":" details","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:39.404868347Z","response":" or","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:39.786978202Z","response":" context","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:40.168918541Z","response":" of","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:40.552448444Z","response":" the","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:40.935156909Z","response":" image","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:41.324191879Z","response":" without","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:41.711363751Z","response":" additional","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:42.099171194Z","response":" information","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:42.480787174Z","response":".","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:42.862220696Z","response":" ","done":false}
+{"model":"llava","created_at":"2024-03-13T15:22:43.244363154Z","response":"","done":true,"context":[733,16289,28793,5919,6685,456,5754,733,28748,16289,28793,415,3469,4370,264,1338,28742,28713,1021,6632,767,8045,298,347,264,1741,28725,3713,1928,395,264,5340,286,5439,28723,661,349,459,2572,298,2312,1173,272,2948,4162,442,2758,302,272,3469,1671,4870,1871,28723,28705],"total_duration":17246366165,"load_duration":2624243,"prompt_eval_count":1,"prompt_eval_duration":384571000,"eval_count":45,"eval_duration":16856571000}
