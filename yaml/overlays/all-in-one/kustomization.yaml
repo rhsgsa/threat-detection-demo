@@ -6,6 +6,7 @@ resources:
 - ../../base/image-acquirer
 - ../../base/mqtt
 - ../../base/ollama
+- image-acquirer-pvc.yaml
 
 patches:
 - target: 
@@ -14,16 +15,16 @@ patches:
   patch: |-
     - op: add
       path: /spec/template/spec/containers/0/env/-
-      value: { "name": "CAMERA", "value": "/frontend/videos/video.mp4" }
+      value: { "name": "CAMERA", "value": "/videos/video.mp4" }
     - op: add
       path: /spec/template/spec/containers/0/env/-
       value: { "name": "MQTT_SERVER", "value": "mosquitto" }
     - op: add
       path: /spec/template/spec/containers/0/volumeMounts
-      value: [{ "name": "videos", "mountPath": "/frontend/videos" }]
+      value: [{ "name": "videos", "mountPath": "/videos" }]
     - op: add
       path: /spec/template/spec/volumes
-      value: [{ "name": "videos", "emptyDir": {} }]
+      value: [{ "name": "videos", "persistentVolumeClaim": {"claimName": "image-acquirer"} }]
 - target: 
     kind: Deployment
     name: image-acquirer
@@ -39,11 +40,15 @@ patches:
           - name: download-video
             image: "docker.io/curlimages/curl:7.78.0"
             command:
-            - curl
-            - "-L"
-            - "-o"
-            - /videos/video.mp4
-            - https://github.com/kwkoo/redhat-pins-ai-demo/raw/main/container/video.mp4
+            - sh
+            - "-c"
+            - |
+              if [ -f "/videos/video.mp4" ]; then
+                echo "video exists"
+                exit
+              fi
+              echo "downloading video..."
+              curl -Lo /videos/video.mp4 https://github.com/kwkoo/redhat-pins-ai-demo/raw/main/container/video.mp4
             volumeMounts:
             - name: videos
               mountPath: /videos
