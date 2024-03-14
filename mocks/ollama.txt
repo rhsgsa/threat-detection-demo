@@ -1,112 +1,333 @@
-{"model":"llava","created_at":"2024-03-13T15:22:00.67370335Z","response":" The","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:01.056744826Z","response":" image","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:01.442494764Z","response":" you","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:01.824980663Z","response":"'","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:02.206592312Z","response":"ve","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:02.589893113Z","response":" provided","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:02.970467474Z","response":" appears","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:03.353539365Z","response":" to","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:03.735568769Z","response":" be","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:04.118722553Z","response":" a","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:04.501275254Z","response":" photograph","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:04.882130808Z","response":" of","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:05.265158209Z","response":" a","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:05.649379782Z","response":" person","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:06.030209866Z","response":" standing","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:06.414178993Z","response":" out","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:06.79665077Z","response":"doors","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:07.185573821Z","response":" during","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:07.567786296Z","response":" the","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:07.951023006Z","response":" day","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:08.337355427Z","response":".","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:08.720375331Z","response":" The","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:09.110656738Z","response":" person","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:09.496099799Z","response":" is","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:09.883251824Z","response":" wearing","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:10.264738094Z","response":" casual","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:10.645491372Z","response":" clothing","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:11.030731482Z","response":" and","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:11.414364508Z","response":" seems","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:11.799702593Z","response":" to","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:12.180824012Z","response":" be","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:12.561355026Z","response":" facing","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:12.943885149Z","response":" away","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:13.338517436Z","response":" from","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:13.724813688Z","response":" the","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:14.107363406Z","response":" camera","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:14.487719082Z","response":",","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:14.866799148Z","response":" towards","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:15.247573262Z","response":" something","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:15.629973762Z","response":" out","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:16.011164912Z","response":" of","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:16.394160181Z","response":" frame","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:16.776077278Z","response":".","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:17.157145705Z","response":" It","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:17.539033219Z","response":"'","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:17.925634467Z","response":"s","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:18.316412094Z","response":" not","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:18.697179496Z","response":" possible","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:19.079830777Z","response":" to","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:19.461465508Z","response":" provide","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:19.842697698Z","response":" more","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:20.231257737Z","response":" specific","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:20.614373297Z","response":" details","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:20.997167661Z","response":" about","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:21.381321483Z","response":" the","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:21.762262345Z","response":" person","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:22.143893888Z","response":" or","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:22.534755792Z","response":" their","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:22.915498122Z","response":" surroundings","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:23.298819695Z","response":" without","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:23.681744639Z","response":" additional","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:24.068766623Z","response":" context","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:24.450975155Z","response":" or","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:24.843334131Z","response":" information","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:25.227243228Z","response":".","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:25.611232832Z","response":" ","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:25.995283221Z","response":"","done":true,"context":[733,16289,28793,5919,6685,456,5754,733,28748,16289,28793,415,3469,368,28742,333,3857,8045,298,347,264,9180,302,264,1338,6328,575,25261,1938,272,1370,28723,415,1338,349,8192,13316,13278,304,3969,298,347,11981,1753,477,272,7555,28725,5083,1545,575,302,4108,28723,661,28742,28713,459,2572,298,3084,680,2948,4162,684,272,1338,442,652,28220,1671,4870,2758,442,1871,28723,28705],"total_duration":25711535755,"load_duration":2416399,"prompt_eval_count":1,"prompt_eval_duration":384790000,"eval_count":67,"eval_duration":25321349000}
-{"model":"llava","created_at":"2024-03-13T15:22:26.387467452Z","response":" The","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:26.771062375Z","response":" image","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:27.152117031Z","response":" shows","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:27.531441209Z","response":" a","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:27.917656786Z","response":" person","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:28.29878564Z","response":"'","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:28.68015268Z","response":"s","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:29.060045798Z","response":" hand","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:29.440078837Z","response":" holding","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:29.819473244Z","response":" what","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:30.200873137Z","response":" appears","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:30.581284897Z","response":" to","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:30.961459056Z","response":" be","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:31.341609592Z","response":" a","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:31.7338992Z","response":" small","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:32.113473352Z","response":",","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:32.493685841Z","response":" round","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:32.878160094Z","response":" object","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:33.258097289Z","response":" with","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:33.641124149Z","response":" a","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:34.021626142Z","response":" pattern","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:34.40179649Z","response":"ed","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:34.782602212Z","response":" surface","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:35.162922721Z","response":".","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:35.543592022Z","response":" It","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:35.928090994Z","response":" is","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:36.314180906Z","response":" not","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:36.702863246Z","response":" possible","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:37.091196128Z","response":" to","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:37.476924825Z","response":" disc","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:37.874287709Z","response":"ern","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:38.257586314Z","response":" the","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:38.63996942Z","response":" specific","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:39.022248073Z","response":" details","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:39.404868347Z","response":" or","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:39.786978202Z","response":" context","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:40.168918541Z","response":" of","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:40.552448444Z","response":" the","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:40.935156909Z","response":" image","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:41.324191879Z","response":" without","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:41.711363751Z","response":" additional","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:42.099171194Z","response":" information","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:42.480787174Z","response":".","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:42.862220696Z","response":" ","done":false}
-{"model":"llava","created_at":"2024-03-13T15:22:43.244363154Z","response":"","done":true,"context":[733,16289,28793,5919,6685,456,5754,733,28748,16289,28793,415,3469,4370,264,1338,28742,28713,1021,6632,767,8045,298,347,264,1741,28725,3713,1928,395,264,5340,286,5439,28723,661,349,459,2572,298,2312,1173,272,2948,4162,442,2758,302,272,3469,1671,4870,1871,28723,28705],"total_duration":17246366165,"load_duration":2624243,"prompt_eval_count":1,"prompt_eval_duration":384571000,"eval_count":45,"eval_duration":16856571000}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.463150514Z","response":",","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.47952914Z","response":" which","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.502493742Z","response":" appears","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.518096007Z","response":" to","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.538820516Z","response":" be","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.555840967Z","response":" an","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.571684497Z","response":" electronic","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.587045036Z","response":" cig","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.605557226Z","response":"aret","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.625700567Z","response":"te","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.641362361Z","response":" or","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.657269424Z","response":" va","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.672807116Z","response":"pe","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.696938377Z","response":" device","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.712490702Z","response":".","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.733540321Z","response":" It","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.749114158Z","response":" is","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.764404567Z","response":" not","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.786623155Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.801912309Z","response":" traditional","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.825459463Z","response":" gun","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.841200849Z","response":" or","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.856780524Z","response":" weapon","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.88061473Z","response":".","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.896492828Z","response":"","done":true,"context":[29871,13,11889,29901,13355,1598,278,28639,297,278,7623,13,22933,5425,1254,13566,29901,450,1967,3697,263,1361,29882,2495,27758,4742,29892,607,5692,304,367,385,27758,29507,10474,371,470,2947,412,4742,29889,739,338,451,263,13807,13736,470,28639,29889],"total_duration":617981254,"load_duration":2431663,"prompt_eval_count":1,"prompt_eval_duration":18085000,"eval_count":34,"eval_duration":594017000}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.424007474Z","response":" The","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.440630171Z","response":" image","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.456404506Z","response":" shows","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.472796975Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.494518513Z","response":" hand","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.509945259Z","response":" holding","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.524922703Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.540340338Z","response":" fire","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.555633553Z","response":"arm","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.579043863Z","response":".","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.594255714Z","response":" However","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.609463517Z","response":",","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.62461247Z","response":" without","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.639861576Z","response":" additional","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.663279822Z","response":" context","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.678457021Z","response":" or","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.693559929Z","response":" information","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.708841342Z","response":" about","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.72425945Z","response":" the","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.747558035Z","response":" specific","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.762917873Z","response":" features","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.77844733Z","response":" of","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.794482432Z","response":" the","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.809624228Z","response":" fire","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.832241028Z","response":"arm","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.847641937Z","response":",","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.862825818Z","response":" it","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.878173581Z","response":" is","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.893386044Z","response":" not","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.917688052Z","response":" possible","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.933378513Z","response":" to","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.949640865Z","response":" definit","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.965058054Z","response":"ively","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.980713972Z","response":" identify","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.003536761Z","response":" the","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.018684288Z","response":" exact","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.034278638Z","response":" type","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.0496082Z","response":" or","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.064648779Z","response":" model","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.087309815Z","response":" of","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.102482124Z","response":" the","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.119273746Z","response":" weapon","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.13449094Z","response":".","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.153097711Z","response":"","done":true,"context":[29871,13,11889,29901,13355,1598,278,28639,297,278,7623,13,22933,5425,1254,13566,29901,450,1967,3697,263,1361,13587,263,3974,2817,29889,2398,29892,1728,5684,3030,470,2472,1048,278,2702,5680,310,278,3974,2817,29892,372,338,451,1950,304,8422,3598,12439,278,2684,1134,470,1904,310,278,28639,29889],"total_duration":759539375,"load_duration":5250211,"prompt_eval_count":1,"prompt_eval_duration":16900000,"eval_count":44,"eval_duration":728887000}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.588143247Z","response":" The","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.603359191Z","response":" image","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.618376604Z","response":" shows","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.641905418Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.657397481Z","response":" person","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.672715579Z","response":" holding","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.688107277Z","response":" what","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.703352836Z","response":" appears","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.727024649Z","response":" to","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.742450848Z","response":" be","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.757432458Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.772527715Z","response":" hand","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.787629222Z","response":"h","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.81205401Z","response":"eld","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.82739664Z","response":" g","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.842388076Z","response":"aming","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.857506207Z","response":" console","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.872506062Z","response":",","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.89594889Z","response":" possibly","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.911094688Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.926574256Z","response":" N","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.941934528Z","response":"intendo","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.957263213Z","response":" Switch","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.978465644Z","response":".","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:23.993892025Z","response":" It","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:24.009531577Z","response":" is","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:24.024705957Z","response":" not","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:24.04284376Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:24.062732133Z","response":" weapon","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:24.077811194Z","response":".","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:24.093527005Z","response":"","done":true,"context":[29871,13,11889,29901,13355,1598,278,28639,297,278,7623,13,22933,5425,1254,13566,29901,450,1967,3697,263,2022,13587,825,5692,304,367,263,1361,29882,2495,330,11500,2991,29892,10075,263,405,28481,28176,29889,739,338,451,263,28639,29889],"total_duration":532970368,"load_duration":4708969,"prompt_eval_count":1,"prompt_eval_duration":15830000,"eval_count":31,"eval_duration":505090000}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:37.789718693Z","response":" The","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:37.804901401Z","response":" image","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:37.820028301Z","response":" shows","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:37.836428871Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:37.857730147Z","response":" person","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:37.872859112Z","response":" holding","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:37.889013259Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:37.904184721Z","response":" black","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:37.92795612Z","response":" object","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:37.943094937Z","response":" that","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:37.965774061Z","response":" res","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:37.98131458Z","response":"emb","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.001992325Z","response":"les","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.018052703Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.033361912Z","response":" fire","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.055229314Z","response":"arm","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.070478171Z","response":".","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.094712557Z","response":" However","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.110429396Z","response":",","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.133678245Z","response":" without","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.149223572Z","response":" additional","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.172336161Z","response":" context","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.187878386Z","response":" or","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.211415286Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.227146863Z","response":" clearer","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.250659044Z","response":" view","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.266402184Z","response":" of","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.289740542Z","response":" the","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.305171982Z","response":" object","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.32825426Z","response":"'","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.343926995Z","response":"s","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.365974011Z","response":" features","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.381278083Z","response":",","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.403973787Z","response":" it","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.419338592Z","response":" is","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.441944732Z","response":" not","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.457466931Z","response":" possible","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.480658999Z","response":" to","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.496208271Z","response":" definit","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.519085785Z","response":"ively","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.534465157Z","response":" identify","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.557056902Z","response":" the","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.572583239Z","response":" weapon","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.595340597Z","response":" or","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.611025597Z","response":" determine","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.634067132Z","response":" if","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.650220154Z","response":" it","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.673119844Z","response":" is","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.688776692Z","response":" real","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.712510144Z","response":" or","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.728299615Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.751309522Z","response":" prop","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.766786762Z","response":".","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.78964997Z","response":" If","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.805325685Z","response":" you","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.828476205Z","response":" have","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.844397488Z","response":" any","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.867378925Z","response":" specific","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.882974283Z","response":" questions","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.905316617Z","response":" about","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.920951345Z","response":" the","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.94369547Z","response":" image","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.959341391Z","response":" or","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.982825937Z","response":" need","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:38.998985446Z","response":" information","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:39.020546579Z","response":" related","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:39.037686933Z","response":" to","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:39.052965536Z","response":" it","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:39.076640826Z","response":",","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:39.092109666Z","response":" please","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:39.11588384Z","response":" let","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:39.131398674Z","response":" me","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:39.153993588Z","response":" know","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:39.169366513Z","response":"!","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:39.192376277Z","response":"","done":true,"context":[29871,13,11889,29901,13355,1598,278,28639,297,278,7623,13,22933,5425,1254,13566,29901,450,1967,3697,263,2022,13587,263,4628,1203,393,620,1590,793,263,3974,2817,29889,2398,29892,1728,5684,3030,470,263,26135,1776,310,278,1203,29915,29879,5680,29892,372,338,451,1950,304,8422,3598,12439,278,28639,470,8161,565,372,338,1855,470,263,3107,29889,960,366,505,738,2702,5155,1048,278,1967,470,817,2472,4475,304,372,29892,3113,1235,592,1073,29991],"total_duration":1425991919,"load_duration":3230150,"prompt_eval_count":1,"prompt_eval_duration":17353000,"eval_count":75,"eval_duration":1402332000}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:47.890587405Z","response":" The","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:47.906690406Z","response":" image","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:47.922317924Z","response":" shows","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:47.937379442Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:47.960953604Z","response":" person","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:47.976398895Z","response":" holding","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:47.991760139Z","response":" what","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.014239054Z","response":" appears","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.029535798Z","response":" to","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.045225214Z","response":" be","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.065689754Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.080882158Z","response":" hand","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.101485271Z","response":"gun","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.118380441Z","response":".","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.134666159Z","response":"","done":true,"context":[29871,13,11889,29901,13355,1598,278,28639,297,278,7623,13,22933,5425,1254,13566,29901,450,1967,3697,263,2022,13587,825,5692,304,367,263,1361,28798,29889],"total_duration":277615804,"load_duration":7769028,"prompt_eval_count":1,"prompt_eval_duration":16122000,"eval_count":15,"eval_duration":243761000}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.411840756Z","response":" The","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.428412535Z","response":" image","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.451155014Z","response":" shows","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.468384038Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.485388839Z","response":" person","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.501366162Z","response":" holding","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.518369073Z","response":" what","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.535404862Z","response":" appears","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.550900888Z","response":" to","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.574775511Z","response":" be","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.591260013Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.607394074Z","response":" hand","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.622821533Z","response":"h","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.638220485Z","response":"eld","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.65932448Z","response":" electronic","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.674759516Z","response":" device","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.690126069Z","response":" with","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.706407944Z","response":" some","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.721912919Z","response":" kind","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.737029353Z","response":" of","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.760658162Z","response":" pro","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.776143303Z","response":"be","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.791830713Z","response":" or","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.807207075Z","response":" attachment","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.83047885Z","response":" at","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.846206909Z","response":" the","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.86264708Z","response":" end","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.877761352Z","response":".","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.901408106Z","response":" However","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.917068323Z","response":",","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.933203978Z","response":" without","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.948647833Z","response":" additional","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.972386689Z","response":" context","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:48.988227792Z","response":" or","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.004772343Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.020200353Z","response":" clearer","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.043840401Z","response":" view","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.059304697Z","response":" of","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.075226825Z","response":" the","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.090424713Z","response":" object","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.114538396Z","response":",","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.130113748Z","response":" it","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.146545338Z","response":"'","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.161856816Z","response":"s","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.185792262Z","response":" difficult","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.201194069Z","response":" to","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.217088691Z","response":" definit","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.232350316Z","response":"ively","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.25630786Z","response":" identify","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.271655287Z","response":" the","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.287609323Z","response":" exact","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.302764888Z","response":" nature","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.32702752Z","response":" of","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.342529922Z","response":" the","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.358568852Z","response":" device","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.373918202Z","response":".","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.398467431Z","response":" It","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.413839288Z","response":" could","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.430012577Z","response":" potentially","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.44551015Z","response":" be","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.470367071Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.485856751Z","response":" st","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.502143343Z","response":"un","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.517379673Z","response":" gun","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.540090076Z","response":",","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.555578095Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.571424664Z","response":" t","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.586556441Z","response":"aser","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.610023405Z","response":",","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.625632934Z","response":" or","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.64156796Z","response":" some","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.656772025Z","response":" other","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.68036859Z","response":" type","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.696004746Z","response":" of","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.712221971Z","response":" elect","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.727511374Z","response":"rical","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.751128952Z","response":" weapon","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.766609007Z","response":" designed","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.782961926Z","response":" for","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.798373651Z","response":" self","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.822266078Z","response":"-","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.83793914Z","response":"def","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.85337856Z","response":"ense","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.868883682Z","response":" or","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.891738321Z","response":" law","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.907722002Z","response":" enfor","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.92424312Z","response":"cement","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.93954413Z","response":" use","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.963019773Z","response":".","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:49.979028179Z","response":"","done":true,"context":[29871,13,11889,29901,13355,1598,278,28639,297,278,7623,13,22933,5425,1254,13566,29901,450,1967,3697,263,2022,13587,825,5692,304,367,263,1361,29882,2495,27758,4742,411,777,2924,310,410,915,470,26305,472,278,1095,29889,2398,29892,1728,5684,3030,470,263,26135,1776,310,278,1203,29892,372,29915,29879,5189,304,8422,3598,12439,278,2684,5469,310,278,4742,29889,739,1033,19998,367,263,380,348,13736,29892,263,260,29440,29892,470,777,916,1134,310,3546,16888,28639,8688,363,1583,29899,1753,1947,470,4307,24555,13561,671,29889],"total_duration":1594432744,"load_duration":5862602,"prompt_eval_count":1,"prompt_eval_duration":16017000,"eval_count":90,"eval_duration":1566939000}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:56.984275038Z","response":" The","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:57.000479443Z","response":" image","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:57.025995098Z","response":" shows","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:57.042370658Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:57.059371607Z","response":" person","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:57.07493405Z","response":" holding","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:57.099628771Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:57.115262319Z","response":" hand","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:57.13134458Z","response":"gun","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:57.147009615Z","response":".","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:57.170557252Z","response":"","done":true,"context":[29871,13,11889,29901,13355,1598,278,28639,297,278,7623,13,22933,5425,1254,13566,29901,450,1967,3697,263,2022,13587,263,1361,28798,29889],"total_duration":210963322,"load_duration":2511625,"prompt_eval_count":1,"prompt_eval_duration":18823000,"eval_count":11,"eval_duration":186031000}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.29677862Z","response":" The","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.312265696Z","response":" image","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.33078129Z","response":" appears","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.352065884Z","response":" to","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.368626544Z","response":" show","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.385025148Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.400778437Z","response":" hand","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.416161631Z","response":"h","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.439874704Z","response":"eld","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.455258325Z","response":" g","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.470605594Z","response":"aming","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.486340308Z","response":" device","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.501772421Z","response":",","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.525414642Z","response":" specifically","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.541100493Z","response":" what","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.556850305Z","response":" looks","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.572165414Z","response":" like","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.587438932Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.610319267Z","response":" N","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.626521869Z","response":"intendo","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.641586537Z","response":" Switch","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.657367697Z","response":" console","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.6728472Z","response":".","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.696695947Z","response":" It","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.712355561Z","response":"'","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.727570435Z","response":"s","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.742900499Z","response":" not","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.75807407Z","response":" a","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.781905702Z","response":" weapon","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.797447286Z","response":",","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.812854541Z","response":" but","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.828270526Z","response":" rather","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.843440429Z","response":" an","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.866131776Z","response":" electronic","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.881761536Z","response":" device","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.89712637Z","response":" designed","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.912595771Z","response":" for","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.927994835Z","response":" playing","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.951881864Z","response":" video","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.9674557Z","response":" games","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.982939154Z","response":".","done":false}
+{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:30:09.999719844Z","response":"","done":true,"context":[29871,13,11889,29901,13355,1598,278,28639,297,278,7623,13,22933,5425,1254,13566,29901,450,1967,5692,304,1510,263,1361,29882,2495,330,11500,4742,29892,10816,825,3430,763,263,405,28481,28176,2991,29889,739,29915,29879,451,263,28639,29892,541,3265,385,27758,4742,8688,363,8743,4863,8090,29889],"total_duration":734814436,"load_duration":5075639,"prompt_eval_count":1,"prompt_eval_duration":16245000,"eval_count":42,"eval_duration":702578000}
