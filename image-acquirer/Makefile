@@ -17,3 +17,18 @@ run:
 	INTERESTED_CLASSES=1 \
 	CAMERA=../../redhat-pins-ai-demo/container/video.mp4 \
 	python3 ./app/app.py
+
+t:
+	cd $(BASE) \
+	&& \
+	. $(CONDA_ROOT)/etc/profile.d/conda.sh \
+	&& \
+	conda activate $(CONDA_ENV) \
+	&& \
+	PORT=8000 \
+	MQTT_SERVER=localhost \
+	MQTT_TOPIC=alerts \
+	CONFIDENCE=0.5 \
+	CAMERA=/Users/kkoo/Downloads/Gun_Video.mp4 \
+	MODEL=NCS_YOLOv8-20Epochs.pt \
+	python3 ./app/app.py

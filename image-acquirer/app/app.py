@@ -47,30 +47,36 @@ class InterestingObjects:
 
         cls = boxes.cls.numpy().astype(int)
         ids = boxes.id.numpy().astype(int)
-        new_object_detected = False
-        for idx, cl in enumerate(cls):
-            if cl not in self.interested_classes:
-                continue
 
-            object_id = ids[idx]
-            known_id = False
-            for id in self.object_ids:
-                if id == object_id:
-                    known_id = True
-                    break
+        if self.interested_classes is None or len(self.interested_classes) == 0:
+            new_object_detected = False
+            for _, id in enumerate(ids):
+                if self.check_if_tracking_id_is_new(id):
+                    new_object_detected = True
+            return new_object_detected
+        else:
+            new_object_detected = False
+            for idx, cl in enumerate(cls):
+                if cl not in self.interested_classes:
+                    continue
 
-            if known_id:
-                continue
+                object_id = ids[idx]
+                if self.check_if_tracking_id_is_new(object_id):
+                    new_object_detected = True
 
-            # we found a new object
-            new_object_detected = True
-            self.count += + 1
-            logging.info(f"object id = {object_id}")
-            self.object_ids.append(object_id)
-            if len(self.object_ids) > self.max_objects:
-                self.object_ids.pop(0)
+            return new_object_detected
 
-        return new_object_detected
+    # returns True if id is new
+    def check_if_tracking_id_is_new(self, id) -> bool:
+        if id in self.object_ids:
+            return False
+        self.count += 1
+        logging.info(f"object id = {id}")
+        self.object_ids.append(id)
+        if len(self.object_ids) > self.max_objects:
+            self.object_ids.pop(0)
+        return True
+
 
 app = Flask(__name__, static_url_path='')
 
@@ -80,7 +86,7 @@ def stop_detection_task():
     background_thread.join()
     logging.info("background thread exited cleanly")
 
-def detection_task(camera_device, force_cpu, interested_classes, mqttc, mqtt_topic):
+def detection_task(camera_device, model_name, confidence, force_cpu, interested_classes, mqttc, mqtt_topic):
     retry = 500
     interesting_objects = InterestingObjects(interested_classes)
 
@@ -98,8 +104,8 @@ def detection_task(camera_device, force_cpu, interested_classes, mqttc, mqtt_top
         else:
             logging.info("CUDA and MPS are not available")
 
-    logging.info("loading model...")
-    model = YOLO('best.pt')
+    logging.info(f"loading model ({model_name})...")
+    model = YOLO(model_name)
     logging.info("done loading model")
 
     torch.device(accel_device)
@@ -124,7 +130,7 @@ def detection_task(camera_device, force_cpu, interested_classes, mqttc, mqtt_top
             continue
 
         retry_pause = False
-        results = model.track(frame, persist=True, device=accel_device)
+        results = model.track(frame, persist=True, device=accel_device, conf=confidence)
         if len(results) < 1:
             continue
 
@@ -207,21 +213,19 @@ if __name__ == '__main__':
     camera_device = os.getenv('CAMERA', '/dev/video0')
 
     interested_classes_str = os.getenv('INTERESTED_CLASSES')
-    if interested_classes_str is None:
-        logging.error('could not get INTERESTED_CLASSES environment variable')
-        sys.exit(1)
 
     interested_classes = []
-    for x in interested_classes_str.split(','):
-        try:
-            i = int(x)
-            interested_classes.append(i)
-        except ValueError:
-            logging.error(f'could not convert INTERESTED_CLASSES component {x} to string')
-            sys.exit(1)
+    if interested_classes_str is not None:
+        for x in interested_classes_str.split(','):
+            try:
+                i = int(x)
+                interested_classes.append(i)
+            except ValueError:
+                logging.error(f'could not convert INTERESTED_CLASSES component {x} to string')
+                sys.exit(1)
 
-    mqtt_topic = os.getenv('MQTT_TOPIC')
-    mqtt_server = os.getenv('MQTT_SERVER')
+    mqtt_topic = os.getenv('MQTT_TOPIC', 'alerts')
+    mqtt_server = os.getenv('MQTT_SERVER', 'localhost')
     mqtt_port_str = os.getenv('MQTT_PORT', '1883')
     mqtt_port = None
     try:
@@ -244,6 +248,16 @@ if __name__ == '__main__':
     if force_cpu_lower == '1' or force_cpu_lower == 'true' or force_cpu_lower == 'yes':
         force_cpu = True
 
+    model_name = os.getenv('MODEL', 'best.pt')
+
+    confidence_str = os.getenv('CONFIDENCE', '0.25')
+    confidence = 0
+    try:
+        confidence = float(confidence_str)
+    except ValueError:
+        logging.error(f'could not convert CONFIDENCE ({confidence_str}) to float')
+        sys.exit(1)
+
     announcer = MessageAnnouncer()
 
     with app.app_context():
@@ -251,7 +265,7 @@ if __name__ == '__main__':
         continue_running.set()
         background_thread = threading.Thread(
             target=detection_task,
-            args=(camera_device, force_cpu, interested_classes, mqttc, mqtt_topic)
+            args=(camera_device, model_name, confidence, force_cpu, interested_classes, mqttc, mqtt_topic)
         )
         background_thread.start()
 
