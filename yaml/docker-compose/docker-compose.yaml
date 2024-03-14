@@ -7,15 +7,17 @@ services:
     image: "ghcr.io/kwkoo/image-acquirer"
     environment:
     - CAMERA=/videos/video.mp4
-    - INTERESTED_CLASSES=1,2
+    #- INTERESTED_CLASSES=1,2
     - MQTT_SERVER=mqtt
     - MQTT_PORT=1883
     - MQTT_TOPIC=alerts
+    - MODEL=NCS_YOLOv8-20Epochs.pt
+    - CONFIDENCE=0.5
     ports:
     - 8000:8080
     volumes:
-    - ../../../redhat-pins-ai-demo/container/video.mp4:/videos/video.mp4
-    - ../../image-acquirer/app/app.py:/app/app.py
+    - ../../../Gun_Video.mp4:/videos/video.mp4
+    #- ../../image-acquirer/app/app.py:/app/app.py
     depends_on:
     - mqtt
 
@@ -52,6 +54,8 @@ services:
   imagepull:
     container_name: imagepull
     image: "docker.io/curlimages/curl:7.78.0"
+    environment:
+    - MODEL=llava
     command:
     - sh
     - "-c"
@@ -59,6 +63,7 @@ services:
       until curl ollama:11434 >/dev/null 2>/dev/null; do
         sleep 5
       done
-      curl ollama:11434/api/pull -d '{"name":"llava"}'
+      echo "pulling $$MODEL..."
+      curl ollama:11434/api/pull -d '{"name":"'"$$MODEL"'"}'
     depends_on:
     - ollama

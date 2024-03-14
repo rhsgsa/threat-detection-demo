@@ -30,6 +30,7 @@ type Config struct {
 	MQTTBroker  string `usage:"MQTT broker URL" default:"tcp://localhost:1883" mandatory:"true"`
 	AlertsTopic string `usage:"MQTT topic for incoming alerts" default:"alerts"`
 	LLMURL      string `usage:"URL for the LLM REST endpoint" default:"http://localhost:11434/api/generate"`
+	LLMModel    string `usage:"Model name used in query to Ollama" default:"llava"`
 	Prompts     string `usage:"Path to file containing prompts to use - will use hardcoded prompts if this is not set"`
 }
 
@@ -53,7 +54,7 @@ func main() {
 		wg.Done()
 	}()
 
-	alertsController := internal.NewAlertsController(sseCh, config.LLMURL, config.Prompts)
+	alertsController := internal.NewAlertsController(sseCh, config.LLMURL, config.LLMModel, config.Prompts)
 	http.HandleFunc("/api/prompt", alertsController.PromptHandler)
 	http.HandleFunc("/api/alertsstatus", alertsController.StatusHandler)
 	wg.Add(1)

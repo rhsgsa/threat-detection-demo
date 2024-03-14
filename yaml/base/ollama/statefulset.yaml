@@ -41,6 +41,8 @@ spec:
           value: compute,utility
         - name: OLLAMA_ORIGINS
           value: "*"
+        - name: MODEL
+          value: "llava:13b-v1.6"
         args:
         resources:
           limits:
@@ -78,9 +80,9 @@ spec:
               - "/bin/bash"
               - "-c"
               - |
-                if [ `ollama list llava | wc -l` -lt 2 ]; then
+                if [ `ollama list $MODEL | wc -l` -lt 2 ]; then
                   echo "model does not exist and needs to be pulled"
-                  ollama pull llava
+                  ollama pull $MODEL
                 else
                   echo "model already exists"
                 fi

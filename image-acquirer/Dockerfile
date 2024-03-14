@@ -26,7 +26,8 @@ COPY --chown=:0 ./app/requirements.txt /app/
 
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-COPY --chown=:0 best.pt /app/
+ARG MODEL_URL
+RUN curl -LO $MODEL_URL
 COPY --chown=:0 ./app/ /app/
 RUN chmod -R g=u /app
 

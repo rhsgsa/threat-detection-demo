@@ -39,6 +39,7 @@ type alertEvent struct {
 type AlertsController struct {
 	sseCh          chan SSEEvent
 	llmURL         string
+	llmModel       string
 	prompt         string
 	latestAlert    alertEvent
 	latestAlertMux sync.RWMutex
@@ -49,7 +50,7 @@ type AlertsController struct {
 
 // Ensure that ch is a buffered channel - if the channel is not buffered,
 // sending events to this channel will fail
-func NewAlertsController(ch chan SSEEvent, llmURL, promptsFile string) *AlertsController {
+func NewAlertsController(ch chan SSEEvent, llmURL, llmModel, promptsFile string) *AlertsController {
 	if cap(ch) < 1 {
 		log.Fatal("SSEEvent channel cannot be unbuffered")
 	}
@@ -70,11 +71,12 @@ func NewAlertsController(ch chan SSEEvent, llmURL, promptsFile string) *AlertsCo
 		log.Fatalf("no prompts defined")
 	}
 	c := AlertsController{
-		sseCh:   ch,
-		llmURL:  llmURL,
-		prompt:  prompts[0],
-		prompts: prompts,
-		llmCh:   make(chan alertEvent, llmChannelSize),
+		sseCh:    ch,
+		llmURL:   llmURL,
+		llmModel: llmModel,
+		prompt:   prompts[0],
+		prompts:  prompts,
+		llmCh:    make(chan alertEvent, llmChannelSize),
 	}
 	return &c
 }
@@ -204,7 +206,7 @@ func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 				Prompt string   `json:"prompt"`
 				Images []string `json:"images"`
 			}{
-				Model:  "llava",
+				Model:  controller.llmModel,
 				Prompt: event.prompt,
 				Images: []string{string(event.rawImage)},
 			}

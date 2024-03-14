@@ -21,14 +21,18 @@ spec:
       - image: ghcr.io/kwkoo/image-acquirer
         name: image-acquirer
         env:
-        - name: INTERESTED_CLASSES
-          value: "1,2"
+        #- name: INTERESTED_CLASSES
+        #  value: "1,2"
         - name: MQTT_PORT
           value: "1883"
         - name: MQTT_TOPIC
           value: alerts
         - name: PORT
           value: "8080"
+        - name: MODEL
+          value: NCS_YOLOv8-20Epochs.pt
+        - name: CONFIDENCE
+          value: "0.5"
         ports:
         - name: http
           containerPort: 8080
