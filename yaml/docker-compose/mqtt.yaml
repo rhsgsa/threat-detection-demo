@@ -1,0 +1,11 @@
+version: "3.5"
+
+services:
+
+  mqtt:
+    container_name: mqtt
+    image: "docker.io/library/eclipse-mosquitto:2.0.18-openssl"
+    ports:
+    - 1883:1883
+    volumes:
+    - ../../mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro,z
