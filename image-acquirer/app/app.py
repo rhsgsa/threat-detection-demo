@@ -226,6 +226,7 @@ if __name__ == '__main__':
 
     mqtt_topic = os.getenv('MQTT_TOPIC', 'alerts')
     mqtt_server = os.getenv('MQTT_SERVER', 'localhost')
+    mqtt_transport = os.getenv('MQTT_TRANSPORT', 'tcp')
     mqtt_port_str = os.getenv('MQTT_PORT', '1883')
     mqtt_port = None
     try:
@@ -238,7 +239,7 @@ if __name__ == '__main__':
     if mqtt_topic is None or mqtt_server is None:
         logging.info('starting without mqtt client')
     else:
-        mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, reconnect_on_failure=True)
+        mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, transport=mqtt_transport, reconnect_on_failure=True)
         mqttc.on_connect = mqtt_on_connect
         mqttc.connect(mqtt_server, mqtt_port, 60)
         mqttc.loop_start()

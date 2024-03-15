@@ -30,7 +30,7 @@ spec:
         - name: LLMURL
           value: http://ollama:11434/api/generate
         - name: LLMMODEL
-          value: "llava:13b-v1.6"
+          value: "llava:34b-v1.6"
         - name: PROMPTS
           value: "/frontend/config/prompts.txt"
         ports:

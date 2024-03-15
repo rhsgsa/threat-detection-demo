@@ -14,6 +14,7 @@ The `image-acquirer` can be configured with the following environment variables:
 |`MQTT_TOPIC`|`alerts`|MQTT topic to publish messages to|
 |`MQTT_SERVER`|`localhost`|Hostname of the MQTT broker|
 |`MQTT_PORT`|`1883`|Port number of the MQTT broker|
+|`MQTT_TRANSPORT`|`tcp`|`websockets` is also valid|
 |`FORCE_CPU`|`no`|Force YOLO to use the CPU for inferencing instead of the GPU - set to `yes` if you wish to activate this|
 |`MODEL`|`best.pt`|YOLO model name|
 |`CONFIDENCE`|`0.25`|Minimum confidence score for YOLO detection|

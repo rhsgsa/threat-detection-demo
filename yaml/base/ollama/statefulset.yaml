@@ -24,7 +24,7 @@ spec:
       - name: ollama
         securityContext:
           {}
-        image: "ollama/ollama:0.1.28"
+        image: "docker.io/ollama/ollama:0.1.29"
         imagePullPolicy: IfNotPresent
         ports:
         - name: http
@@ -42,13 +42,13 @@ spec:
         - name: OLLAMA_ORIGINS
           value: "*"
         - name: MODEL
-          value: "llava:13b-v1.6"
+          value: "llava:34b-v1.6"
         args:
         resources:
           limits:
             cpu: 4000m
-            memory: 8192Mi
-            nvidia.com/gpu: 1
+            memory: 16Gi
+            nvidia.com/gpu: 2
           requests:
             cpu: 2000m
             memory: 4096Mi
@@ -86,6 +86,8 @@ spec:
                 else
                   echo "model already exists"
                 fi
+                # run a query to load the model
+                ollama run $MODEL 'why is the sky blue'
       tolerations:
         - key: nvidia.com/gpu
           operator: Exists
@@ -98,4 +100,4 @@ spec:
       - ReadWriteOnce
       resources:
         requests:
-          storage: 16Gi
+          storage: 24Gi

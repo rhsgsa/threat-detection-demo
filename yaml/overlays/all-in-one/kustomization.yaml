@@ -6,6 +6,7 @@ resources:
 - ../../base/image-acquirer
 - ../../base/mqtt
 - ../../base/ollama
+- image-acquirer-configmap.yaml
 - image-acquirer-pvc.yaml
 
 patches:
@@ -14,11 +15,11 @@ patches:
     name: image-acquirer
   patch: |-
     - op: add
-      path: /spec/template/spec/containers/0/env/-
-      value: { "name": "CAMERA", "value": "/videos/video.mp4" }
+      path: /spec/template/spec/containers/0/envFrom
+      value: [{ "configMapRef": { "name": "image-acquirer-mqtt" }}]
     - op: add
       path: /spec/template/spec/containers/0/env/-
-      value: { "name": "MQTT_SERVER", "value": "mosquitto" }
+      value: { "name": "CAMERA", "value": "/videos/video.mp4" }
     - op: add
       path: /spec/template/spec/containers/0/volumeMounts
       value: [{ "name": "videos", "mountPath": "/videos" }]

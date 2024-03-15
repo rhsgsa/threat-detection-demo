@@ -23,8 +23,6 @@ spec:
         env:
         #- name: INTERESTED_CLASSES
         #  value: "1,2"
-        - name: MQTT_PORT
-          value: "1883"
         - name: MQTT_TOPIC
           value: alerts
         - name: PORT
@@ -44,5 +42,7 @@ spec:
           httpGet:
             path: /
             port: http
-        resources: {}
+        resources:
+          limits:
+            nvidia.com/gpu: 1
 status: {}
