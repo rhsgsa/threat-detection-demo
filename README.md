@@ -39,11 +39,11 @@ sequenceDiagram
 
 			openshift-install create install-config
 
-	*   Set the compute pool to 2 replicas with `p3.8xlarge` intances, and set the control plane to a single master
+	*   Set the compute pool to 1 replica with `p3.8xlarge` intances, and set the control plane to a single master
 
 			mv install-config.yaml install-config-old.yaml
 
-			yq '.compute[0].replicas=2' < install-config-old.yaml \
+			yq '.compute[0].replicas=1' < install-config-old.yaml \
 			| \
 			yq '.compute[0].platform = {"aws":{"zones":["ap-southeast-1a"], "type":"p3.8xlarge"}}' \
 			| \
@@ -55,6 +55,10 @@ sequenceDiagram
 			openshift-install create cluster
 
 01. Set the `KUBECONFIG` environment variable to point to the new cluster
+
+01. Deploy the NFD and Nvidia GPU operators
+
+		make deploy-nvidia
 
 01. Deploy all components
 
