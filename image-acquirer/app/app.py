@@ -270,7 +270,14 @@ if __name__ == '__main__':
         )
         background_thread.start()
 
-    app.run(host='0.0.0.0', port=port)
+    try:
+        app.run(host='0.0.0.0', port=port)
+    except:
+        logging.error("error starting web server")
+        sys.exit(1)
+
+    # fall through to here if we received a signal
     stop_detection_task()
     if mqttc is not None:
+        mqttc.disconnect()
         mqttc.loop_stop()
