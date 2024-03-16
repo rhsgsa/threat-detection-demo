@@ -77,7 +77,7 @@ deploy-nfd: ensure-logged-in
 	@echo 'done'
 	oc apply -f $(BASE)/yaml/operators/nfd-cr.yaml
 	@/bin/echo -n 'waiting for nodes to be labelled...'
-	@while [ `oc get nodes --no-headers -l 'feature.node.kubernetes.io/pci-10de.present=true' 2>/dev/null | wc -l` -lt 2 ]; do \
+	@while [ `oc get nodes --no-headers -l 'feature.node.kubernetes.io/pci-10de.present=true' 2>/dev/null | wc -l` -lt 1 ]; do \
 	  /bin/echo -n '.'; \
 	  sleep 5; \
 	done

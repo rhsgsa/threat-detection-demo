@@ -64,6 +64,19 @@ sequenceDiagram
 
 		make deploy
 
+01. If you wish to use a different video for the `image-acquirer`,
+
+	*   Wait for the image-acquirer to come up
+
+			oc rollout status deploy/image-acquirer -n demo
+
+	*   Copy the video into the pod
+
+			oc cp \
+			  my-video.mp4 \
+			  `oc get po -n demo -l app=image-acquirer -o jsonpath='{.items[0].metadata.name}'`:/videos/video.mp4 \
+			  -n demo
+
 01. When all components are up, retrieve the frontend URL and access it with a web browser
 
 		frontend="$(oc get -n demo route/frontend -o jsonpath='{.spec.host}')"
