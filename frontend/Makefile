@@ -7,6 +7,11 @@ run:
 	&& \
 	DOCROOT=$(BASE)/docroot go run .
 
+test:
+	cd $(BASE) \
+	&& \
+	go test -v ./...
+
 remote:
 	-if [ -f /tmp/port-forward.pid ]; then \
 	  kill `cat /tmp/port-forward.pid`; \
