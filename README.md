@@ -33,20 +33,26 @@ sequenceDiagram
 
 ## Deploying all components to a single OpenShift cluster
 
-01. Provision an `AWS Blank Open Environment`, create an OpenShift cluster with at least 1 `p3.8xlarge` worker node (this is needed because we are using the 34b-parameter LLaVA model)
+01. Provision an `AWS Blank Open Environment` in `ap-southeast-1`, create an OpenShift cluster with at least 1 `p3.8xlarge` worker node (this is needed because we are using the 34b-parameter LLaVA model)
 
 	*   Generate `install-config.yaml`
 
 			openshift-install create install-config
 
-	*   Set the primary compute machineset to 2 replicas and add a new `gpu` machineset
+	*   Set the compute pool to 2 replicas with `p3.8xlarge` intances, and set the control plane to a single master
 
 			mv install-config.yaml install-config-old.yaml
 
 			yq '.compute[0].replicas=2' < install-config-old.yaml \
 			| \
-			yq '.compute += {"name":"gpu", "hyperthreading":"Enabled", "architecture":"amd64", "replicas":1, "platform":{"aws":{"zones":["ap-southeast-1a"], "type":"p3.8xlarge"}}}' \
+			yq '.compute[0].platform = {"aws":{"zones":["ap-southeast-1a"], "type":"p3.8xlarge"}}' \
+			| \
+			yq '.controlPlane.replicas=1' \
 			> install-config.yaml
+
+	*   Create the cluster
+
+			openshift-install create cluster
 
 01. Set the `KUBECONFIG` environment variable to point to the new cluster
 
