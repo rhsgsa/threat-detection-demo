@@ -1,5 +1,9 @@
 package internal
 
+// The AlertsController is the heart of the frontend. It processes JSON coming
+// from an MQTT topic, broadcasts SSEEvents through to the SSEBroacaster, and
+// sends REST calls to the LLM.
+
 import (
 	"bufio"
 	"bytes"
@@ -124,8 +128,8 @@ func (controller *AlertsController) PromptHandler(w http.ResponseWriter, r *http
 	}
 }
 
-// AlertsHandler gets invoked when a message is received on the alerts MQTT topic
-func (controller *AlertsController) AlertsHandler(client MQTT.Client, mqttMessage MQTT.Message) {
+// MQTTHandler gets invoked when a message is received on the alerts MQTT topic
+func (controller *AlertsController) MQTTHandler(_ MQTT.Client, mqttMessage MQTT.Message) {
 	var msg alertMQTT
 	if err := json.Unmarshal(mqttMessage.Payload(), &msg); err != nil {
 		log.Printf("error trying to unmarshal alert MQTT message: %v", err)
@@ -148,9 +152,9 @@ func (controller *AlertsController) AlertsHandler(client MQTT.Client, mqttMessag
 		msg := "LLM channel is full"
 		log.Print(msg)
 	}
-
 }
 
+// REST endpoint that returns the size of the output channels
 func (controller *AlertsController) StatusHandler(w http.ResponseWriter, r *http.Request) {
 	status := struct {
 		SSEChannel int `json:"sse_channel"`

@@ -94,7 +94,7 @@ func initializeMQTTClient(config Config, controller *internal.AlertsController) 
 	opts.AddBroker(config.MQTTBroker)
 	opts.SetAutoReconnect(true)
 	opts.OnConnect = func(mqttClient MQTT.Client) {
-		if token := mqttClient.Subscribe(config.AlertsTopic, 1, controller.AlertsHandler); token.Wait() && token.Error() != nil {
+		if token := mqttClient.Subscribe(config.AlertsTopic, 1, controller.MQTTHandler); token.Wait() && token.Error() != nil {
 			log.Fatalf("could not subscribe to %s: %v", config.AlertsTopic, token.Error())
 		}
 	}
