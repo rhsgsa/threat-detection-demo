@@ -52,6 +52,9 @@ type AlertsController struct {
 	llmCh          chan alertEvent
 }
 
+func setupCORS(w *http.ResponseWriter, req *http.Request) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+}
 // Ensure that ch is a buffered channel - if the channel is not buffered,
 // sending events to this channel will fail
 func NewAlertsController(ch chan SSEEvent, llmURL, llmModel, promptsFile string) *AlertsController {
@@ -101,6 +104,7 @@ func readLinesFromFile(filename string) ([]string, error) {
 
 // PromptHandler gets invoked when a REST call is made to list the available prompts or to set the prompt
 func (controller *AlertsController) PromptHandler(w http.ResponseWriter, r *http.Request) {
+	setupCORS(&w, r)
 	// get prompts
 	if r.Method != http.MethodPost && r.Method != http.MethodPut {
 		streamResponse(w, controller.prompts)
@@ -156,6 +160,7 @@ func (controller *AlertsController) MQTTHandler(_ MQTT.Client, mqttMessage MQTT.
 
 // REST endpoint that returns the size of the output channels
 func (controller *AlertsController) StatusHandler(w http.ResponseWriter, r *http.Request) {
+	setupCORS(&w, r)
 	status := struct {
 		SSEChannel int `json:"sse_channel"`
 		LLMChannel int `json:"llm_channel"`
