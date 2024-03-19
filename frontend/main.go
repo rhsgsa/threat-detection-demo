@@ -32,6 +32,7 @@ type Config struct {
 	LLMURL      string `usage:"URL for the LLM REST endpoint" default:"http://localhost:11434/api/generate"`
 	LLMModel    string `usage:"Model name used in query to Ollama" default:"llava"`
 	Prompts     string `usage:"Path to file containing prompts to use - will use hardcoded prompts if this is not set"`
+	CORS        string `usage:"Value of Access-Control-Allow-Origin HTTP header - header will not be set if this is not set"`
 }
 
 func main() {
@@ -45,8 +46,8 @@ func main() {
 
 	http.HandleFunc("/healthz", healthHandler)
 
-	sse := initializeSSEBroadcaster("/api/sse")
-	http.HandleFunc("/api/ssestatus", sse.StatusHandler)
+	sse := initializeSSEBroadcaster("/api/sse", config.CORS)
+	http.HandleFunc("/api/ssestatus", internal.InitCORSMiddleware(config.CORS, sse.StatusHandler).Handler)
 	sseCh := make(chan internal.SSEEvent, sseChannelSize)
 	wg.Add(1)
 	go func() {
@@ -55,8 +56,8 @@ func main() {
 	}()
 
 	alertsController := internal.NewAlertsController(sseCh, config.LLMURL, config.LLMModel, config.Prompts)
-	http.HandleFunc("/api/prompt", alertsController.PromptHandler)
-	http.HandleFunc("/api/alertsstatus", alertsController.StatusHandler)
+	http.HandleFunc("/api/prompt", internal.InitCORSMiddleware(config.CORS, alertsController.PromptHandler).Handler)
+	http.HandleFunc("/api/alertsstatus", internal.InitCORSMiddleware(config.CORS, alertsController.StatusHandler).Handler)
 	wg.Add(1)
 	go func() {
 		alertsController.LLMChannelProcessor(shutdownCtx)
@@ -129,9 +130,9 @@ func initializeDocroot(path string) http.FileSystem {
 	}
 }
 
-func initializeSSEBroadcaster(uri string) *internal.SSEBroadcaster {
+func initializeSSEBroadcaster(uri, cors string) *internal.SSEBroadcaster {
 	sse := internal.NewSSEBroadcaster()
-	http.HandleFunc(uri, sse.HTTPHandler)
+	http.HandleFunc(uri, internal.InitCORSMiddleware(cors, sse.HTTPHandler).Handler)
 	return sse
 }
 
