@@ -99,6 +99,7 @@ func instantiateController(t *testing.T) (*AlertsController, *mockLLM, *httptest
 		make(chan SSEEvent, 10),
 		svr.URL,
 		"dummy",
+		"300m",
 		"",
 	)
 	return controller, &llm, svr

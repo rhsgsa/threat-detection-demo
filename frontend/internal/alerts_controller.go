@@ -44,6 +44,7 @@ type AlertsController struct {
 	sseCh          chan SSEEvent
 	llmURL         string
 	llmModel       string
+	keepAlive      string
 	prompt         string
 	latestAlert    alertEvent
 	latestAlertMux sync.RWMutex
@@ -54,7 +55,7 @@ type AlertsController struct {
 
 // Ensure that ch is a buffered channel - if the channel is not buffered,
 // sending events to this channel will fail
-func NewAlertsController(ch chan SSEEvent, llmURL, llmModel, promptsFile string) *AlertsController {
+func NewAlertsController(ch chan SSEEvent, llmURL, llmModel, keepAlive, promptsFile string) *AlertsController {
 	if cap(ch) < 1 {
 		log.Fatal("SSEEvent channel cannot be unbuffered")
 	}
@@ -75,12 +76,13 @@ func NewAlertsController(ch chan SSEEvent, llmURL, llmModel, promptsFile string)
 		log.Fatalf("no prompts defined")
 	}
 	c := AlertsController{
-		sseCh:    ch,
-		llmURL:   llmURL,
-		llmModel: llmModel,
-		prompt:   prompts[0],
-		prompts:  prompts,
-		llmCh:    make(chan alertEvent, llmChannelSize),
+		sseCh:     ch,
+		llmURL:    llmURL,
+		llmModel:  llmModel,
+		keepAlive: keepAlive,
+		prompt:    prompts[0],
+		prompts:   prompts,
+		llmCh:     make(chan alertEvent, llmChannelSize),
 	}
 	return &c
 }
@@ -206,13 +208,15 @@ func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 			})
 
 			llmReq := struct {
-				Model  string   `json:"model"`
-				Prompt string   `json:"prompt"`
-				Images []string `json:"images"`
+				Model     string   `json:"model"`
+				KeepAlive string   `json:"keep_alive"`
+				Prompt    string   `json:"prompt"`
+				Images    []string `json:"images"`
 			}{
-				Model:  controller.llmModel,
-				Prompt: event.prompt,
-				Images: []string{string(event.rawImage)},
+				Model:     controller.llmModel,
+				KeepAlive: controller.keepAlive,
+				Prompt:    event.prompt,
+				Images:    []string{string(event.rawImage)},
 			}
 
 			payload, err := json.Marshal(llmReq)
