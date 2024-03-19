@@ -12,6 +12,7 @@ podman run \
   --group-add keep-groups \
   --security-opt label=disable \
   --env NVIDIA_DRIVER_CAPABILITIES=all \
+  --env NVIDIA_VISIBLE_DEVICES=0 \
   --env CAMERA=/videos/video.mp4 \
   --env MQTT_SERVER=$MQTT_SERVER \
   --env MQTT_PORT=80 \

@@ -1,10 +1,10 @@
 PROJ=demo
 IMAGE_ACQUIRER=ghcr.io/kwkoo/image-acquirer
-IMAGE_ACQUIRER_BASE_IMAGE=nvcr.io/nvidia/cuda:12.3.1-devel-ubi9
 FRONTEND_IMAGE=ghcr.io/kwkoo/threat-frontend
 MOCK_OLLAMA_IMAGE=ghcr.io/kwkoo/mock-ollama
 BUILDERNAME=multiarch-builder
-MODEL_URL=https://github.com/rhsgsa/threat-detection-demo/releases/download/v0.1/NCS_YOLOv8-20Epochs.pt
+MODEL_NAME=NCS_YOLOv8-20Epochs.pt
+MODEL_URL=https://github.com/rhsgsa/threat-detection-demo/releases/download/v0.1/$(MODEL_NAME)
 
 BASE:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
@@ -34,11 +34,16 @@ image-acquirer:
 	  --cache-to type=local,dest=$(BASE)/docker-cache,mode=max \
 	  --cache-from type=local,src=$(BASE)/docker-cache \
 	  --rm \
-	  --build-arg BASE_IMAGE=$(IMAGE_ACQUIRER_BASE_IMAGE) \
+	  --build-arg MODEL_NAME=$(MODEL_NAME) \
 	  --build-arg MODEL_URL=$(MODEL_URL) \
 	  -t $(IMAGE_ACQUIRER) \
 	  $(BASE)/image-acquirer
-	#docker build --rm -t $(IMAGE_ACQUIRER) $(BASE)/image-acquirer
+	#docker build \
+	#  --rm \
+	#  -t $(IMAGE_ACQUIRER) \
+	#  --build-arg MODEL_NAME=$(MODEL_NAME) \
+	#  --build-arg MODEL_URL=$(MODEL_URL) \
+	#  $(BASE)/image-acquirer
 
 image-frontend:
 	-mkdir -p $(BASE)/docker-cache
