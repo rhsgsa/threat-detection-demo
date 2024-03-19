@@ -18,3 +18,8 @@ The `image-acquirer` can be configured with the following environment variables:
 |`FORCE_CPU`|`no`|Force YOLO to use the CPU for inferencing instead of the GPU - set to `yes` if you wish to activate this|
 |`MODEL`|`best.pt`|YOLO model name|
 |`CONFIDENCE`|`0.25`|Minimum confidence score for YOLO detection|
+
+
+## Resources
+
+*   [Paho Python Docs](https://eclipse.dev/paho/files/paho.mqtt.python/html/)

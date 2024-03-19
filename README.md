@@ -35,11 +35,17 @@ sequenceDiagram
 
 01. Provision an `AWS Blank Open Environment` in `ap-southeast-1`, create an OpenShift cluster with at least 1 `p3.8xlarge` worker node (this is needed because we are using the 34b-parameter LLaVA model)
 
+	*   Create a new directory for the install files
+
+			mkdir demo
+
+			cd demo
+
 	*   Generate `install-config.yaml`
 
 			openshift-install create install-config
 
-	*   Set the compute pool to 1 replica with `p3.8xlarge` intances, and set the control plane to a single master
+	*   Set the compute pool to 1 replica with `p3.8xlarge` intances, and set the control plane to a single master (you will need to have `yq` installed)
 
 			mv install-config.yaml install-config-old.yaml
 
@@ -72,8 +78,10 @@ sequenceDiagram
 
 	*   Copy the video into the pod
 
+			SRC_VIDEO=my-video.mp4
+
 			oc cp \
-			  my-video.mp4 \
+			  $SRC_VIDEO \
 			  `oc get po -n demo -l app=image-acquirer -o jsonpath='{.items[0].metadata.name}'`:/videos/video.mp4 \
 			  -n demo
 
@@ -102,8 +110,3 @@ If you wish to make changes to the static content for the frontend, you can run 
 	docker compose -f frontend-with-mocks.yaml up
 
 Any changes you make to the files in `frontend/docroot/` should be reflected immediately.
-
-
-## Resources
-
-*   [Paho Python Docs](https://eclipse.dev/paho/files/paho.mqtt.python/html/)
