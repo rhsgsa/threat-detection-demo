@@ -22,7 +22,7 @@ body {
     margin-bottom: 20px;
 }
 
-.show-annotated {
+.show-annotated, .sound-config {
     margin-top: 10px;
     margin-bottom: 20px;
     text-align: center;

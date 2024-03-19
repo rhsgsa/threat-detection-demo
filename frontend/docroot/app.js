@@ -9,6 +9,8 @@ var prompt = null;
 var promptChoices = null;
 var promptChoicesSpinner = null;
 var sseErrors = 0;
+var playSound = null;
+var sound = new Audio("warning.mp3");
 
 // https://www.w3schools.com/howto/howto_js_snackbar.asp
 function showMessage(msg) {
@@ -117,6 +119,7 @@ function processImageEvent(event) {
   else
     rawImage = event.data;
   refreshPhoto();
+  if (playSound.checked) sound.play();
 }
 
 function startup() {
@@ -130,6 +133,7 @@ function startup() {
   prompt = document.getElementById('prompt');
   promptChoices = document.getElementById('prompt-choices');
   promptChoicesSpinner = document.getElementById('prompt-choices-spinner');
+  playSound = document.getElementById('play-sound');
 
   const evtSource = new EventSource("/api/sse");
   evtSource.addEventListener("timestamp", processTimestampEvent);

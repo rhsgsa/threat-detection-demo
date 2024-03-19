@@ -11,3 +11,8 @@
 |`MQTTBROKER`|`tcp://localhost:1883`|MQTT broker URL|
 |`PORT`|`8080`|Web server port|
 |`PROMPTS`||Path to file containing prompts to use - will use hardcoded prompts if this is not set|
+
+
+## Sound File
+
+The sound file was downloaded from [pixabay.com](https://pixabay.com/service/terms/)
