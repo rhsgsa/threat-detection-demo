@@ -53,6 +53,7 @@ FROM base-$TARGETARCH
 
 CMD ["python3", "./app.py"]
 
+ARG MODEL_URL MODEL_NAME
 ENV \
   HOME=/app \
   CAMERA=/dev/video0 \
@@ -64,7 +65,6 @@ COPY --chown=:0 ./app/requirements.txt /app/
 
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-ARG MODEL_URL MODEL_NAME
 RUN curl -LO $MODEL_URL
 
 COPY --chown=:0 ./app/ /app/

@@ -23,6 +23,5 @@ podman run \
   --env MQTT_PORT=80 \
   --env MQTT_TRANSPORT=websockets \
   --env MQTT_TOPIC=alerts \
-  --env MODEL=NCS_YOLOv8-20Epochs.pt \
   --env CONFIDENCE=0.5 \
   $IMAGE

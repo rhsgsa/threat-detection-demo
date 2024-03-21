@@ -236,7 +236,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     mqttc = None
-    if mqtt_topic is None or mqtt_server is None:
+    if mqtt_topic is None or mqtt_server is None or mqtt_topic == "" or mqtt_server == "":
         logging.info('starting without mqtt client')
     else:
         mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, transport=mqtt_transport, reconnect_on_failure=True)
