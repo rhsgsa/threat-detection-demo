@@ -1,28 +1,3 @@
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.463150514Z","response":",","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.47952914Z","response":" which","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.502493742Z","response":" appears","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.518096007Z","response":" to","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.538820516Z","response":" be","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.555840967Z","response":" an","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.571684497Z","response":" electronic","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.587045036Z","response":" cig","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.605557226Z","response":"aret","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.625700567Z","response":"te","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.641362361Z","response":" or","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.657269424Z","response":" va","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.672807116Z","response":"pe","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.696938377Z","response":" device","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.712490702Z","response":".","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.733540321Z","response":" It","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.749114158Z","response":" is","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.764404567Z","response":" not","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.786623155Z","response":" a","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.801912309Z","response":" traditional","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.825459463Z","response":" gun","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.841200849Z","response":" or","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.856780524Z","response":" weapon","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.88061473Z","response":".","done":false}
-{"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:10.896492828Z","response":"","done":true,"context":[29871,13,11889,29901,13355,1598,278,28639,297,278,7623,13,22933,5425,1254,13566,29901,450,1967,3697,263,1361,29882,2495,27758,4742,29892,607,5692,304,367,385,27758,29507,10474,371,470,2947,412,4742,29889,739,338,451,263,13807,13736,470,28639,29889],"total_duration":617981254,"load_duration":2431663,"prompt_eval_count":1,"prompt_eval_duration":18085000,"eval_count":34,"eval_duration":594017000}
 {"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.424007474Z","response":" The","done":false}
 {"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.440630171Z","response":" image","done":false}
 {"model":"llava:13b-v1.6","created_at":"2024-03-14T14:29:22.456404506Z","response":" shows","done":false}
