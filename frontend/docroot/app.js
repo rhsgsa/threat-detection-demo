@@ -29,6 +29,7 @@ function showMessage(msg) {
 }
 
 function setNewPromptOnServer(p) {
+  showMessage('setting prompt');
   fetch('/api/prompt', {
     method: 'POST',
     headers: {
@@ -37,7 +38,17 @@ function setNewPromptOnServer(p) {
     body: JSON.stringify({ prompt: p })
   })
   .then(response => {
-    showMessage('setting prompt');
+    if (response.status >= 200 && response.status < 300) {
+      showMessage('prompt set successfully');
+      return null;
+    }
+
+    showMessage('error setting prompt: ' + response.status);
+    return response.text();
+  })
+  .then(text => {
+    if (text == null) return;
+    showMessage(text);
   })
   .catch(error => {
     showMessage(error);

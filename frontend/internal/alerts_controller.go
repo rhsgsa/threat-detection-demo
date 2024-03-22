@@ -117,8 +117,18 @@ func (controller *AlertsController) PromptHandler(w http.ResponseWriter, r *http
 		http.Error(w, fmt.Sprintf("error decoding HTTP request body for prompt endpoint: %v", err), http.StatusInternalServerError)
 		return
 	}
+	if in.Prompt == "" {
+		http.Error(w, "prompt cannot be empty", http.StatusPreconditionRequired)
+		return
+	}
 	controller.setPrompt(in.Prompt)
 	event := controller.getLatestAlert()
+
+	// if we don't have a latest alert, we don't have to pass it to the LLMChannelProcessor
+	if event.annotatedImage == nil && event.rawImage == nil && event.timestamp == 0 {
+		http.Error(w, "prompt set - but we do not have any pending alerts", http.StatusPreconditionFailed)
+		return
+	}
 	event.prompt = in.Prompt
 	select {
 	case controller.llmCh <- event:
@@ -211,12 +221,14 @@ func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 				Model     string   `json:"model"`
 				KeepAlive string   `json:"keep_alive"`
 				Prompt    string   `json:"prompt"`
-				Images    []string `json:"images"`
+				Images    []string `json:"images,omitempty"`
 			}{
 				Model:     controller.llmModel,
 				KeepAlive: controller.keepAlive,
 				Prompt:    event.prompt,
-				Images:    []string{string(event.rawImage)},
+			}
+			if event.rawImage != nil {
+				llmReq.Images = []string{string(event.rawImage)}
 			}
 
 			payload, err := json.Marshal(llmReq)
@@ -297,15 +309,25 @@ func (controller *AlertsController) setPrompt(newprompt string) {
 
 func (controller *AlertsController) getLatestAlert() alertEvent {
 	controller.latestAlertMux.RLock()
-	dup := alertEvent{
-		annotatedImage: make([]byte, len(controller.latestAlert.annotatedImage)),
-		rawImage:       make([]byte, len(controller.latestAlert.rawImage)),
-		timestamp:      controller.latestAlert.timestamp,
-		prompt:         controller.latestAlert.prompt,
+	defer controller.latestAlertMux.RUnlock()
+
+	if controller.latestAlert.annotatedImage == nil && controller.latestAlert.rawImage == nil && controller.latestAlert.timestamp == 0 {
+		return alertEvent{}
 	}
-	copy(dup.annotatedImage, controller.latestAlert.annotatedImage)
-	copy(dup.rawImage, controller.latestAlert.rawImage)
-	controller.latestAlertMux.RUnlock()
+
+	dup := alertEvent{
+		timestamp: controller.latestAlert.timestamp,
+		prompt:    controller.latestAlert.prompt,
+	}
+	if controller.latestAlert.annotatedImage != nil {
+		dup.annotatedImage = make([]byte, len(controller.latestAlert.annotatedImage))
+		copy(dup.annotatedImage, controller.latestAlert.annotatedImage)
+	}
+	if controller.latestAlert.rawImage != nil {
+		dup.rawImage = make([]byte, len(controller.latestAlert.rawImage))
+		copy(dup.rawImage, controller.latestAlert.rawImage)
+	}
+
 	return dup
 }
 
