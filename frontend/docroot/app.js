@@ -11,6 +11,7 @@ var promptChoicesSpinner = null;
 var sseErrors = 0;
 var playSound = null;
 var sound = new Audio("warning.mp3");
+var currentImageTimestamp = 0; // used by the sound.play() logic to determine if we have already played the emergency sound on this image
 
 // https://www.w3schools.com/howto/howto_js_snackbar.asp
 function showMessage(msg) {
@@ -109,6 +110,13 @@ function processTimestampEvent(event) {
   let date = new Date(event.data * 1000);
   let time = date.toString().split(' ')[4];
   timestamp.innerText = time;
+
+  // play sound if we have never seen this timestamp before
+  if (playSound.checked && currentImageTimestamp != event.data) {
+    console.log("currentImageTimestamp=" + currentImageTimestamp + " event.data=" + event.data);
+    currentImageTimestamp = event.data;
+    sound.play();
+  }
 }
 
 function processImageEvent(event) {
@@ -119,7 +127,6 @@ function processImageEvent(event) {
   else
     rawImage = event.data;
   refreshPhoto();
-  if (playSound.checked) sound.play();
 }
 
 function startup() {
