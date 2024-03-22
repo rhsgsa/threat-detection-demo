@@ -18,6 +18,7 @@ The `image-acquirer` can be configured with the following environment variables:
 |`MQTT_TOPIC`|`alerts`|MQTT topic to publish messages to|
 |`MQTT_TRANSPORT`|`tcp`|`websockets` is also valid|
 |`PORT`|`8080`|Web server port number|
+|`RESIZE`||Resolution to resize the image to, in the form `widthxheight` (e.g. `640x480`); will not resize if not set|
 
 
 ## Resources

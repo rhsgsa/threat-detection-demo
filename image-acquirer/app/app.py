@@ -86,9 +86,26 @@ def stop_detection_task():
     background_thread.join()
     logging.info("background thread exited cleanly")
 
-def detection_task(camera_device, model_name, confidence, force_cpu, interested_classes, mqttc, mqtt_topic):
+def process_resize_str(resize: str) -> (int, int):
+    if resize is None:
+        return 0, 0
+    parts = resize.split('x')
+    if len(parts) < 2:
+        return 0, 0
+    try:
+        return int(parts[0]), int(parts[1])
+    except ValueError:
+        return 0, 0
+
+def detection_task(camera_device, resize, model_name, confidence, force_cpu, interested_classes, mqttc, mqtt_topic):
     retry = 500
     interesting_objects = InterestingObjects(interested_classes)
+
+    resize_width, resize_height = process_resize_str(resize)
+    if resize_width > 0 and resize_height > 0:
+        logging.info(f"will resize input images to {resize_width}x{resize_height}")
+    else:
+        logging.info("will not resize images")
 
     accel_device = "cpu"
     if force_cpu:
@@ -119,7 +136,7 @@ def detection_task(camera_device, model_name, confidence, force_cpu, interested_
     retry_pause = False
 
     while continue_running.is_set():
-        result, frame = cam.read()
+        result, cam_frame = cam.read()
         if not result:
             logging.info("Video source did not return a frame")
             cam.open(camera_device)
@@ -130,6 +147,11 @@ def detection_task(camera_device, model_name, confidence, force_cpu, interested_
             continue
 
         retry_pause = False
+
+        frame = cam_frame
+        if resize_width > 0 and resize_height > 0:
+            frame = cv2.resize(cam_frame, (resize_width, resize_height))
+
         results = model.track(frame, persist=True, device=accel_device, conf=confidence)
         if len(results) < 1:
             continue
@@ -259,6 +281,8 @@ if __name__ == '__main__':
         logging.error(f'could not convert CONFIDENCE ({confidence_str}) to float')
         sys.exit(1)
 
+    resize = os.getenv('RESIZE', '')
+
     announcer = MessageAnnouncer()
 
     with app.app_context():
@@ -266,7 +290,7 @@ if __name__ == '__main__':
         continue_running.set()
         background_thread = threading.Thread(
             target=detection_task,
-            args=(camera_device, model_name, confidence, force_cpu, interested_classes, mqttc, mqtt_topic)
+            args=(camera_device, resize, model_name, confidence, force_cpu, interested_classes, mqttc, mqtt_topic)
         )
         background_thread.start()
 
