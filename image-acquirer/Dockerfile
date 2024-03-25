@@ -12,6 +12,7 @@ ENV \
   CAMERA=/dev/video0
 
 RUN \
+  --mount=type=cache,target=/var/cache/image-acquirer-base-$TARGETARCH \
   yum update -y \
   && \
   yum install -y python3-pip mesa-libGL libjpeg libpng libjpeg-devel libpng-devel python3-devel \
@@ -23,6 +24,7 @@ RUN \
 FROM nvcr.io/nvidia/l4t-pytorch:r35.2.1-pth2.0-py3 AS base-arm64
 
 RUN \
+  --mount=type=cache,target=/var/cache/image-acquirer-base-$TARGETARCH \
   apt update -y \
   && \
   apt install -y curl \
@@ -63,7 +65,9 @@ WORKDIR /app
 EXPOSE 8080
 COPY --chown=:0 ./app/requirements.txt /app/
 
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN \
+  --mount=type=cache,target=/var/cache/image-acquirer-pip-$TARGETARCH \
+  pip3 install --no-cache-dir -r requirements.txt
 
 RUN curl -LO $MODEL_URL
 
