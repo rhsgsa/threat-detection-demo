@@ -30,17 +30,15 @@ services:
 
   frontend:
     container_name: frontend
-    image: "ghcr.io/kwkoo/threat-frontend"
+    image: "docker.io/rach228/threat-frontend:1.8"
     environment:
     - MQTTBROKER=tcp://mqtt:1883
     - PORT=8080
-    - DOCROOT=/docroot
+    - DOCROOT=/var/www/html
     - ALERTSTOPIC=alerts
     - LLMURL=http://mock-ollama:11434/api/generate
     ports:
     - 8080:8080
-    volumes:
-    - ../../frontend/docroot:/docroot:ro,z
     depends_on:
     - mqtt
 
