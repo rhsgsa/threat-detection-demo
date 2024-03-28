@@ -6,7 +6,9 @@ ARG TARGETARCH
 WORKDIR /app
 
 COPY go.mod go.sum ./
-RUN go mod download
+RUN \
+  --mount=type=cache,target=/var/cache/threat-frontend-go-$TARGETARCH \
+  go mod download
 
 COPY . .
 
@@ -17,18 +19,26 @@ RUN \
   go build -a -installsuffix cgo -o ./threat-frontend .
 
 # Second stage: build the React frontend
-FROM node:16 AS react-builder
+FROM --platform=$BUILDPLATFORM node:16 AS react-builder
 
 WORKDIR /app
 
+COPY ./react/package.json ./react/package-lock.json ./
+RUN \
+  --mount=type=cache,target=/var/cache/threat-frontend-npm \
+  npm install
+
 # Copy React app source
-COPY ./react ./
+COPY ./react/ ./
 
 # Amend baseurl to string
-RUN sed -i -e "s/let baseurl.*/let baseurl = ''/" ./src/Dashboard.js
+RUN sed -i -e "s/let baseurl.*/let baseurl = ''/" ./src/Dashboard2.js
 
 # Install dependencies and build static files
-RUN npm install && npm run build
+RUN \
+  --mount=type=cache,target=/var/cache/threat-frontend-npm-build \
+  npm run build
+
 
 # Third stage: assemble the final image
 FROM scratch

@@ -23,7 +23,7 @@ import {
 } from 'react'
 
 import axios from 'axios';
-import ncsrhlogo from '../ncs_rh_logo.jpg';
+import ncsrhlogo from './ncs_rh_logo.jpg';
 
 let baseurl = 'http://localhost:8080'
 
