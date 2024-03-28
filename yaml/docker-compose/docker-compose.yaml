@@ -31,7 +31,7 @@ services:
 
   frontend:
     container_name: frontend
-    image: "ghcr.io/kwkoo/threat-frontend"
+    image: "ghcr.io/rhsgsa/threat-frontend:1.8"
     environment:
     - MQTTBROKER=tcp://mqtt:1883
     - PORT=8080

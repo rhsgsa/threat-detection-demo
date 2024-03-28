@@ -1,6 +1,6 @@
 PROJ=demo
 IMAGE_ACQUIRER=ghcr.io/kwkoo/image-acquirer
-FRONTEND_IMAGE=ghcr.io/kwkoo/threat-frontend
+FRONTEND_IMAGE=ghcr.io/rhsgsa/threat-frontend:1.8
 MOCK_OLLAMA_IMAGE=ghcr.io/kwkoo/mock-ollama
 BUILDERNAME=multiarch-builder
 MODEL_NAME=NCS_YOLOv8-20Epochs.pt
@@ -54,6 +54,7 @@ image-frontend:
 	  --cache-to type=local,dest=$(BASE)/docker-cache,mode=max \
 	  --cache-from type=local,src=$(BASE)/docker-cache \
 	  --rm \
+	  --progress plain \
 	  -t $(FRONTEND_IMAGE) \
 	  $(BASE)/frontend
 	#docker build --rm -t $(FRONTEND_IMAGE) $(BASE)/frontend

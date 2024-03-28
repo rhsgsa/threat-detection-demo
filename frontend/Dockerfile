@@ -1,13 +1,16 @@
-FROM --platform=$BUILDPLATFORM docker.io/golang:1.22.1 AS builder
+# First stage: build the Go binary
+FROM --platform=$BUILDPLATFORM docker.io/golang:1.22.1 AS go-builder
 
 ARG TARGETARCH
 
 WORKDIR /app
 
-COPY go.mod go.sum /app/
-RUN go mod download
+COPY go.mod go.sum ./
+RUN \
+  --mount=type=cache,target=/var/cache/threat-frontend-go-$TARGETARCH \
+  go mod download
 
-COPY . /app/
+COPY . .
 
 RUN \
   GOOS=linux \
@@ -15,12 +18,42 @@ RUN \
   CGO_ENABLED=0 \
   go build -a -installsuffix cgo -o ./threat-frontend .
 
+# Second stage: build the React frontend
+FROM --platform=$BUILDPLATFORM node:16 AS react-builder
+
+WORKDIR /app
+
+COPY ./react/package.json ./react/package-lock.json ./
+RUN \
+  --mount=type=cache,target=/var/cache/threat-frontend-npm \
+  npm install
+
+# Copy React app source
+COPY ./react/ ./
+
+# Amend baseurl to string
+RUN sed -i -e "s/let baseurl.*/let baseurl = ''/" ./src/Dashboard2.js
+
+# Install dependencies and build static files
+RUN \
+  --mount=type=cache,target=/var/cache/threat-frontend-npm-build \
+  npm run build
+
+
+# Third stage: assemble the final image
 FROM scratch
 
 EXPOSE 8080
 
+# Define DOCROOT env variable
+ENV DOCROOT=/var/www/html
+
 LABEL maintainer="kin.wai.koo@gmail.com"
 
-COPY --from=builder --chown=1000:0 --chmod=775 /app/threat-frontend /usr/local/bin/threat-frontend
+# Copy the Go binary from the first stage
+COPY --from=go-builder --chown=1000:0 --chmod=775 /app/threat-frontend /usr/local/bin/threat-frontend
+
+# Copy the built React app from the second stage
+COPY --from=react-builder /app/build $DOCROOT
 
 CMD ["/usr/local/bin/threat-frontend"]

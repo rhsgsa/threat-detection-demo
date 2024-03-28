@@ -18,13 +18,15 @@ spec:
         app: frontend
     spec:
       containers:
-      - image: ghcr.io/kwkoo/threat-frontend
+      - image: ghcr.io/rhsgsa/threat-frontend:1.8
         name: frontend
         env:
         - name: MQTTBROKER
           value: tcp://mosquitto:1883
         - name: PORT
           value: "8080"
+        - name: DOCROOT
+          value: "/var/www/html"
         - name: ALERTSTOPIC
           value: alerts
         - name: LLMURL
