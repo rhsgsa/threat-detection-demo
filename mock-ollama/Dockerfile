@@ -4,10 +4,12 @@ ARG TARGETARCH
 
 WORKDIR /app
 
-COPY go.mod go.sum /app/
-RUN go mod download
+RUN \
+  --mount=type=bind,source=./go.mod,target=/app/go.mod \
+  --mount=type=bind,source=./go.sum,target=/app/go.sum \
+  go mod download
 
-COPY . /app/
+COPY . .
 
 RUN \
   GOOS=linux \

@@ -1,13 +1,11 @@
 # First stage: build the Go binary
 FROM --platform=$BUILDPLATFORM docker.io/golang:1.22.1 AS go-builder
 
-ARG TARGETARCH
-
 WORKDIR /app
 
-COPY go.mod go.sum ./
 RUN \
-  --mount=type=cache,target=/var/cache/threat-frontend-go-$TARGETARCH \
+  --mount=type=bind,source=./go.mod,target=/app/go.mod \
+  --mount=type=bind,source=./go.sum,target=/app/go.sum \
   go mod download
 
 COPY . .
@@ -24,20 +22,16 @@ FROM --platform=$BUILDPLATFORM node:16 AS react-builder
 WORKDIR /app
 
 COPY ./react/package.json ./react/package-lock.json ./
-RUN \
-  --mount=type=cache,target=/var/cache/threat-frontend-npm \
-  npm install
+RUN npm install
 
 # Copy React app source
 COPY ./react/ ./
 
 # Amend baseurl to string
-RUN sed -i -e "s/let baseurl.*/let baseurl = ''/" ./src/Dashboard2.js
-
-# Install dependencies and build static files
 RUN \
-  --mount=type=cache,target=/var/cache/threat-frontend-npm-build \
-  npm run build
+  sed -i -e "s/let baseurl.*/let baseurl = ''/" ./src/Dashboard2.js \
+  && \
+  npm run build # Install dependencies and build static files
 
 
 # Third stage: assemble the final image

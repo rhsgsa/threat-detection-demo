@@ -1,6 +1,7 @@
 PROJ=demo
 IMAGE_ACQUIRER=ghcr.io/kwkoo/image-acquirer
-FRONTEND_IMAGE=ghcr.io/rhsgsa/threat-frontend:1.8
+FRONTEND_IMAGE=ghcr.io/rhsgsa/threat-frontend
+FRONTEND_VERSION=1.8
 MOCK_OLLAMA_IMAGE=ghcr.io/kwkoo/mock-ollama
 BUILDERNAME=multiarch-builder
 MODEL_NAME=NCS_YOLOv8-20Epochs.pt
@@ -8,7 +9,7 @@ MODEL_URL=https://github.com/rhsgsa/threat-detection-demo/releases/download/v0.1
 
 BASE:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
-.PHONY: deploy image-acquirer image-frontend ensure-logged-in deploy-nfd deploy-nvidia
+.PHONY: deploy image-acquirer image-frontend image-mock-ollama buildx-builder ensure-logged-in deploy-nfd deploy-nvidia
 
 # deploys all components to a single OpenShift cluster
 deploy: ensure-logged-in
@@ -25,52 +26,109 @@ ensure-logged-in:
 	oc whoami
 	@echo 'user is logged in'
 
-image-acquirer:
-	-mkdir -p $(BASE)/docker-cache
-	docker buildx use $(BUILDERNAME) || docker buildx create --name $(BUILDERNAME) --use
+image-acquirer: buildx-builder
 	docker buildx build \
 	  --push \
-	  --platform=linux/amd64,linux/arm64 \
-	  --cache-to type=local,dest=$(BASE)/docker-cache,mode=max \
-	  --cache-from type=local,src=$(BASE)/docker-cache \
+	  --provenance false \
+	  --sbom false \
+	  --platform=linux/amd64 \
+	  --cache-to type=local,dest=$(BASE)/docker-cache/amd64,mode=max \
+	  --cache-from type=local,src=$(BASE)/docker-cache/amd64 \
 	  --rm \
 	  --build-arg MODEL_NAME=$(MODEL_NAME) \
 	  --build-arg MODEL_URL=$(MODEL_URL) \
-	  -t $(IMAGE_ACQUIRER) \
+	  -t $(IMAGE_ACQUIRER):amd64 \
 	  $(BASE)/image-acquirer
-	#docker build \
-	#  --rm \
-	#  -t $(IMAGE_ACQUIRER) \
-	#  --build-arg MODEL_NAME=$(MODEL_NAME) \
-	#  --build-arg MODEL_URL=$(MODEL_URL) \
-	#  $(BASE)/image-acquirer
-
-image-frontend:
-	-mkdir -p $(BASE)/docker-cache
-	docker buildx use $(BUILDERNAME) || docker buildx create --name $(BUILDERNAME) --use
 	docker buildx build \
 	  --push \
-	  --platform=linux/amd64,linux/arm64 \
-	  --cache-to type=local,dest=$(BASE)/docker-cache,mode=max \
-	  --cache-from type=local,src=$(BASE)/docker-cache \
+	  --provenance false \
+	  --sbom false \
+	  --platform=linux/arm64 \
+	  --cache-to type=local,dest=$(BASE)/docker-cache/arm64,mode=max \
+	  --cache-from type=local,src=$(BASE)/docker-cache/arm64 \
+	  --rm \
+	  --build-arg MODEL_NAME=$(MODEL_NAME) \
+	  --build-arg MODEL_URL=$(MODEL_URL) \
+	  -t $(IMAGE_ACQUIRER):arm64 \
+	  $(BASE)/image-acquirer
+	docker manifest create \
+	  $(IMAGE_ACQUIRER):latest \
+	  --amend $(IMAGE_ACQUIRER):amd64 \
+	  --amend $(IMAGE_ACQUIRER):arm64
+	docker manifest push --purge $(IMAGE_ACQUIRER):latest
+	@#docker build \
+	@#  --rm \
+	@#  -t $(IMAGE_ACQUIRER) \
+	@#  --build-arg MODEL_NAME=$(MODEL_NAME) \
+	@#  --build-arg MODEL_URL=$(MODEL_URL) \
+	@#  $(BASE)/image-acquirer
+
+image-frontend: buildx-builder
+	docker buildx build \
+	  --push \
+	  --provenance false \
+	  --sbom false \
+	  --platform=linux/amd64 \
+	  --cache-to type=local,dest=$(BASE)/docker-cache/amd64,mode=max \
+	  --cache-from type=local,src=$(BASE)/docker-cache/amd64 \
 	  --rm \
 	  --progress plain \
-	  -t $(FRONTEND_IMAGE) \
+	  -t $(FRONTEND_IMAGE):$(FRONTEND_VERSION)-amd64 \
 	  $(BASE)/frontend
-	#docker build --rm -t $(FRONTEND_IMAGE) $(BASE)/frontend
-
-image-mock-ollama:
-	-mkdir -p $(BASE)/docker-cache
-	docker buildx use $(BUILDERNAME) || docker buildx create --name $(BUILDERNAME) --use
 	docker buildx build \
 	  --push \
-	  --platform=linux/amd64,linux/arm64 \
-	  --cache-to type=local,dest=$(BASE)/docker-cache,mode=max \
-	  --cache-from type=local,src=$(BASE)/docker-cache \
+	  --provenance false \
+	  --sbom false \
+	  --platform=linux/arm64 \
+	  --cache-to type=local,dest=$(BASE)/docker-cache/arm64,mode=max \
+	  --cache-from type=local,src=$(BASE)/docker-cache/arm64 \
 	  --rm \
-	  -t $(MOCK_OLLAMA_IMAGE) \
+	  --progress plain \
+	  -t $(FRONTEND_IMAGE):$(FRONTEND_VERSION)-arm64 \
+	  $(BASE)/frontend
+	docker manifest create \
+	  $(FRONTEND_IMAGE):$(FRONTEND_VERSION) \
+	  --amend $(FRONTEND_IMAGE):$(FRONTEND_VERSION)-amd64 \
+	  --amend $(FRONTEND_IMAGE):$(FRONTEND_VERSION)-arm64
+	docker manifest push --purge $(FRONTEND_IMAGE):$(FRONTEND_VERSION)
+	docker manifest create \
+	  $(FRONTEND_IMAGE):latest \
+	  --amend $(FRONTEND_IMAGE):$(FRONTEND_VERSION)-amd64 \
+	  --amend $(FRONTEND_IMAGE):$(FRONTEND_VERSION)-arm64
+	docker manifest push --purge $(FRONTEND_IMAGE):latest
+	@#docker build --rm -t $(FRONTEND_IMAGE) $(BASE)/frontend
+
+image-mock-ollama: buildx-builder
+	docker buildx build \
+	  --push \
+	  --provenance false \
+	  --sbom false \
+	  --platform=linux/amd64 \
+	  --cache-to type=local,dest=$(BASE)/docker-cache/amd64,mode=max \
+	  --cache-from type=local,src=$(BASE)/docker-cache/amd64 \
+	  --rm \
+	  -t $(MOCK_OLLAMA_IMAGE):amd64 \
 	  $(BASE)/mock-ollama
-	#docker build --rm -t $(MOCK_OLLAMA_IMAGE) $(BASE)/mock-ollama
+	docker buildx build \
+	  --push \
+	  --provenance false \
+	  --sbom false \
+	  --platform=linux/arm64 \
+	  --cache-to type=local,dest=$(BASE)/docker-cache/arm64,mode=max \
+	  --cache-from type=local,src=$(BASE)/docker-cache/arm64 \
+	  --rm \
+	  -t $(MOCK_OLLAMA_IMAGE):arm64 \
+	  $(BASE)/mock-ollama
+	docker manifest create \
+	  $(MOCK_OLLAMA_IMAGE):latest \
+	  --amend $(MOCK_OLLAMA_IMAGE):amd64 \
+	  --amend $(MOCK_OLLAMA_IMAGE):arm64
+	docker manifest push --purge $(MOCK_OLLAMA_IMAGE):latest
+	@#docker build --rm -t $(MOCK_OLLAMA_IMAGE) $(BASE)/mock-ollama
+
+buildx-builder:
+	-mkdir -p $(BASE)/docker-cache/amd64 $(BASE)/docker-cache/arm64 2>/dev/null
+	docker buildx use $(BUILDERNAME) || docker buildx create --name $(BUILDERNAME) --use --buildkitd-flags '--oci-worker-gc-keepstorage 50000'
 
 deploy-nfd: ensure-logged-in
 	@echo "deploying NodeFeatureDiscovery operator..."
