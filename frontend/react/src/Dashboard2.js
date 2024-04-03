@@ -106,34 +106,34 @@ function PlaySound ({timestamp}) {
 
 // Process GET prompt list from server
 function Promptlist () {
-    const [promptlist, setPromptlist] = useState('');
+    const [promptlist, setPromptlist] = useState(['Select prompt']);
   
     useEffect(() => {
       fetch(baseurl + '/api/prompt')
         .then(response => response.json())
-        .then(json => setPromptlist(json))
+        .then(json => {
+          setPromptlist(json);
+        })
         .catch(error => console.error(error));
     }, []);
   
     let dropdownArr = [];
     for (let i=0; i<promptlist.length; i++) {
-      dropdownArr.push(<option value={promptlist[i]}>{promptlist[i]}</option>)
+      dropdownArr.push(<option key={promptlist[i]} value={promptlist[i]}>{promptlist[i]}</option>)
     }
   
    return dropdownArr
   }
   
   // Prompt dropdown menu and POST prompt to server
-  function Dropdown () {
+  function Dropdown ({ prompt }) {
     const toast = useToast();
   
     const handleChangePrompt = async (event) => {
       try {
-        const config = {
-          headers: {
-            'Content-type': 'application/json',
-          },
-        };
+        const headers = new Headers();
+        headers.append('Content-Type', 'application/json');
+        const config = {headers: headers};
         let data = await axios.post(
           (baseurl + '/api/prompt'),
             JSON.stringify({
@@ -168,6 +168,7 @@ function Promptlist () {
               variant='outline' 
               placeholder='Select prompt'        
               onChange={handleChangePrompt}
+              value={ prompt==null||prompt==''?'Select prompt':prompt }
             >
               <Promptlist/>
             </Select>
@@ -190,10 +191,11 @@ function Dashboard2 () {
     const [ annotatedImage, setAnnotatedImage ] = useState('');
     const [ rawImage, setRawImage ] = useState('');
     const [ timestamp, setTimestamp ] = useState('');
+    const [ prompt, setPrompt ] = useState('');
     const [ response, setResponse ] = useState('');
 
     useEffect(() => {
-        const evtSource = new EventSource("http://localhost:8080/api/sse");
+        const evtSource = new EventSource(baseurl + "/api/sse");
         setIsLoaded(false);
 
         evtSource.addEventListener("annotated_image", event => {
@@ -209,6 +211,10 @@ function Dashboard2 () {
         evtSource.addEventListener("timestamp", event => {
         let date = new Date(event.data * 1000);
         setTimestamp(date.toString().split(' ')[4]);
+        });
+
+        evtSource.addEventListener("prompt", event => {
+        setPrompt(event.data);
         });
 
         evtSource.addEventListener("llm_response_start", event => {
@@ -268,7 +274,7 @@ function Dashboard2 () {
 
             <GridItem colSpan={1} rowSpan={1}>
             <VStack spacing={4}>
-                <Dropdown/>
+                <Dropdown prompt={prompt}/>
                 <Divider orientation="horizontal" />   
                 <Card>
                 <CardBody>
