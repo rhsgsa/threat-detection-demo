@@ -28,6 +28,26 @@ services:
     volumes:
     - ../../mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro,z
 
+  build_react:
+    container_name: build-react
+    image: "node:16"
+    working_dir: /app
+    entrypoint:
+    - bash
+    - "-c"
+    - |
+      echo "copying react files to /app..."
+      tar -C /host -cf - . | tar -xvf -
+      echo "installing dependencies..."
+      npm install
+      echo "generating static files..."
+      npm run build
+      echo "copying static files to /static..."
+      tar -C build -cf - . | tar -C /static -xvf -
+    volumes:
+    - react:/static
+    - ../../frontend/react:/host
+
   frontend:
     container_name: frontend
     image: "ghcr.io/rhsgsa/threat-frontend:1.8"
@@ -39,8 +59,11 @@ services:
     - LLMURL=http://mock-ollama:11434/api/generate
     ports:
     - 8080:8080
+    volumes:
+    - react:/var/www/html
     depends_on:
     - mqtt
+    - build_react
 
   mock-ollama:
     container_name: mock-ollama
@@ -51,3 +74,6 @@ services:
     - LINESLEEPMSECS=100
     volumes:
     - ../../mocks/ollama.txt:/mocks/ollama.txt:ro,z
+
+volumes:
+  react:
