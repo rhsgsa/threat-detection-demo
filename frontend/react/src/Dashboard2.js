@@ -14,16 +14,19 @@ import {
     Checkbox,
     Select,
     useToast,
+    Skeleton, 
 } from '@chakra-ui/react';
 
 import {
     React, 
     useState, 
-    useEffect
+    useEffect,
+    useRef,
 } from 'react'
 
 import axios from 'axios';
 import ncsrhlogo from './ncs_rh_logo.jpg';
+import threatAudio from './warning.mp3';
 
 let baseurl = 'http://localhost:8080'
 
@@ -68,6 +71,39 @@ function Photo({ annotatedImage, rawImage }) {
     </Container>)
 }
 
+function PlaySound ({timestamp}) {
+  const [ sound, setSound ] = useState();
+  const [checked, setChecked] = useState(false);
+  const [refresh, setRefresh] = useState(null);
+  const currentImageTimestamp = useRef(0);
+  const playSound = useRef(true);
+  const noSound = useRef(false);
+
+  useEffect(() => {
+    let alarm = new Audio(threatAudio);
+    let data = (checked?playSound.current:noSound.current);
+    if (data == null) {
+      return;
+    }else{
+        setSound(data);
+        if (sound === true && currentImageTimestamp.current !== timestamp) {
+          console.log("currentImageTimestamp=" + currentImageTimestamp.current + " event.data=" + timestamp);
+          currentImageTimestamp.current = timestamp;
+          alarm.play();
+        }
+    }
+    setRefresh(false);
+  }, [timestamp, refresh, checked, sound])
+
+  return (
+    <Container>
+        <Checkbox 
+        colorScheme='blue' 
+        onChange={(e) => setChecked(e.target.checked)}>Play Sound
+        </Checkbox>
+    </Container>)
+}
+
 // Process GET prompt list from server
 function Promptlist () {
     const [promptlist, setPromptlist] = useState('');
@@ -77,7 +113,7 @@ function Promptlist () {
         .then(response => response.json())
         .then(json => setPromptlist(json))
         .catch(error => console.error(error));
-    }, [baseurl]);
+    }, []);
   
     let dropdownArr = [];
     for (let i=0; i<promptlist.length; i++) {
@@ -106,7 +142,6 @@ function Promptlist () {
           config
         );
         console.log("🚀 ~ handleChangePrompt ~ data:", data)
-      //console.log(JSON.stringify({prompt: event.target.value,}));
         
         toast({
           title: 'Prompt Changed to ' + event.target.value,
@@ -139,14 +174,19 @@ function Promptlist () {
   }
   
   function Timestamp({ timestamp }) {
-    return <Heading color='blue.600' size='md'>Timestamp: {timestamp}</Heading>
+    return (
+      <Container>
+        <Heading color='blue.600' size='md'>Timestamp: {timestamp}</Heading>
+      </Container>
+      )
   }
   
   function LLM({ response }) {
-    return <textarea cols={65} rows={13} readOnly value={ response } />
+    return <textarea cols={70} rows={15} readOnly value={ response } />
   }
 
 function Dashboard2 () {
+    const [ isLoaded, setIsLoaded ] = useState(true);
     const [ annotatedImage, setAnnotatedImage ] = useState('');
     const [ rawImage, setRawImage ] = useState('');
     const [ timestamp, setTimestamp ] = useState('');
@@ -154,19 +194,27 @@ function Dashboard2 () {
 
     useEffect(() => {
         const evtSource = new EventSource("http://localhost:8080/api/sse");
+        setIsLoaded(false);
+
         evtSource.addEventListener("annotated_image", event => {
         setAnnotatedImage(event.data);
+        setIsLoaded(true);
         })
+
         evtSource.addEventListener("raw_image", event => {
         setRawImage(event.data);
+        setIsLoaded(true);
         })
+
         evtSource.addEventListener("timestamp", event => {
         let date = new Date(event.data * 1000);
         setTimestamp(date.toString().split(' ')[4]);
         });
+
         evtSource.addEventListener("llm_response_start", event => {
         setResponse('');
         });
+
         evtSource.addEventListener("llm_response", event => {
         const obj = JSON.parse(event.data);
         setResponse(oldResponse => oldResponse + obj.response);
@@ -204,7 +252,14 @@ function Dashboard2 () {
                     <CardBody>
                         <Stack mb='6' spacing='3'>   
                           <Timestamp timestamp={timestamp}/>
-                          <Photo annotatedImage={annotatedImage} rawImage={rawImage}/>
+                          <PlaySound timestamp={timestamp}/>
+                          <Skeleton
+                            height='345px'
+                            isLoaded={isLoaded}
+                            fadeDuration={1}
+                          >
+                            <Photo annotatedImage={annotatedImage} rawImage={rawImage}/>
+                          </Skeleton>
                         </Stack>
                     </CardBody>
                 </Card>

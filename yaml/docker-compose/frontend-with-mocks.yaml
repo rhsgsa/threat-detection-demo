@@ -28,25 +28,25 @@ services:
     volumes:
     - ../../mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro,z
 
-  build_react:
-    container_name: build-react
-    image: "node:16"
-    working_dir: /app
-    entrypoint:
-    - bash
-    - "-c"
-    - |
-      echo "copying react files to /app..."
-      tar -C /host -cf - . | tar -xvf -
-      echo "installing dependencies..."
-      npm install
-      echo "generating static files..."
-      npm run build
-      echo "copying static files to /static..."
-      tar -C build -cf - . | tar -C /static -xvf -
-    volumes:
-    - react:/static
-    - ../../frontend/react:/host
+  # build_react:
+  #   container_name: build-react
+  #   image: "node:16"
+  #   working_dir: /app
+  #   entrypoint:
+  #   - bash
+  #   - "-c"
+  #   - |
+  #     echo "copying react files to /app..."
+  #     tar -C /host -cf - . | tar -xvf -
+  #     echo "installing dependencies..."
+  #     npm install
+  #     echo "generating static files..."
+  #     npm run build
+  #     echo "copying static files to /static..."
+  #     tar -C build -cf - . | tar -C /static -xvf -
+  #   volumes:
+  #   - react:/static
+  #   - ../../frontend/react:/host
 
   frontend:
     container_name: frontend
@@ -54,7 +54,8 @@ services:
     environment:
     - MQTTBROKER=tcp://mqtt:1883
     - PORT=8080
-    - DOCROOT=/var/www/html
+    #- DOCROOT=/var/www/html
+    - DOCROOT=
     - ALERTSTOPIC=alerts
     - LLMURL=http://mock-ollama:11434/api/generate
     ports:
@@ -63,7 +64,7 @@ services:
     - react:/var/www/html
     depends_on:
     - mqtt
-    - build_react
+    #- build_react
 
   mock-ollama:
     container_name: mock-ollama
