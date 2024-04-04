@@ -4,8 +4,9 @@ data:
     Please describe this picture
     Is this person a threat?
     Identify the weapon in the picture
-    Is this situation dangerous?
+    Can this person pass security?|You are not allowed to bring any weapons past an airport security checkpoint, even if they are toys. Will this person be allowed to pass the security check?
     How many people are there in the picture?
+    Write a security report|You are monitoring a security camera. Write a security report about this incident.
 kind: ConfigMap
 metadata:
   labels:

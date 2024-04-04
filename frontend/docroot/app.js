@@ -28,14 +28,14 @@ function showMessage(msg) {
   }, 3000);
 }
 
-function setNewPromptOnServer(p) {
+function setNewPromptOnServer(id) {
   showMessage('setting prompt');
   fetch('/api/prompt', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ prompt: p })
+    body: JSON.stringify({ id: id })
   })
   .then(response => {
     if (response.status >= 200 && response.status < 300) {
@@ -72,10 +72,15 @@ function loadPromptChoices() {
     promptChoices.style.display = 'block';
     if (response == null) return;
     response.forEach(p => {
-      let d = document.createElement('div');
+      if (p.id == null || p.prompt == null) {
+        console.log('did not receive expected prompt fields');
+        console.log(p);
+        return;
+      }
+      let d = document.createElement('button');
       d.className = 'prompt-choice';
-      d.innerText = p;
-      d.onclick = function() { setNewPromptOnServer(p) };
+      d.innerText = p.prompt;
+      d.onclick = function() { setNewPromptOnServer(p.id) };
       promptChoices.appendChild(d);
     })
   })
@@ -84,7 +89,10 @@ function loadPromptChoices() {
   })
 }
 function setPrompt(event) {
-  prompt.innerText = event.data;
+  if (event == null || event.data == null) return;
+  const obj = JSON.parse(event.data);
+  if (obj.prompt == null) return;
+  prompt.innerText = obj.prompt;
 }
 
 function showLLMResponseSpinner(event) {

@@ -106,7 +106,7 @@ function PlaySound ({timestamp}) {
 
 // Process GET prompt list from server
 function Promptlist () {
-    const [promptlist, setPromptlist] = useState(['Select prompt']);
+    const [promptlist, setPromptlist] = useState([]);
   
     useEffect(() => {
       fetch(baseurl + '/api/prompt')
@@ -119,32 +119,35 @@ function Promptlist () {
   
     let dropdownArr = [];
     for (let i=0; i<promptlist.length; i++) {
-      dropdownArr.push(<option key={promptlist[i]} value={promptlist[i]}>{promptlist[i]}</option>)
+      dropdownArr.push(<option key={promptlist[i].id} value={promptlist[i].id}>{promptlist[i].prompt}</option>)
     }
   
    return dropdownArr
   }
   
   // Prompt dropdown menu and POST prompt to server
-  function Dropdown ({ prompt }) {
+  function Dropdown ({ promptID }) {
     const toast = useToast();
   
     const handleChangePrompt = async (event) => {
       try {
+        const newPromptID = event.target.value;
+        const newPromptText = event.target.options[event.target.selectedIndex].text;
+
         const headers = new Headers();
         headers.append('Content-Type', 'application/json');
         const config = {headers: headers};
         let data = await axios.post(
           (baseurl + '/api/prompt'),
             JSON.stringify({
-              prompt: event.target.value,
+              id: parseInt(newPromptID),
             }),
           config
         );
         console.log("🚀 ~ handleChangePrompt ~ data:", data)
         
         toast({
-          title: 'Prompt Changed to ' + event.target.value,
+          title: 'Prompt Changed to ' + newPromptText,
           status: 'success',
           duration: 5000,
           isClosable: true,
@@ -162,13 +165,12 @@ function Promptlist () {
       }
     };
     
-    return  <Select 
-              size='lg' 
-              bg='white' 
-              variant='outline' 
-              placeholder='Select prompt'        
+    return  <Select
+              size='lg'
+              bg='white'
+              variant='outline'
               onChange={handleChangePrompt}
-              value={ prompt==null||prompt==''?'Select prompt':prompt }
+              value={ promptID }
             >
               <Promptlist/>
             </Select>
@@ -191,7 +193,7 @@ function Dashboard2 () {
     const [ annotatedImage, setAnnotatedImage ] = useState('');
     const [ rawImage, setRawImage ] = useState('');
     const [ timestamp, setTimestamp ] = useState('');
-    const [ prompt, setPrompt ] = useState('');
+    const [ prompt, setPrompt ] = useState(0);
     const [ response, setResponse ] = useState('');
 
     useEffect(() => {
@@ -214,7 +216,9 @@ function Dashboard2 () {
         });
 
         evtSource.addEventListener("prompt", event => {
-        setPrompt(event.data);
+        let obj = JSON.parse(event.data);
+        if (obj == null || obj.id == null) return;
+        setPrompt(obj.id);
         });
 
         evtSource.addEventListener("llm_response_start", event => {
@@ -274,7 +278,7 @@ function Dashboard2 () {
 
             <GridItem colSpan={1} rowSpan={1}>
             <VStack spacing={4}>
-                <Dropdown prompt={prompt}/>
+                <Dropdown promptID={prompt}/>
                 <Divider orientation="horizontal" />   
                 <Card>
                 <CardBody>

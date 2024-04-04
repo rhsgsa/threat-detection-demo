@@ -1,5 +1,7 @@
 # Threat Detection Frontend
 
+## Configuration
+
 |Environment Variable|Default Value|Description|
 |---|---|---|
 |`ALERTSTOPIC`|`alerts`|MQTT topic for incoming alerts|
@@ -11,6 +13,23 @@
 |`MQTTBROKER`|`tcp://localhost:1883`|MQTT broker URL|
 |`PORT`|`8080`|Web server port|
 |`PROMPTS`||Path to file containing prompts to use - will use hardcoded prompts if this is not set|
+
+
+## Prompts File
+
+*   You can configure the frontend to use custom prompts by placing your prompts in a text file and setting the `PROMPTS` environment variable
+
+*   Put each prompt on a separate line
+
+		What is your name?
+		How old are you?
+		Why is this happening?
+
+*   Each prompt can also have a short version and a descriptive version; the short version is used in the web UI and the descriptive version is sent to the LLM; use a pipe character (`|`) to delimit the short version and the descriptive version
+
+		What|What is your name?
+		How|How old are you?
+		Why|Why is this happening?
 
 
 ## Sound File

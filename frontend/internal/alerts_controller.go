@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"sync"
 	"time"
@@ -29,7 +28,6 @@ type alertMQTT struct {
 	AnnotatedImage string `json:"annotated_image"`
 	RawImage       string `json:"raw_image"`
 	Timestamp      int64  `json:"timestamp"`
-	Prompt         string `json:"prompt"`
 }
 
 // Alert going to the browsers via SSE
@@ -37,7 +35,7 @@ type alertEvent struct {
 	annotatedImage []byte
 	rawImage       []byte
 	timestamp      int64
-	prompt         string
+	prompt         promptItem
 }
 
 type AlertsController struct {
@@ -45,11 +43,9 @@ type AlertsController struct {
 	llmURL         string
 	llmModel       string
 	keepAlive      string
-	prompt         string
+	prompts        *promptsContainer
 	latestAlert    alertEvent
 	latestAlertMux sync.RWMutex
-	prompts        []string
-	promptMux      sync.RWMutex
 	llmCh          chan alertEvent
 }
 
@@ -60,68 +56,42 @@ func NewAlertsController(ch chan SSEEvent, llmURL, llmModel, keepAlive, promptsF
 		log.Fatal("SSEEvent channel cannot be unbuffered")
 	}
 
-	var prompts []string
-	if promptsFile == "" {
-		log.Print("no prompts file provided - will use hardcoded prompts")
-		prompts = []string{"Please describe this image", "Is this person a threat?"}
-	} else {
-		var err error
-		prompts, err = readLinesFromFile(promptsFile)
-		if err != nil {
-			log.Fatalf("could not open prompt file %s: %v", promptsFile, err)
-		}
-		log.Printf("loaded %d prompts from %s", len(prompts), promptsFile)
+	prompts, err := newPrompts(promptsFile)
+	if err != nil {
+		log.Fatal(err)
 	}
-	if len(prompts) == 0 {
-		log.Fatalf("no prompts defined")
-	}
+
 	c := AlertsController{
 		sseCh:     ch,
 		llmURL:    llmURL,
 		llmModel:  llmModel,
 		keepAlive: keepAlive,
-		prompt:    prompts[0],
 		prompts:   prompts,
 		llmCh:     make(chan alertEvent, llmChannelSize),
 	}
 	return &c
 }
 
-func readLinesFromFile(filename string) ([]string, error) {
-	f, err := os.Open(filename)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	var lines []string
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-	return lines, nil
-}
-
 // PromptHandler gets invoked when a REST call is made to list the available prompts or to set the prompt
 func (controller *AlertsController) PromptHandler(w http.ResponseWriter, r *http.Request) {
 	// get prompts
 	if r.Method != http.MethodPost && r.Method != http.MethodPut {
-		streamResponse(w, controller.prompts)
+		controller.prompts.streamShortPrompts(w)
 		return
 	}
 
 	// set prompts
 	in := struct {
-		Prompt string `json:"prompt"`
+		ID int `json:"id"`
 	}{}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 		http.Error(w, fmt.Sprintf("error decoding HTTP request body for prompt endpoint: %v", err), http.StatusInternalServerError)
 		return
 	}
-	if in.Prompt == "" {
-		http.Error(w, "prompt cannot be empty", http.StatusPreconditionRequired)
+	if err := controller.prompts.setSelectedPrompt(in.ID); err != nil {
+		http.Error(w, fmt.Sprintf("error setting prompt to %d: %v", in.ID, err), http.StatusPreconditionFailed)
 		return
 	}
-	controller.setPrompt(in.Prompt)
 	event := controller.getLatestAlert()
 
 	// if we don't have a latest alert, we don't have to pass it to the LLMChannelProcessor
@@ -129,7 +99,12 @@ func (controller *AlertsController) PromptHandler(w http.ResponseWriter, r *http
 		http.Error(w, "prompt set - but we do not have any pending alerts", http.StatusPreconditionFailed)
 		return
 	}
-	event.prompt = in.Prompt
+	selectedPrompt := controller.prompts.getSelectedPromptItem()
+	if selectedPrompt == nil {
+		http.Error(w, "could not get selected prompt", http.StatusPreconditionFailed)
+		return
+	}
+	event.prompt = *selectedPrompt
 	select {
 	case controller.llmCh <- event:
 		w.Write([]byte("OK"))
@@ -150,11 +125,16 @@ func (controller *AlertsController) MQTTHandler(_ MQTT.Client, mqttMessage MQTT.
 
 	log.Print("received alert MQTT message")
 
+	currentPrompt := controller.prompts.getSelectedPromptItem()
+	if currentPrompt == nil {
+		log.Print("could not get currently selected prompt")
+		return
+	}
 	event := alertEvent{
 		annotatedImage: []byte(msg.AnnotatedImage),
 		rawImage:       []byte(msg.RawImage),
 		timestamp:      msg.Timestamp,
-		prompt:         controller.getPrompt(),
+		prompt:         *currentPrompt,
 	}
 
 	select {
@@ -214,7 +194,7 @@ func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 
 			controller.sendToSSECh(SSEEvent{
 				EventType: "prompt",
-				Data:      []byte(event.prompt),
+				Data:      []byte(event.prompt.getSSEBytes()),
 			})
 
 			llmReq := struct {
@@ -225,7 +205,7 @@ func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 			}{
 				Model:     controller.llmModel,
 				KeepAlive: controller.keepAlive,
-				Prompt:    event.prompt,
+				Prompt:    event.prompt.Descriptive,
 			}
 			if event.rawImage != nil {
 				llmReq.Images = []string{string(event.rawImage)}
@@ -295,18 +275,6 @@ func (controller *AlertsController) sendToSSECh(event SSEEvent) error {
 	}
 }
 
-func (controller *AlertsController) getPrompt() string {
-	controller.promptMux.RLock()
-	defer controller.promptMux.RUnlock()
-	return controller.prompt
-}
-
-func (controller *AlertsController) setPrompt(newprompt string) {
-	controller.promptMux.Lock()
-	controller.prompt = newprompt
-	controller.promptMux.Unlock()
-}
-
 func (controller *AlertsController) getLatestAlert() alertEvent {
 	controller.latestAlertMux.RLock()
 	defer controller.latestAlertMux.RUnlock()
@@ -335,11 +303,4 @@ func (controller *AlertsController) setLatestAlert(newAlert alertEvent) {
 	controller.latestAlertMux.Lock()
 	controller.latestAlert = newAlert
 	controller.latestAlertMux.Unlock()
-}
-
-func streamResponse(w http.ResponseWriter, v any) {
-	w.Header().Add("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(v); err != nil {
-		log.Printf("error converting response to JSON: %v", err)
-	}
 }

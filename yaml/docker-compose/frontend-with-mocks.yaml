@@ -72,6 +72,8 @@ services:
     - PORT=11434
     - SOURCE=/mocks/ollama.txt
     - LINESLEEPMSECS=100
+    ports:
+    - 11434:11434
     volumes:
     - ../../mocks/ollama.txt:/mocks/ollama.txt:ro,z
 
