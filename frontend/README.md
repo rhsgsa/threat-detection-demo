@@ -32,6 +32,19 @@
 		Why|Why is this happening?
 
 
+## Testing with mocks
+
+*   Start up mock `image-acquirer`, `frontend`, mock `ollama`, then bring `frontend` container down
+
+		docker compose -f ../yaml/docker-compose/frontend-with-mocks.yaml up
+
+		docker stop frontend
+
+*   Run `frontend` locally
+
+		make run
+
+
 ## Sound File
 
 The sound file was downloaded from [pixabay.com](https://pixabay.com/service/terms/)
