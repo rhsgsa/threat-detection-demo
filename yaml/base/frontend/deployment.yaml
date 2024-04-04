@@ -18,7 +18,7 @@ spec:
         app: frontend
     spec:
       containers:
-      - image: ghcr.io/rhsgsa/threat-frontend:1.8
+      - image: ghcr.io/rhsgsa/threat-frontend:1.9
         name: frontend
         env:
         - name: MQTTBROKER

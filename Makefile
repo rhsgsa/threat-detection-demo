@@ -1,7 +1,7 @@
 PROJ=demo
 IMAGE_ACQUIRER=ghcr.io/kwkoo/image-acquirer
 FRONTEND_IMAGE=ghcr.io/rhsgsa/threat-frontend
-FRONTEND_VERSION=1.8
+FRONTEND_VERSION=1.9
 MOCK_OLLAMA_IMAGE=ghcr.io/kwkoo/mock-ollama
 BUILDERNAME=multiarch-builder
 MODEL_NAME=NCS_YOLOv8-20Epochs.pt
@@ -13,7 +13,7 @@ BASE:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 # deploys all components to a single OpenShift cluster
 deploy: ensure-logged-in
-	oc new-project $(PROJ); \
+	oc new-project $(PROJ) 2>/dev/null; \
 	if [ $$? -eq 0 ]; then sleep 3; fi
 	oc get limitrange -n $(PROJ) >/dev/null 2>/dev/null \
 	&& \
