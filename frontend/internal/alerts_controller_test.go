@@ -1,4 +1,4 @@
-package internal
+package internal_test
 
 import (
 	"context"
@@ -12,13 +12,16 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/kwkoo/threat-detection-frontend/internal"
 )
 
 // Test that the AlertsController makes a request to the LLM whenever an MQTT
 // message is received
 func TestMQTTToLLM(t *testing.T) {
-	controller, llm, svr := instantiateController(t, "")
-	defer svr.Close()
+	m := newMocks(t)
+	defer m.llm.httpServer.Close()
+	controller := instantiateController(m, "")
 
 	ctx, cancel := context.WithCancel(context.Background())
 	var wg sync.WaitGroup
@@ -34,19 +37,17 @@ func TestMQTTToLLM(t *testing.T) {
 		wg.Wait()
 	}()
 
-	event := alertEvent{
-		annotatedImage: []byte("abcd"),
-		rawImage:       []byte("efgh"),
-	}
-	controller.llmCh <- event
-
+	// simulate alert coming in from MQTT
+	controller.MQTTHandler(nil, newMockMQTTMessage(`{"annotated_image":"dummyannogtated","raw_image":"dummy","timestamp":1234}`))
 	// wait for request to be received by LLM
-	<-llm.requestReceived
+	t.Log("waiting for request to be received by LLM...")
+	<-m.llm.requestReceived
+	t.Log("LLM request received")
 
-	if llm.req.Images == nil || len(llm.req.Images) == 0 {
+	if m.llm.req.Images == nil || len(m.llm.req.Images) == 0 {
 		t.Error("LLM did not receive any images")
-	} else if string(event.rawImage) != llm.req.Images[0] {
-		t.Errorf(`LLM received an image ("%s") different from the raw image ("%s")`, llm.req.Images[0], event.rawImage)
+	} else if m.llm.req.Images[0] != "dummy" {
+		t.Errorf(`LLM received an image ("%s") different from what was expected`, m.llm.req.Images[0])
 	} else {
 		t.Log("LLM received the raw image correctly")
 	}
@@ -65,8 +66,10 @@ func TestSetPrompt(t *testing.T) {
 		t.Errorf("error create prompts file: %v", err)
 		return
 	}
-	controller, llm, svr := instantiateController(t, promptsFilename)
-	defer svr.Close()
+
+	m := newMocks(t)
+	defer m.llm.httpServer.Close()
+	controller := instantiateController(m, promptsFilename)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	var wg sync.WaitGroup
@@ -76,17 +79,16 @@ func TestSetPrompt(t *testing.T) {
 		wg.Done()
 	}()
 
-	sseClient := mockSSEClient{}
 	wg.Add(1)
 	go func() {
-		sseClient.consumeSSEEvents(ctx, controller.sseCh)
+		m.consumeSSEEvents(ctx)
 		wg.Done()
 	}()
 
 	defer func() {
 		time.Sleep(time.Second) // sleep to allow LLM HTTP client requests to complete
 		cancel()
-		close(controller.sseCh)
+		close(m.sseClient.ch)
 		wg.Wait()
 	}()
 
@@ -110,9 +112,9 @@ func TestSetPrompt(t *testing.T) {
 	controller.MQTTHandler(nil, mockMQTTMessage{[]byte(`{"annotated_image":"dummy","raw_image":"dummy","timestamp":1234}`)})
 	// wait for request to be received by LLM
 	t.Log("waiting for request to be received by LLM...")
-	<-llm.requestReceived
+	<-m.llm.requestReceived
 	t.Log("LLM request received")
-	llm.resetRequestReceivedChannel()
+	m.resetRequestReceivedChannel()
 
 	req := httptest.NewRequest(http.MethodPost, "/api/prompt", strings.NewReader(fmt.Sprintf(`{"id":%d}`, newPromptID)))
 	w := httptest.NewRecorder()
@@ -123,14 +125,9 @@ func TestSetPrompt(t *testing.T) {
 		return
 	}
 
-	// prompt in controller should now be set to newPrompt
-	if controller.prompts.getSelectedPromptItem().ID != newPromptID {
-		t.Errorf(`prompt was expected to be %d but was %d instead`, newPromptID, controller.prompts.getSelectedPromptItem().ID)
-	}
-
 	// wait for request to be received by LLM
 	t.Log("waiting for request to be received by LLM...")
-	<-llm.requestReceived
+	<-m.llm.requestReceived
 	t.Log("LLM request received")
 
 	// ensure that newPrompt gets sent to the LLM
@@ -138,18 +135,25 @@ func TestSetPrompt(t *testing.T) {
 	// we are using the default prompts so the descriptive prompts are set to
 	// the short prompts; that's why we're ok to compare the LLM prompt with
 	// the short prompt
-	if llm.req.Prompt == "descriptiveprompt2" {
+	if m.llm.req.Prompt == "descriptiveprompt2" {
 		t.Log("LLM prompt was set correctly")
 	} else {
-		t.Errorf(`LLM prompt was expected to be "descriptiveprompt2" but was "%s" instead`, llm.req.Prompt)
+		t.Errorf(`LLM prompt was expected to be "descriptiveprompt2" but was "%s" instead`, m.llm.req.Prompt)
 	}
 
 	// pause to allow mockSSEClient to consume the new prompt event
 	time.Sleep(time.Second)
-	if sseClient.prompt == "short2" {
-		t.Log("SSE client received the correct short prompt")
-	} else {
-		t.Errorf(`Expected SSE client prompt to be "short2" - was "%s" instead`, sseClient.prompt)
+
+	shortPrompt, err := m.unmarshalSSEClientPrompt()
+	if err != nil {
+		t.Errorf("error unmarshalling SSE client prompt: %v", err)
+		return
+	}
+	if shortPrompt.Id != 2 {
+		t.Errorf("expected short prompt ID to be 2 but got %d instead", shortPrompt.Id)
+	}
+	if shortPrompt.Prompt != "short2" {
+		t.Errorf(`expected short prompt to be "short2" but got "%s" instead`, shortPrompt.Prompt)
 	}
 }
 
@@ -158,7 +162,7 @@ type shortPrompt struct {
 	Prompt string `json:"prompt"`
 }
 
-func getPrompts(t *testing.T, controller *AlertsController) map[int]shortPrompt {
+func getPrompts(t *testing.T, controller *internal.AlertsController) map[int]shortPrompt {
 	req := httptest.NewRequest(http.MethodGet, "/api/prompt", nil)
 	w := httptest.NewRecorder()
 	controller.PromptHandler(w, req)
@@ -175,81 +179,17 @@ func getPrompts(t *testing.T, controller *AlertsController) map[int]shortPrompt 
 	return prompts
 }
 
-func instantiateController(t *testing.T, promptsFile string) (*AlertsController, *mockLLM, *httptest.Server) {
+func instantiateController(m *mocks, promptsFile string) *internal.AlertsController {
 	log.SetOutput((os.Stdout))
-	llm := mockLLM{
-		t:               t,
-		requestReceived: make(chan struct{}),
-	}
-	svr := httptest.NewServer(http.HandlerFunc(llm.handler))
-	controller := NewAlertsController(
-		make(chan SSEEvent, 100),
-		svr.URL,
+	controller := internal.NewAlertsController(
+		m.sseClient.ch,
+		m.llm.httpServer.URL,
 		"dummy",
 		"300m",
 		promptsFile,
 	)
-	return controller, &llm, svr
+	return controller
 }
-
-type llmReq struct {
-	Model  string   `json:"model"`
-	Prompt string   `json:"prompt"`
-	Images []string `json:"images"`
-}
-
-type mockLLM struct {
-	t               *testing.T
-	req             llmReq
-	requestReceived chan struct{} // channel is closed when a request is received
-}
-
-func (llm *mockLLM) handler(w http.ResponseWriter, r *http.Request) {
-	defer close(llm.requestReceived)
-	llm.t.Log("LLM handler called")
-	var req llmReq
-	defer r.Body.Close()
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		llm.t.Errorf("could not decode incoming llmReq: %v", err)
-	}
-	llm.req = req
-
-	w.Write([]byte(`{"response":"dummy"}`))
-}
-
-func (llm *mockLLM) resetRequestReceivedChannel() {
-	llm.requestReceived = make(chan struct{})
-}
-
-type mockMQTTMessage struct {
-	payload []byte
-}
-
-func (m mockMQTTMessage) Payload() []byte {
-	return m.payload
-}
-
-func (m mockMQTTMessage) Duplicate() bool {
-	return false
-}
-
-func (m mockMQTTMessage) Qos() byte {
-	return 0
-}
-
-func (m mockMQTTMessage) Retained() bool {
-	return false
-}
-
-func (m mockMQTTMessage) Topic() string {
-	return ""
-}
-
-func (m mockMQTTMessage) MessageID() uint16 {
-	return 0
-}
-
-func (m mockMQTTMessage) Ack() {}
 
 func createTempPromptFile(t *testing.T, lines []string) (string, error) {
 	f, err := os.CreateTemp(t.TempDir(), "prompts.txt")
@@ -263,21 +203,4 @@ func createTempPromptFile(t *testing.T, lines []string) (string, error) {
 		}
 	}
 	return f.Name(), nil
-}
-
-type mockSSEClient struct {
-	prompt string
-}
-
-func (m *mockSSEClient) consumeSSEEvents(ctx context.Context, ch chan SSEEvent) {
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case event := <-ch:
-			if event.EventType == "prompt" {
-				m.prompt = string(event.Data)
-			}
-		}
-	}
 }

@@ -18,6 +18,7 @@ import (
 	"time"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
+	"github.com/kwkoo/threat-detection-frontend/internal/prompts"
 )
 
 const llmRequestTimeoutSeconds = 30
@@ -35,7 +36,7 @@ type alertEvent struct {
 	annotatedImage []byte
 	rawImage       []byte
 	timestamp      int64
-	prompt         promptItem
+	prompt         prompts.PromptItem
 }
 
 type AlertsController struct {
@@ -43,7 +44,7 @@ type AlertsController struct {
 	llmURL         string
 	llmModel       string
 	keepAlive      string
-	prompts        *promptsContainer
+	prompts        *prompts.PromptsContainer
 	latestAlert    alertEvent
 	latestAlertMux sync.RWMutex
 	llmCh          chan alertEvent
@@ -56,7 +57,7 @@ func NewAlertsController(ch chan SSEEvent, llmURL, llmModel, keepAlive, promptsF
 		log.Fatal("SSEEvent channel cannot be unbuffered")
 	}
 
-	prompts, err := newPrompts(promptsFile)
+	prompts, err := prompts.NewPromptsContainerFromFile(promptsFile)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -76,7 +77,7 @@ func NewAlertsController(ch chan SSEEvent, llmURL, llmModel, keepAlive, promptsF
 func (controller *AlertsController) PromptHandler(w http.ResponseWriter, r *http.Request) {
 	// get prompts
 	if r.Method != http.MethodPost && r.Method != http.MethodPut {
-		controller.prompts.streamShortPrompts(w)
+		controller.prompts.StreamShortPrompts(w)
 		return
 	}
 
@@ -88,7 +89,7 @@ func (controller *AlertsController) PromptHandler(w http.ResponseWriter, r *http
 		http.Error(w, fmt.Sprintf("error decoding HTTP request body for prompt endpoint: %v", err), http.StatusInternalServerError)
 		return
 	}
-	if err := controller.prompts.setSelectedPrompt(in.ID); err != nil {
+	if err := controller.prompts.SetSelectedPrompt(in.ID); err != nil {
 		http.Error(w, fmt.Sprintf("error setting prompt to %d: %v", in.ID, err), http.StatusPreconditionFailed)
 		return
 	}
@@ -99,7 +100,11 @@ func (controller *AlertsController) PromptHandler(w http.ResponseWriter, r *http
 		http.Error(w, "prompt set - but we do not have any pending alerts", http.StatusPreconditionFailed)
 		return
 	}
-	selectedPrompt := controller.prompts.getSelectedPromptItem()
+	selectedPrompt, err := controller.prompts.GetSelectedPromptItem()
+	if err != nil {
+		http.Error(w, fmt.Sprintf("error getting selected prompt: %v", err), http.StatusPreconditionFailed)
+		return
+	}
 	if selectedPrompt == nil {
 		http.Error(w, "could not get selected prompt", http.StatusPreconditionFailed)
 		return
@@ -125,7 +130,11 @@ func (controller *AlertsController) MQTTHandler(_ MQTT.Client, mqttMessage MQTT.
 
 	log.Print("received alert MQTT message")
 
-	currentPrompt := controller.prompts.getSelectedPromptItem()
+	currentPrompt, err := controller.prompts.GetSelectedPromptItem()
+	if err != nil {
+		log.Printf("could not get currently selected prompt: %v", err)
+		return
+	}
 	if currentPrompt == nil {
 		log.Print("could not get currently selected prompt")
 		return
@@ -194,7 +203,7 @@ func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 
 			controller.sendToSSECh(SSEEvent{
 				EventType: "prompt",
-				Data:      []byte(event.prompt.getSSEBytes()),
+				Data:      []byte(event.prompt.GetSSEBytes()),
 			})
 
 			llmReq := struct {
