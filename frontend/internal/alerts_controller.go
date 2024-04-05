@@ -83,21 +83,26 @@ func (controller *AlertsController) PromptHandler(w http.ResponseWriter, r *http
 
 	// set prompts
 	in := struct {
-		ID int `json:"id"`
+		ID *int `json:"id"`
 	}{}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		http.Error(w, fmt.Sprintf("error decoding HTTP request body for prompt endpoint: %v", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("error decoding HTTP request body for prompt endpoint: %v", err), http.StatusPreconditionFailed)
 		return
 	}
-	if err := controller.prompts.SetSelectedPrompt(in.ID); err != nil {
-		http.Error(w, fmt.Sprintf("error setting prompt to %d: %v", in.ID, err), http.StatusPreconditionFailed)
+	if in.ID == nil {
+		http.Error(w, `required field "id" missing`, http.StatusPreconditionRequired)
+		return
+	}
+	newID := *in.ID
+	if err := controller.prompts.SetSelectedPrompt(newID); err != nil {
+		http.Error(w, fmt.Sprintf("error setting prompt to %d: %v", newID, err), http.StatusPreconditionFailed)
 		return
 	}
 	event := controller.getLatestAlert()
 
 	// if we don't have a latest alert, we don't have to pass it to the LLMChannelProcessor
 	if event.annotatedImage == nil && event.rawImage == nil && event.timestamp == 0 {
-		http.Error(w, "prompt set - but we do not have any pending alerts", http.StatusPreconditionFailed)
+		http.Error(w, "prompt set - but we do not have any pending alerts", http.StatusFailedDependency)
 		return
 	}
 	selectedPrompt, err := controller.prompts.GetSelectedPromptItem()
@@ -112,7 +117,7 @@ func (controller *AlertsController) PromptHandler(w http.ResponseWriter, r *http
 	event.prompt = *selectedPrompt
 	select {
 	case controller.llmCh <- event:
-		w.Write([]byte("OK"))
+		w.Write([]byte(fmt.Sprintf("prompt set to %d", newID)))
 	default:
 		msg := "LLM channel is full"
 		log.Print(msg)

@@ -56,7 +56,13 @@ func newMocks(t *testing.T) *mocks {
 }
 
 func (m *mocks) llmHandler(w http.ResponseWriter, r *http.Request) {
-	defer close(m.llm.requestReceived)
+	defer func() {
+		if m.llm.requestReceived == nil {
+			return
+		}
+		close(m.llm.requestReceived)
+		m.llm.requestReceived = nil
+	}()
 	m.t.Log("LLM handler called")
 	var req mockLLMReq
 	defer r.Body.Close()
