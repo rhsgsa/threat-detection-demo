@@ -1,16 +1,13 @@
 package internal_test
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
-	"sync"
 	"testing"
 	"time"
 
@@ -20,30 +17,13 @@ import (
 // Test that the AlertsController makes a request to the LLM whenever an MQTT
 // message is received
 func TestMQTTToLLM(t *testing.T) {
-	m := newMocks(t)
-	defer m.llm.httpServer.Close()
-	controller := instantiateController(m, "")
-
-	ctx, cancel := context.WithCancel(context.Background())
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		controller.LLMChannelProcessor(ctx)
-		wg.Done()
-	}()
-
-	defer func() {
-		time.Sleep(time.Second) // sleep to allow LLM HTTP client requests to complete
-		cancel()
-		wg.Wait()
-	}()
+	m := newMocks(t, "")
+	defer m.close()
 
 	// simulate alert coming in from MQTT
-	controller.MQTTHandler(nil, newMockMQTTMessage(`{"annotated_image":"dummyannogtated","raw_image":"dummy","timestamp":1234}`))
+	m.controller.MQTTHandler(nil, newMockMQTTMessage(`{"annotated_image":"dummyannogtated","raw_image":"dummy","timestamp":1234}`))
 	// wait for request to be received by LLM
-	t.Log("waiting for request to be received by LLM...")
-	<-m.llm.requestReceived
-	t.Log("LLM request received")
+	m.waitForLLMRequest()
 
 	if m.llm.req.Images == nil || len(m.llm.req.Images) == 0 {
 		t.Error("LLM did not receive any images")
@@ -68,32 +48,10 @@ func TestSetPrompt(t *testing.T) {
 		return
 	}
 
-	m := newMocks(t)
-	defer m.llm.httpServer.Close()
-	controller := instantiateController(m, promptsFilename)
+	m := newMocks(t, promptsFilename)
+	defer m.close()
 
-	ctx, cancel := context.WithCancel(context.Background())
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		controller.LLMChannelProcessor(ctx)
-		wg.Done()
-	}()
-
-	wg.Add(1)
-	go func() {
-		m.consumeSSEEvents(ctx)
-		wg.Done()
-	}()
-
-	defer func() {
-		time.Sleep(time.Second) // sleep to allow LLM HTTP client requests to complete
-		cancel()
-		close(m.sseClient.ch)
-		wg.Wait()
-	}()
-
-	prompts := getPrompts(t, controller)
+	prompts := getPrompts(t, m.controller)
 	if prompts == nil {
 		return
 	}
@@ -110,21 +68,19 @@ func TestSetPrompt(t *testing.T) {
 	}
 
 	// simulate alert coming in from MQTT
-	controller.MQTTHandler(nil, mockMQTTMessage{[]byte(`{"annotated_image":"dummy","raw_image":"dummy","timestamp":1234}`)})
+	m.controller.MQTTHandler(nil, mockMQTTMessage{[]byte(`{"annotated_image":"dummy","raw_image":"dummy","timestamp":1234}`)})
 	// wait for request to be received by LLM
 	t.Log("waiting for request to be received by LLM...")
 	<-m.llm.requestReceived
 	t.Log("LLM request received")
 	m.resetRequestReceivedChannel()
 
-	if abort := setPrompt(t, controller, fmt.Sprintf(`{"id":%d}`, newPromptID), false); abort {
+	if abort := setPrompt(t, m.controller, fmt.Sprintf(`{"id":%d}`, newPromptID), false); abort {
 		return
 	}
 
 	// wait for request to be received by LLM
-	t.Log("waiting for request to be received by LLM...")
-	<-m.llm.requestReceived
-	t.Log("LLM request received")
+	m.waitForLLMRequest()
 
 	// ensure that newPrompt gets sent to the LLM
 	// Note - the LLM is supposed to get the descriptive prompt - however,
@@ -166,55 +122,30 @@ func TestSetPromptREST(t *testing.T) {
 		return
 	}
 
-	m := newMocks(t)
-	defer m.llm.httpServer.Close()
-	controller := instantiateController(m, promptsFilename)
-
-	ctx, cancel := context.WithCancel(context.Background())
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		controller.LLMChannelProcessor(ctx)
-		wg.Done()
-	}()
-
-	wg.Add(1)
-	go func() {
-		m.consumeSSEEvents(ctx)
-		wg.Done()
-	}()
-
-	defer func() {
-		time.Sleep(time.Second) // sleep to allow LLM HTTP client requests to complete
-		cancel()
-		close(m.sseClient.ch)
-		wg.Wait()
-	}()
+	m := newMocks(t, promptsFilename)
+	defer m.close()
 
 	// expect an error because we do not have any pending alerts
-	if abort := setPrompt(t, controller, `{"id":2}`, true); abort {
+	if abort := setPrompt(t, m.controller, `{"id":2}`, true); abort {
 		return
 	}
 
 	// simulate alert coming in from MQTT
-	controller.MQTTHandler(nil, mockMQTTMessage{[]byte(`{"annotated_image":"dummy","raw_image":"dummy","timestamp":1234}`)})
+	m.controller.MQTTHandler(nil, mockMQTTMessage{[]byte(`{"annotated_image":"dummy","raw_image":"dummy","timestamp":1234}`)})
 	// wait for request to be received by LLM
-	t.Log("waiting for request to be received by LLM...")
-	<-m.llm.requestReceived
-	t.Log("LLM request received")
-	//m.resetRequestReceivedChannel()
+	m.waitForLLMRequest()
 
 	// happy case
-	setPrompt(t, controller, `{"id":1}`, false)
+	setPrompt(t, m.controller, `{"id":1}`, false)
 
 	// invalid JSON
-	setPrompt(t, controller, `abc`, true)
+	setPrompt(t, m.controller, `abc`, true)
 
 	// missing required field
-	setPrompt(t, controller, `{"prompt":2}`, true)
+	setPrompt(t, m.controller, `{"prompt":2}`, true)
 
 	// wrong type
-	setPrompt(t, controller, `{"id":"2"}`, true)
+	setPrompt(t, m.controller, `{"id":"2"}`, true)
 }
 
 type shortPrompt struct {
@@ -272,18 +203,6 @@ func setPrompt(t *testing.T, controller *internal.AlertsController, body string,
 
 	t.Logf(`successfully set prompt with payload '%s' - received response '%s'`, body, responseBody)
 	return false
-}
-
-func instantiateController(m *mocks, promptsFile string) *internal.AlertsController {
-	log.SetOutput((os.Stdout))
-	controller := internal.NewAlertsController(
-		m.sseClient.ch,
-		m.llm.httpServer.URL,
-		"dummy",
-		"300m",
-		promptsFile,
-	)
-	return controller
 }
 
 func createTempPromptFile(t *testing.T, lines []string) (string, error) {
