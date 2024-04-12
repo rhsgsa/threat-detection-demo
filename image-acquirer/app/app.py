@@ -6,6 +6,7 @@ import threading
 import json
 import time
 import math
+from typing import List
 
 import cv2 as cv2
 from flask import Flask, redirect, Response
@@ -34,11 +35,7 @@ def mqtt_on_connect(client, userdata, flags, reason_code, properties):
 class InterestingObjects:
     max_objects = 10
     object_ids = []
-    interested_classes = []
     count = 0
-
-    def __init__(self, interested_classes):
-        self.interested_classes = interested_classes
 
     # returns True if a new object is detected
     def update(self, boxes) -> bool:
@@ -48,23 +45,10 @@ class InterestingObjects:
         cls = boxes.cls.numpy().astype(int)
         ids = boxes.id.numpy().astype(int)
 
-        if self.interested_classes is None or len(self.interested_classes) == 0:
-            new_object_detected = False
-            for _, id in enumerate(ids):
-                if self.check_if_tracking_id_is_new(id):
-                    new_object_detected = True
-            return new_object_detected
-        else:
-            new_object_detected = False
-            for idx, cl in enumerate(cls):
-                if cl not in self.interested_classes:
-                    continue
-
-                object_id = ids[idx]
-                if self.check_if_tracking_id_is_new(object_id):
-                    new_object_detected = True
-
-            return new_object_detected
+        for _, id in enumerate(ids):
+            if self.check_if_tracking_id_is_new(id):
+                return True
+        return False
 
     # returns True if id is new
     def check_if_tracking_id_is_new(self, id) -> bool:
@@ -99,7 +83,7 @@ def process_resize_str(resize: str) -> (int, int):
 
 def detection_task(camera_device, resize, model_name, confidence, force_cpu, interested_classes, mqttc, mqtt_topic):
     retry = 500
-    interesting_objects = InterestingObjects(interested_classes)
+    interesting_objects = InterestingObjects()
 
     resize_width, resize_height = process_resize_str(resize)
     if resize_width > 0 and resize_height > 0:
@@ -124,13 +108,12 @@ def detection_task(camera_device, resize, model_name, confidence, force_cpu, int
     logging.info(f"loading model ({model_name})...")
     model = YOLO(model_name)
     logging.info("done loading model")
+    logging.info(f"model names = {model.names}")
 
     torch.device(accel_device)
     if accel_device != "cpu":
         logging.info(f"moving model to {accel_device}")
         model.to(accel_device)
-
-    total_paint_leaks = 0
 
     cam = cv2.VideoCapture(camera_device)
     retry_pause = False
@@ -152,7 +135,7 @@ def detection_task(camera_device, resize, model_name, confidence, force_cpu, int
         if resize_width > 0 and resize_height > 0:
             frame = cv2.resize(cam_frame, (resize_width, resize_height))
 
-        results = model.track(frame, persist=True, device=accel_device, conf=confidence)
+        results = model.track(frame, persist=True, device=accel_device, conf=confidence, classes=interested_classes)
         if len(results) < 1:
             continue
 
@@ -220,6 +203,17 @@ def listen():
 
     return Response(stream(), mimetype='text/event-stream')
 
+# returns None if input is empty
+def convert_to_int_list(s: str) -> List[int]:
+    if s is None:
+        return None
+    s = s.strip()
+    if len(s) == 0:
+        return None
+    output = [int(x) for x in s.split(',')]
+    if len(output) == 0:
+        return None
+    return output
 
 if __name__ == '__main__':
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -234,17 +228,11 @@ if __name__ == '__main__':
 
     camera_device = os.getenv('CAMERA', '/dev/video0')
 
-    interested_classes_str = os.getenv('INTERESTED_CLASSES')
-
-    interested_classes = []
-    if interested_classes_str is not None:
-        for x in interested_classes_str.split(','):
-            try:
-                i = int(x)
-                interested_classes.append(i)
-            except ValueError:
-                logging.error(f'could not convert INTERESTED_CLASSES component {x} to string')
-                sys.exit(1)
+    try:
+        interested_classes = convert_to_int_list(os.getenv('INTERESTED_CLASSES'))
+    except ValueError as e:
+        logging.error(f'could not convert INTERESTED_CLASSES to int: {e}')
+        sys.exit(1)
 
     mqtt_topic = os.getenv('MQTT_TOPIC', 'alerts')
     mqtt_server = os.getenv('MQTT_SERVER', 'localhost')
