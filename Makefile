@@ -9,9 +9,8 @@ MODEL_URL=https://github.com/rhsgsa/threat-detection-demo/releases/download/v0.1
 
 BASE:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
-.PHONY: deploy image-acquirer image-frontend image-mock-ollama buildx-builder ensure-logged-in deploy-nfd deploy-nvidia
-
 # deploys all components to a single OpenShift cluster
+.PHONY: deploy
 deploy: ensure-logged-in
 	oc new-project $(PROJ) 2>/dev/null; \
 	if [ $$? -eq 0 ]; then sleep 3; fi
@@ -22,10 +21,12 @@ deploy: ensure-logged-in
 	fi
 	oc apply -n $(PROJ) -k $(BASE)/yaml/overlays/all-in-one/
 
+.PHONY: ensure-logged-in
 ensure-logged-in:
 	oc whoami
 	@echo 'user is logged in'
 
+.PHONY: image-acquirer
 image-acquirer: buildx-builder
 	docker buildx build \
 	  --push \
@@ -63,6 +64,7 @@ image-acquirer: buildx-builder
 	@#  --build-arg MODEL_URL=$(MODEL_URL) \
 	@#  $(BASE)/image-acquirer
 
+.PHONY: image-frontend
 image-frontend: buildx-builder
 	docker buildx build \
 	  --push \
@@ -98,6 +100,7 @@ image-frontend: buildx-builder
 	docker manifest push --purge $(FRONTEND_IMAGE):latest
 	@#docker build --rm -t $(FRONTEND_IMAGE) $(BASE)/frontend
 
+.PHONY: image-mock-ollama
 image-mock-ollama: buildx-builder
 	docker buildx build \
 	  --push \
@@ -126,10 +129,12 @@ image-mock-ollama: buildx-builder
 	docker manifest push --purge $(MOCK_OLLAMA_IMAGE):latest
 	@#docker build --rm -t $(MOCK_OLLAMA_IMAGE) $(BASE)/mock-ollama
 
+.PHONY: buildx-builder
 buildx-builder:
 	-mkdir -p $(BASE)/docker-cache/amd64 $(BASE)/docker-cache/arm64 2>/dev/null
 	docker buildx use $(BUILDERNAME) || docker buildx create --name $(BUILDERNAME) --use --buildkitd-flags '--oci-worker-gc-keepstorage 50000'
 
+.PHONY: deploy-nfd
 deploy-nfd: ensure-logged-in
 	@echo "deploying NodeFeatureDiscovery operator..."
 	oc apply -f $(BASE)/yaml/operators/nfd-operator.yaml
@@ -148,6 +153,7 @@ deploy-nfd: ensure-logged-in
 	@echo 'done'
 	@echo 'NFD operator installed successfully'
 
+.PHONY: deploy-nvidia
 deploy-nvidia: deploy-nfd
 	@echo "deploying nvidia GPU operator..."
 	oc apply -f $(BASE)/yaml/operators/nvidia-operator.yaml
