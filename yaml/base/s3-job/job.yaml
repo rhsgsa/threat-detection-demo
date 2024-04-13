@@ -1,0 +1,59 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    job: setup-s3
+  name: setup-s3
+spec:
+  template:
+    metadata:
+      labels:
+        job: setup-s3
+    spec:
+      serviceAccountName: setup-s3
+      containers:
+      - image: ghcr.io/kwkoo/s3-utils
+        name: setup-s3
+        command:
+        - /bin/bash
+        - "-c"
+        - |
+          until curl -s -o /dev/null $AWS_ENDPOINT_URL_S3 2>/dev/null; do
+            echo "waiting for minio API..."
+            sleep 5
+          done
+          mc alias set minio $AWS_ENDPOINT_URL_S3 $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY
+
+          echo "creating bucket..."
+          mc mb minio/models
+
+          echo "uploading model to bucket..."
+          exec python3 ./s3_utils.py
+        env:
+        - name: MODELS
+          value: /data/mistral.txt
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: minio
+              key: MINIO_ROOT_USER
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio
+              key: MINIO_ROOT_PASSWORD
+        - name: AWS_ENDPOINT_URL_S3
+          value: "http://minio:9000"
+        - name: MC_INSECURE
+          value: "true"
+        volumeMounts:
+        - name: data
+          mountPath: /data
+          readOnly: true
+        resources: {}
+      restartPolicy: Never
+      volumes:
+      - name: data
+        configMap:
+          name: setup-s3
+status: {}

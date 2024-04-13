@@ -1,0 +1,74 @@
+#!/bin/bash
+
+TMPDIR=/tmp/setupletsencrypt
+ACMEHOME=/tmp/acme.sh
+
+cd `dirname $0`
+BASE=`pwd`
+cd - >> /dev/null
+
+
+function git_clone_acme {
+  local gitcheckoutdir=$1  
+
+  rm -rf  $gitcheckoutdir/acme.sh
+  git clone https://github.com/acmesh-official/acme.sh.git $gitcheckoutdir/acme.sh
+}
+
+
+function check_aws_cred {
+  [[ -z "$AWS_ACCESS_KEY_ID" ]] && { echo "Error: AWS_ACCESS_KEY_ID not found in environment"; exit 1; }
+  [[ -z "$AWS_SECRET_ACCESS_KEY" ]] && { echo "Error: AWS_SECRET_ACCESS_KEY not found in environment"; exit 1; }
+}
+
+
+function gen_apply_cert {
+  local clustername="demo"
+  local gitcheckoutdir=$1
+  local certdir=$gitcheckoutdir/$clustername
+
+  echo "generating certificate for ${clustername}..."
+  cmd="oc"
+
+  mkdir -p $certdir
+
+  export LE_API=$($cmd whoami --show-server | cut -f 2 -d ':' | cut -f 3 -d '/' | sed 's/-api././')
+  export LE_WILDCARD=$($cmd get ingresscontroller default -n openshift-ingress-operator -o jsonpath='{.status.domain}')
+
+  $gitcheckoutdir/acme.sh/acme.sh --home $ACMEHOME --issue -d "${LE_API}" -d "*.${LE_WILDCARD}" --dns dns_aws --server letsencrypt --force 
+
+  $gitcheckoutdir/acme.sh/acme.sh --home $ACMEHOME --install-cert -d "${LE_API}" -d "*.${LE_WILDCARD}" --cert-file ${certdir}/cert.pem --key-file ${certdir}/key.pem --fullchain-file ${certdir}/fullchain.pem --ca-file ${certdir}/ca.cer
+
+  $cmd create secret tls router-certs --cert=${certdir}/fullchain.pem --key=${certdir}/key.pem -n openshift-ingress
+  $cmd patch ingresscontroller default -n openshift-ingress-operator --type=merge --patch='{"spec": { "defaultCertificate": { "name": "router-certs" }}}'
+
+  $cmd create secret tls api-certs --cert=${certdir}/fullchain.pem --key=${certdir}/key.pem -n openshift-config
+  $cmd patch apiserver cluster --type merge --patch="{\"spec\": {\"servingCerts\": {\"namedCertificates\": [ { \"names\": [  \"$LE_API\"  ], \"servingCertificate\": {\"name\": \"api-certs\" }}]}}}"
+}
+
+if [ -z "$AWS_ACCESS_KEY_ID" ]; then
+  if [ -f "$HOME/.aws/credentials" ]; then
+    export AWS_ACCESS_KEY_ID="`grep aws_access_key_id $HOME/.aws/credentials | sed 's/^.*= *//'`"
+  fi
+fi
+
+if [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+  if [ -f "$HOME/.aws/credentials" ]; then
+    export AWS_SECRET_ACCESS_KEY="`grep aws_secret_access_key $HOME/.aws/credentials | sed 's/^.*= *//'`"
+  fi
+fi
+
+check_aws_cred
+
+set -e
+
+gitcheckoutdir=$TMPDIR
+
+rm -rf $TMPDIR
+mkdir -p $TMPDIR
+mkdir -p $ACMEHOME
+
+git_clone_acme $TMPDIR
+gen_apply_cert $TMPDIR
+
+rm -rf $TMPDIR

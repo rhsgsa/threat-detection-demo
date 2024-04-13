@@ -45,11 +45,11 @@ sequenceDiagram
 
 			openshift-install create install-config
 
-	*   Set the compute pool to 1 replica with `p3.8xlarge` intances, and set the control plane to a single master (you will need to have `yq` installed)
+	*   Set the compute pool to 2 replicas with `p3.8xlarge` intances, and set the control plane to a single master (you will need to have `yq` installed)
 
 			mv install-config.yaml install-config-old.yaml
 
-			yq '.compute[0].replicas=1' < install-config-old.yaml \
+			yq '.compute[0].replicas=2' < install-config-old.yaml \
 			| \
 			yq '.compute[0].platform = {"aws":{"zones":["ap-southeast-1a"], "type":"p3.8xlarge"}}' \
 			| \
@@ -62,9 +62,30 @@ sequenceDiagram
 
 01. Set the `KUBECONFIG` environment variable to point to the new cluster
 
-01. Deploy the NFD and Nvidia GPU operators
+01. Setup the ingress with certificates from Let's Encrypt
 
-		make deploy-nvidia
+		./scripts/setup-letsencrypt
+	
+	Note: After the certificates have been installed, you will need to edit `kubeconfig` and comment out `.clusters[*].cluster.certificate-authority-data`
+
+01. Setup the cluster to run KServe
+
+		make configure-infra
+	
+	This does the following:
+
+	*   Enables user workload monitoring
+	*   Deploys the NFD and Nvidia GPU operators
+	*   Deploys the OpenShift Serverless operator
+	*   Deploys the OpenShift Service Mesh operator
+	*   Deploys the OpenShift AI operator
+	*   Sets up OpenShift AI
+	*   Deloys Minio
+	*   Uploads the mistral model to Minio
+
+01. Deploy KServe / vLLM with mistral
+
+		make deploy-llm
 
 01. Deploy all components
 

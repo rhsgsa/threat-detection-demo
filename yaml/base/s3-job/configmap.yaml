@@ -1,0 +1,17 @@
+apiVersion: v1
+data:
+  mistral.txt: |-
+    https://huggingface.co/mistralai/Mistral-7B-v0.1/raw/main/config.json
+    https://huggingface.co/mistralai/Mistral-7B-v0.1/raw/main/generation_config.json
+    https://huggingface.co/mistralai/Mistral-7B-v0.1/resolve/main/pytorch_model-00001-of-00002.bin?download=true
+    https://huggingface.co/mistralai/Mistral-7B-v0.1/resolve/main/pytorch_model-00002-of-00002.bin?download=true
+    https://huggingface.co/mistralai/Mistral-7B-v0.1/raw/main/pytorch_model.bin.index.json
+    https://huggingface.co/mistralai/Mistral-7B-v0.1/raw/main/special_tokens_map.json
+    https://huggingface.co/mistralai/Mistral-7B-v0.1/raw/main/tokenizer.json
+    https://huggingface.co/mistralai/Mistral-7B-v0.1/resolve/main/tokenizer.model?download=true
+    https://huggingface.co/mistralai/Mistral-7B-v0.1/raw/main/tokenizer_config.json
+kind: ConfigMap
+metadata:
+  labels:
+    job: setup-s3
+  name: setup-s3

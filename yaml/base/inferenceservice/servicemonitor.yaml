@@ -1,0 +1,31 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    name: llm-metrics-real
+  name: llm-metrics-real
+spec:
+  endpoints:
+  - port: "http"
+    scheme: http
+    path: /metrics/
+  namespaceSelector: {}
+  selector:
+    matchLabels:
+      name: llm-metrics-real
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: llm-metrics-real
+  name: llm-metrics-real
+spec:
+  ports:
+  - name: http
+    port: 8012
+    protocol: TCP
+    targetPort: 8012
+  selector:
+    serving.kserve.io/inferenceservice: llm
+  type: ClusterIP

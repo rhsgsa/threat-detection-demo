@@ -9,6 +9,10 @@ MODEL_URL=https://github.com/rhsgsa/threat-detection-demo/releases/download/v0.1
 
 BASE:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
+.PHONY: configure-infra
+configure-infra: configure-user-workload-monitoring deploy-nvidia deploy-kserve-dependencies deploy-oai deploy-minio upload-model
+	@echo "done"
+
 # deploys all components to a single OpenShift cluster
 .PHONY: deploy
 deploy: ensure-logged-in
@@ -187,3 +191,167 @@ deploy-nvidia: deploy-nfd
 	  echo "checking $$po"; \
 	  oc rsh -n nvidia-gpu-operator $$po nvidia-smi; \
 	done
+
+
+.PHONY: deploy-kserve-dependencies
+deploy-kserve-dependencies:
+	@echo "deploying OpenShift Serverless..."
+	oc apply -f $(BASE)/yaml/operators/serverless-operator.yaml
+	@/bin/echo -n 'waiting for KnativeServing CRD...'
+	@until oc get crd knativeservings.operator.knative.dev >/dev/null 2>/dev/null; do \
+	  /bin/echo -n '.'; \
+	  sleep 5; \
+	done
+	@echo 'done'
+	@echo "deploying OpenShift Service Mesh operator..."
+	@EXISTING="`oc get -n openshift-operators operatorgroup/global-operators -o jsonpath='{.metadata.annotations.olm\.providedAPIs}' 2>/dev/null`"; \
+	if [ -z "$$EXISTING" ]; then \
+	  oc annotate -n openshift-operators operatorgroup/global-operators olm.providedAPIs=ServiceMeshControlPlane.v2.maistra.io,ServiceMeshMember.v1.maistra.io,ServiceMeshMemberRoll.v1.maistra.io; \
+	else \
+	  echo $$EXISTING | grep ServiceMeshControlPlane; \
+	  if [ $$? -ne 0 ]; then \
+	    oc annotate --overwrite -n openshift-operators operatorgroup/global-operators olm.providedAPIs="$$EXISTING,ServiceMeshControlPlane.v2.maistra.io,ServiceMeshMember.v1.maistra.io,ServiceMeshMemberRoll.v1.maistra.io"; \
+	  fi; \
+	fi
+	oc apply -f $(BASE)/yaml/operators/service-mesh-operator.yaml
+	@/bin/echo -n 'waiting for ServiceMeshControlPlane CRD...'
+	@until oc get crd servicemeshcontrolplanes.maistra.io >/dev/null 2>/dev/null; do \
+	  /bin/echo -n '.'; \
+	  sleep 5; \
+	done
+	@echo 'done'
+
+
+.PHONY: deploy-oai
+deploy-oai:
+	@echo "deploying OpenShift AI operator..."
+	oc apply -f $(BASE)/yaml/operators/openshift-ai-operator.yaml
+	@/bin/echo -n 'waiting for DataScienceCluster CRD...'
+	@until oc get crd datascienceclusters.datasciencecluster.opendatahub.io >/dev/null 2>/dev/null; do \
+	  /bin/echo -n '.'; \
+	  sleep 5; \
+	done
+	@echo 'done'
+	oc apply -f $(BASE)/yaml/operators/datasciencecluster.yaml
+	@/bin/echo -n "waiting for inferenceservice-config ConfigMap to appear..."
+	@until oc get -n redhat-ods-applications cm/inferenceservice-config >/dev/null 2>/dev/null; do \
+	  /bin/echo -n "."; \
+	  sleep 5; \
+	done
+	@echo "done"
+	@echo "increasing storage initializer memory limit..."
+	# modify storageInitializer memory limit - without this, there is a chance
+	# that the storageInitializer initContainer will be OOMKilled
+	rm -f /tmp/storageInitializer
+	oc extract -n redhat-ods-applications cm/inferenceservice-config --to=/tmp --keys=storageInitializer
+	cat /tmp/storageInitializer | sed 's/"memoryLimit": .*/"memoryLimit": "4Gi",/' > /tmp/storageInitializer.new
+	oc set data -n redhat-ods-applications cm/inferenceservice-config --from-file=storageInitializer=/tmp/storageInitializer.new
+	rm -f /tmp/storageInitializer /tmp/storageInitializer.new
+	@/bin/echo -n "waiting for ServiceMeshControlPlane to appear..."
+	@until oc get -n istio-system smcp/data-science-smcp >/dev/null 2>/dev/null; do \
+	  /bin/echo -n "."; \
+	  sleep 5; \
+	done
+	@echo "done"
+	@echo "turning off mutual TLS"
+	oc patch smcp/data-science-smcp \
+	  -n istio-system \
+	  --type json \
+	  -p '[{"op":"replace","path":"/spec/security/dataPlane/mtls","value":false}]'
+
+
+.PHONY: deploy-minio
+deploy-minio:
+	@echo "deploying minio..."
+	oc create ns $(PROJ) || echo "$(PROJ) namespace exists"
+	oc apply -n $(PROJ) -f $(BASE)/yaml/minio.yaml
+	@/bin/echo -n "waiting for minio routes..."
+	@until oc get -n $(PROJ) route/minio >/dev/null 2>/dev/null && oc get -n $(PROJ) route/minio-console >/dev/null 2>/dev/null; do \
+	  /bin/echo -n '.'; \
+	  sleep 5; \
+	done
+	@echo "done"
+	oc set env \
+	  -n $(PROJ) \
+	  sts/minio \
+	  MINIO_SERVER_URL="http://`oc get -n $(PROJ) route/minio -o jsonpath='{.spec.host}'`" \
+	  MINIO_BROWSER_REDIRECT_URL="http://`oc get -n $(PROJ) route/minio-console -o jsonpath='{.spec.host}'`"
+
+
+.PHONY: upload-model
+upload-model:
+	@echo "removing any previous jobs..."
+	-oc delete -n $(PROJ) -k $(BASE)/yaml/base/s3-job/
+	@/bin/echo -n "waiting for job to go away..."
+	@while [ `oc get -n $(PROJ) --no-headers job/setup-s3 2>/dev/null | wc -l` -gt 0 ]; do \
+	  /bin/echo -n "."; \
+	done
+	@echo "done"
+	@echo "creating job to upload model to S3..."
+	oc apply -n $(PROJ) -k $(BASE)/yaml/base/s3-job/
+	@/bin/echo -n "waiting for pod to show up..."
+	@while [ `oc get -n $(PROJ) po -l job=setup-s3 --no-headers 2>/dev/null | wc -l` -lt 1 ]; do \
+	  /bin/echo -n "."; \
+	  sleep 5; \
+	done
+	@echo "done"
+	@/bin/echo "waiting for pod to be ready..."
+	oc wait -n $(PROJ) `oc get -n $(PROJ) po -o name -l job=setup-s3` --for=condition=Ready
+	oc logs -n $(PROJ) -f job/setup-s3
+	oc delete -n $(PROJ) -k $(BASE)/yaml/base/s3-job/
+
+.PHONY: deploy-llm
+deploy-llm:
+	oc create ns $(PROJ) || echo "$(PROJ) namespace exists"
+	@echo "deploying inference service..."
+	# inference service
+	#
+	@AWS_ACCESS_KEY_ID="`oc extract secret/minio -n $(PROJ) --to=- --keys=MINIO_ROOT_USER 2>/dev/null`" \
+	&& \
+	AWS_SECRET_ACCESS_KEY="`oc extract secret/minio -n $(PROJ) --to=- --keys=MINIO_ROOT_PASSWORD 2>/dev/null`" \
+	&& \
+	NS_UID="`oc get ns $(PROJ) -o jsonpath='{.metadata.annotations.openshift\.io/sa\.scc\.uid-range}' | cut -d / -f 1`" \
+	&& \
+	INIT_UID=$$(( NS_UID + 1 )) \
+	&& \
+	echo "AWS_ACCESS_KEY_ID=$$AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$$AWS_SECRET_ACCESS_KEY NS_UID=$$NS_UID INIT_UID=$$INIT_UID" \
+	&& \
+	oc kustomize $(BASE)/yaml/base/inferenceservice/ \
+	| \
+	sed \
+	  -e "s/AWS_ACCESS_KEY_ID: .*/AWS_ACCESS_KEY_ID: $$AWS_ACCESS_KEY_ID/" \
+	  -e "s/AWS_SECRET_ACCESS_KEY: .*/AWS_SECRET_ACCESS_KEY: $$AWS_SECRET_ACCESS_KEY/" \
+	  -e "s/storage-initializer-uid: .*/storage-initializer-uid: \"$$INIT_UID\"/" \
+	| \
+	oc apply -n $(PROJ) -f -
+	# @/bin/echo -n "waiting for PeerAuthentication/default..."
+	# @until oc get -n $(PROJ) peerauthentication/default >/dev/null 2>/dev/null; do \
+	#   /bin/echo -n "."; \
+	#   sleep 5; \
+	# done
+	# @echo "done"
+	# sleep 20
+	# oc patch peerauthentication/default \
+	#   -n $(PROJ) \
+	#   --type merge -p '{"spec":{"mtls":{"mode":"PERMISSIVE"}}}'
+
+.PHONY: clean-llm
+clean-llm:
+	oc delete -n $(PROJ) -k $(BASE)/yaml/base/inferenceservice/ || exit 0
+
+.PHONY: configure-user-workload-monitoring
+configure-user-workload-monitoring:
+	if [ `oc get -n openshift-monitoring cm/cluster-monitoring-config --no-headers 2>/dev/null | wc -l` -lt 1 ]; then \
+	  echo 'enableUserWorkload: true' > /tmp/config.yaml; \
+	  oc create -n openshift-monitoring cm cluster-monitoring-config --from-file=/tmp/config.yaml; \
+	  rm -f /tmp/config.yaml; \
+	fi
+
+.PHONY: minio-console
+minio-console:
+	@echo "http://`oc get -n $(PROJ) route/minio-console -o jsonpath='{.spec.host}'`"
+
+.PHONY: clean-minio
+clean-minio:
+	oc delete -n $(PROJ) -f $(BASE)/yaml/minio.yaml
+	oc delete -n $(PROJ) pvc -l app.kubernetes.io/instance=minio,app.kubernetes.io/name=minio

@@ -1,0 +1,91 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    # note - ensure that you change the uid to the namespace uid + 1
+    # https://github.com/kserve/kserve/blob/master/docs/OPENSHIFT_GUIDE.md#with-service-mesh-istio
+    #
+    # proj=demo
+    # start_uid="$(oc get ns $proj -o jsonpath='{.metadata.annotations.openshift\.io/sa\.scc\.uid-range}' | cut -d / -f 1)"
+    # init_uid=$(( start_uid + 1 ))
+    #
+    serving.kserve.io/storage-initializer-uid: "1000910001"
+    serving.knative.openshift.io/enablePassthrough: "true"
+    sidecar.istio.io/inject: "true"
+    sidecar.istio.io/rewriteAppHTTPProvers: "true"
+  name: llm
+spec:
+  predictor:
+    serviceAccountName: kserve-sa
+    containers:
+    - name: kserve-container
+      image: docker.io/vllm/vllm-openai:latest
+      #image: docker.io/kserve/vllmserver:latest
+      workingDir: /root
+      args:
+      - "--port"
+      - "8080"
+      - "--model"
+      - "/mnt/models"
+      command:
+      - python3
+      - "-m"
+      - vllm.entrypoints.openai.api_server
+      - "--gpu-memory-utilization"
+      - "0.9"
+      - "--dtype=half"
+      - "--tensor-parallel-size"
+      - "2"
+      - "--max-model-len"
+      - "2048"
+      #- "--trust-remote-code"
+      #- vllm.entrypoints.api_server
+      ports:
+      - containerPort: 8080
+        protocol: TCP
+      env:
+      - name: STORAGE_URI
+        value: s3://models/mistral/
+      - name: HOME # needed because we need to write to $HOME/.cache
+        value: /root
+      - name: PYTHONPATH
+        value: /workspace
+      volumeMounts:
+      - name: home
+        mountPath: /root
+      - name: dshm
+        mountPath: /dev/shm
+      # startupProbe:
+      #   httpGet:
+      #     path: /version
+      #     port: 8080
+      #   failureThreshold: 30
+      #   periodSeconds: 10
+      livenessProbe:
+        httpGet:
+          path: /version
+          port: 8080
+        initialDelaySeconds: 240
+      readinessProbe:
+        httpGet:
+          path: /version
+          port: 8080
+      resources:
+        limits:
+          cpu: "2"
+          memory: 32Gi
+          nvidia.com/gpu: "2"
+        requests:
+          cpu: "1"
+          memory: 16Gi
+          nvidia.com/gpu: "2"
+    volumes:
+    - name: home
+      emptyDir: {}
+    - name: dshm
+      emptyDir:
+        medium: Memory
+    tolerations:
+      - key: nvidia.com/gpu
+        value: "True"
+        effect: NoSchedule
