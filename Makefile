@@ -204,15 +204,6 @@ deploy-kserve-dependencies:
 	done
 	@echo 'done'
 	@echo "deploying OpenShift Service Mesh operator..."
-	@EXISTING="`oc get -n openshift-operators operatorgroup/global-operators -o jsonpath='{.metadata.annotations.olm\.providedAPIs}' 2>/dev/null`"; \
-	if [ -z "$$EXISTING" ]; then \
-	  oc annotate -n openshift-operators operatorgroup/global-operators olm.providedAPIs=ServiceMeshControlPlane.v2.maistra.io,ServiceMeshMember.v1.maistra.io,ServiceMeshMemberRoll.v1.maistra.io; \
-	else \
-	  echo $$EXISTING | grep ServiceMeshControlPlane; \
-	  if [ $$? -ne 0 ]; then \
-	    oc annotate --overwrite -n openshift-operators operatorgroup/global-operators olm.providedAPIs="$$EXISTING,ServiceMeshControlPlane.v2.maistra.io,ServiceMeshMember.v1.maistra.io,ServiceMeshMemberRoll.v1.maistra.io"; \
-	  fi; \
-	fi
 	oc apply -f $(BASE)/yaml/operators/service-mesh-operator.yaml
 	@/bin/echo -n 'waiting for ServiceMeshControlPlane CRD...'
 	@until oc get crd servicemeshcontrolplanes.maistra.io >/dev/null 2>/dev/null; do \
@@ -254,6 +245,8 @@ deploy-oai:
 	done
 	@echo "done"
 	@echo "turning off mutual TLS"
+	# the InferenceService will not be accessible from outside the cluster
+	# after mutual TLS has been turned off
 	oc patch smcp/data-science-smcp \
 	  -n istio-system \
 	  --type json \
@@ -324,16 +317,17 @@ deploy-llm:
 	  -e "s/storage-initializer-uid: .*/storage-initializer-uid: \"$$INIT_UID\"/" \
 	| \
 	oc apply -n $(PROJ) -f -
-	# @/bin/echo -n "waiting for PeerAuthentication/default..."
-	# @until oc get -n $(PROJ) peerauthentication/default >/dev/null 2>/dev/null; do \
-	#   /bin/echo -n "."; \
-	#   sleep 5; \
-	# done
-	# @echo "done"
-	# sleep 20
-	# oc patch peerauthentication/default \
-	#   -n $(PROJ) \
-	#   --type merge -p '{"spec":{"mtls":{"mode":"PERMISSIVE"}}}'
+	@/bin/echo -n "waiting for inferenceservice to appear..."
+	@until oc get -n $(PROJ) inferenceservice/llm >/dev/null 2>/dev/null; do \
+	  /bin/echo -n "."; \
+	  sleep 5; \
+	done
+	@echo "done"
+	oc wait -n $(PROJ) inferenceservice/llm --for=condition=Ready --timeout=300s
+	oc patch peerauthentication/default \
+	  --type json \
+	  -p '[{"op":"replace", "path":"/spec/mtls/mode", "value":"PERMISSIVE"}]' \
+	  -n $(PROJ)
 
 .PHONY: clean-llm
 clean-llm:

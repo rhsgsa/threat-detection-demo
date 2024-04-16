@@ -2,8 +2,8 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   labels:
-    name: llm-metrics-real
-  name: llm-metrics-real
+    name: llm-internal
+  name: llm-internal
 spec:
   endpoints:
   - port: "http"
@@ -12,14 +12,14 @@ spec:
   namespaceSelector: {}
   selector:
     matchLabels:
-      name: llm-metrics-real
+      name: llm-internal
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    name: llm-metrics-real
-  name: llm-metrics-real
+    name: llm-internal
+  name: llm-internal
 spec:
   ports:
   - name: http
