@@ -21,7 +21,7 @@ import (
 	"github.com/kwkoo/threat-detection-frontend/internal/prompts"
 )
 
-const llmRequestTimeoutSeconds = 30
+const llmRequestTimeoutSeconds = 60
 const llmChannelSize = 20
 
 // Alert coming from the image-acquirer via MQTT
@@ -41,8 +41,8 @@ type alertEvent struct {
 
 type AlertsController struct {
 	sseCh          chan SSEEvent
-	llmURL         string
-	llmModel       string
+	ollamaURL      string
+	ollamaModel    string
 	keepAlive      string
 	prompts        *prompts.PromptsContainer
 	latestAlert    alertEvent
@@ -52,7 +52,7 @@ type AlertsController struct {
 
 // Ensure that ch is a buffered channel - if the channel is not buffered,
 // sending events to this channel will fail
-func NewAlertsController(ch chan SSEEvent, llmURL, llmModel, keepAlive, promptsFile string) *AlertsController {
+func NewAlertsController(ch chan SSEEvent, ollamaURL, ollamaModel, keepAlive, promptsFile string) *AlertsController {
 	if cap(ch) < 1 {
 		log.Fatal("SSEEvent channel cannot be unbuffered")
 	}
@@ -62,13 +62,15 @@ func NewAlertsController(ch chan SSEEvent, llmURL, llmModel, keepAlive, promptsF
 		log.Fatal(err)
 	}
 
+	log.Printf("alerts controller initializing with ollamaURL=%s, ollamaModel=%s, keepAlive=%s", ollamaURL, ollamaModel, keepAlive)
+
 	c := AlertsController{
-		sseCh:     ch,
-		llmURL:    llmURL,
-		llmModel:  llmModel,
-		keepAlive: keepAlive,
-		prompts:   prompts,
-		llmCh:     make(chan alertEvent, llmChannelSize),
+		sseCh:       ch,
+		ollamaURL:   ollamaURL,
+		ollamaModel: ollamaModel,
+		keepAlive:   keepAlive,
+		prompts:     prompts,
+		llmCh:       make(chan alertEvent, llmChannelSize),
 	}
 	return &c
 }
@@ -211,21 +213,23 @@ func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 				Data:      []byte(event.prompt.GetSSEBytes()),
 			})
 
-			llmReq := struct {
+			ollamaReq := struct {
 				Model     string   `json:"model"`
 				KeepAlive string   `json:"keep_alive"`
+				Stream    bool     `json:"stream"`
 				Prompt    string   `json:"prompt"`
 				Images    []string `json:"images,omitempty"`
 			}{
-				Model:     controller.llmModel,
+				Model:     controller.ollamaModel,
 				KeepAlive: controller.keepAlive,
+				Stream:    false,
 				Prompt:    event.prompt.Descriptive,
 			}
 			if event.rawImage != nil {
-				llmReq.Images = []string{string(event.rawImage)}
+				ollamaReq.Images = []string{string(event.rawImage)}
 			}
 
-			payload, err := json.Marshal(llmReq)
+			payload, err := json.Marshal(ollamaReq)
 			if err != nil {
 				log.Printf("error trying to marshal JSON for LLM request: %v", err)
 				continue
@@ -238,15 +242,15 @@ func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 func (controller *AlertsController) llmRequest(ctx context.Context, payload []byte) {
 	ctx, cancel := context.WithTimeout(ctx, llmRequestTimeoutSeconds*time.Second)
 	defer cancel()
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, controller.llmURL, bytes.NewReader(payload))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, controller.ollamaURL, bytes.NewReader(payload))
 	if err != nil {
-		log.Printf("error creating request to %s: %v", controller.llmURL, err)
+		log.Printf("error creating request to %s: %v", controller.ollamaURL, err)
 		return
 	}
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Printf("error making request to %s: %v", controller.llmURL, err)
+		log.Printf("error making request to %s: %v", controller.ollamaURL, err)
 		return
 	}
 	log.Printf("LLM response status code %d", res.StatusCode)

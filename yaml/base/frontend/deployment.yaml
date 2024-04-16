@@ -31,9 +31,9 @@ spec:
           value: "-1s"
         - name: ALERTSTOPIC
           value: alerts
-        - name: LLMURL
+        - name: OLLAMAURL
           value: http://ollama:11434/api/generate
-        - name: LLMMODEL
+        - name: OLLAMAMODEL
           value: "llava:34b-v1.6"
         - name: PROMPTS
           value: "/frontend/config/prompts.txt"

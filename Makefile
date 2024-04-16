@@ -289,7 +289,7 @@ upload-model:
 	done
 	@echo "done"
 	@/bin/echo "waiting for pod to be ready..."
-	oc wait -n $(PROJ) `oc get -n $(PROJ) po -o name -l job=setup-s3` --for=condition=Ready
+	oc wait -n $(PROJ) `oc get -n $(PROJ) po -o name -l job=setup-s3` --for=condition=Ready --timeout=300s
 	oc logs -n $(PROJ) -f job/setup-s3
 	oc delete -n $(PROJ) -k $(BASE)/yaml/base/s3-job/
 
@@ -323,7 +323,7 @@ deploy-llm:
 	  sleep 5; \
 	done
 	@echo "done"
-	oc wait -n $(PROJ) inferenceservice/llm --for=condition=Ready --timeout=300s
+	oc wait -n $(PROJ) inferenceservice/llm --for=condition=Ready --timeout=600s
 	oc patch peerauthentication/default \
 	  --type json \
 	  -p '[{"op":"replace", "path":"/spec/mtls/mode", "value":"PERMISSIVE"}]' \
