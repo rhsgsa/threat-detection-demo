@@ -18,6 +18,7 @@ remote:
 	  rm -f /tmp/port-forward-mqtt.pid; \
 	fi
 	oc port-forward -n demo svc/mosquitto 1883:1883 & echo $$! > /tmp/port-forward-mqtt.pid
+	oc port-forward -n demo svc/llm-internal 8012:8012 & echo $$! > /tmp/port-forward-kserve.pid
 	sleep 3
 	-DOCROOT=$(BASE)/docroot \
 	 OLLAMAMODEL="llava:34b-v1.6" \
@@ -25,3 +26,5 @@ remote:
 	 go run .
 	-kill `cat /tmp/port-forward-mqtt.pid`
 	-rm -f /tmp/port-forward-mqtt.pid
+	-kill `cat /tmp/port-forward-kserve.pid`
+	-rm -f /tmp/port-forward-kserve.pid

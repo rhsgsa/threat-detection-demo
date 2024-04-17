@@ -68,9 +68,9 @@ sequenceDiagram
 	
 	Note: After the certificates have been installed, you will need to edit `kubeconfig` and comment out `.clusters[*].cluster.certificate-authority-data`
 
-01. Setup the cluster to run KServe
+01. Deploy all components
 
-		make configure-infra
+		make configure-infra deploy-llm deploy
 	
 	This does the following:
 
@@ -82,14 +82,8 @@ sequenceDiagram
 	*   Sets up OpenShift AI
 	*   Deloys Minio
 	*   Uploads the mistral model to Minio
-
-01. Deploy KServe / vLLM with mistral
-
-		make deploy-llm
-
-01. Deploy all components
-
-		make deploy
+	*   Deploy KServe / vLLM with mistral
+	*   Deploys the `image-acquirer`, `mosquitto`, `fontend`, `ollama` with `llava`
 
 01. If you wish to use a different video for the `image-acquirer`,
 

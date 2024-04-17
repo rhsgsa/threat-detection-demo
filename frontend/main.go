@@ -25,15 +25,18 @@ const sseChannelSize = 50
 var content embed.FS
 
 type Config struct {
-	AlertsTopic string `usage:"MQTT topic for incoming alerts" default:"alerts"`
-	CORS        string `usage:"Value of Access-Control-Allow-Origin HTTP header - header will not be set if this is not set"`
-	Docroot     string `usage:"HTML document root - will use the embedded docroot if not specified"`
-	KeepAlive   string `usage:"The duration that Ollama should keep the model in memory" default:"300m"`
-	MQTTBroker  string `usage:"MQTT broker URL" default:"tcp://localhost:1883" mandatory:"true"`
-	OllamaModel string `usage:"Model name used in query to Ollama" default:"llava"`
-	OllamaURL   string `usage:"URL for the LLM REST endpoint" default:"http://localhost:11434/api/generate"`
-	Port        int    `default:"8080" usage:"HTTP listener port"`
-	Prompts     string `usage:"Path to file containing prompts to use - will use hardcoded prompts if this is not set"`
+	AlertsTopic  string `usage:"MQTT topic for incoming alerts" default:"alerts"`
+	CORS         string `usage:"Value of Access-Control-Allow-Origin HTTP header - header will not be set if this is not set"`
+	Docroot      string `usage:"HTML document root - will use the embedded docroot if not specified"`
+	KeepAlive    string `usage:"The duration that Ollama should keep the model in memory" default:"300m"`
+	MQTTBroker   string `usage:"MQTT broker URL" default:"tcp://localhost:1883" mandatory:"true"`
+	OllamaModel  string `usage:"Model name used in query to Ollama" default:"llava"`
+	OllamaURL    string `usage:"URL for the LLM REST endpoint" default:"http://localhost:11434/api/generate"`
+	OpenAIModel  string `usage:"Model for the OpenAI API" default:"/mnt/models"`
+	OpenAIPrompt string `usage:"The prompt to be sent to the OpenAI model" default:"Does the text in the following paragraph describe a dangerous situation - answer yes or no"`
+	OpenAIURL    string `usage:"URL for the OpenAI API" default:"http://localhost:8012/v1"`
+	Port         int    `default:"8080" usage:"HTTP listener port"`
+	Prompts      string `usage:"Path to file containing prompts to use - will use hardcoded prompts if this is not set"`
 }
 
 func main() {
@@ -56,7 +59,7 @@ func main() {
 		wg.Done()
 	}()
 
-	alertsController := internal.NewAlertsController(sseCh, config.OllamaURL, config.OllamaModel, config.KeepAlive, config.Prompts)
+	alertsController := internal.NewAlertsController(sseCh, config.OllamaURL, config.OllamaModel, config.KeepAlive, config.Prompts, config.OpenAIModel, config.OpenAIPrompt, config.OpenAIURL)
 	http.HandleFunc("/api/prompt", internal.InitCORSMiddleware(config.CORS, alertsController.PromptHandler).Handler)
 	http.HandleFunc("/api/alertsstatus", internal.InitCORSMiddleware(config.CORS, alertsController.StatusHandler).Handler)
 	wg.Add(1)

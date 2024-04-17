@@ -244,13 +244,6 @@ deploy-oai:
 	  sleep 5; \
 	done
 	@echo "done"
-	@echo "turning off mutual TLS"
-	# the InferenceService will not be accessible from outside the cluster
-	# after mutual TLS has been turned off
-	oc patch smcp/data-science-smcp \
-	  -n istio-system \
-	  --type json \
-	  -p '[{"op":"replace","path":"/spec/security/dataPlane/mtls","value":false}]'
 
 
 .PHONY: deploy-minio
@@ -303,18 +296,13 @@ deploy-llm:
 	&& \
 	AWS_SECRET_ACCESS_KEY="`oc extract secret/minio -n $(PROJ) --to=- --keys=MINIO_ROOT_PASSWORD 2>/dev/null`" \
 	&& \
-	NS_UID="`oc get ns $(PROJ) -o jsonpath='{.metadata.annotations.openshift\.io/sa\.scc\.uid-range}' | cut -d / -f 1`" \
-	&& \
-	INIT_UID=$$(( NS_UID + 1 )) \
-	&& \
-	echo "AWS_ACCESS_KEY_ID=$$AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$$AWS_SECRET_ACCESS_KEY NS_UID=$$NS_UID INIT_UID=$$INIT_UID" \
+	echo "AWS_ACCESS_KEY_ID=$$AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$$AWS_SECRET_ACCESS_KEY" \
 	&& \
 	oc kustomize $(BASE)/yaml/base/inferenceservice/ \
 	| \
 	sed \
 	  -e "s/AWS_ACCESS_KEY_ID: .*/AWS_ACCESS_KEY_ID: $$AWS_ACCESS_KEY_ID/" \
 	  -e "s/AWS_SECRET_ACCESS_KEY: .*/AWS_SECRET_ACCESS_KEY: $$AWS_SECRET_ACCESS_KEY/" \
-	  -e "s/storage-initializer-uid: .*/storage-initializer-uid: \"$$INIT_UID\"/" \
 	| \
 	oc apply -n $(PROJ) -f -
 	@/bin/echo -n "waiting for inferenceservice to appear..."
@@ -323,11 +311,6 @@ deploy-llm:
 	  sleep 5; \
 	done
 	@echo "done"
-	oc wait -n $(PROJ) inferenceservice/llm --for=condition=Ready --timeout=600s
-	oc patch peerauthentication/default \
-	  --type json \
-	  -p '[{"op":"replace", "path":"/spec/mtls/mode", "value":"PERMISSIVE"}]' \
-	  -n $(PROJ)
 
 .PHONY: clean-llm
 clean-llm:

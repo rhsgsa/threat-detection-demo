@@ -63,6 +63,9 @@ func newMocks(t *testing.T, promptsFile string) *mocks {
 		"dummy-model",
 		"-1s", // keepalive
 		promptsFile,
+		"",
+		"",
+		"",
 	)
 	m.resetRequestReceivedChannel()
 	m.launchGoroutines()

@@ -1,18 +1,6 @@
 apiVersion: serving.kserve.io/v1beta1
 kind: InferenceService
 metadata:
-  annotations:
-    # note - ensure that you change the uid to the namespace uid + 1
-    # https://github.com/kserve/kserve/blob/master/docs/OPENSHIFT_GUIDE.md#with-service-mesh-istio
-    #
-    # proj=demo
-    # start_uid="$(oc get ns $proj -o jsonpath='{.metadata.annotations.openshift\.io/sa\.scc\.uid-range}' | cut -d / -f 1)"
-    # init_uid=$(( start_uid + 1 ))
-    #
-    serving.kserve.io/storage-initializer-uid: "1000910001"
-    serving.knative.openshift.io/enablePassthrough: "true"
-    sidecar.istio.io/inject: "true"
-    sidecar.istio.io/rewriteAppHTTPProvers: "true"
   name: llm
 spec:
   predictor:

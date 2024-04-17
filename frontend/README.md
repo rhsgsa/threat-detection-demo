@@ -11,8 +11,11 @@
 |`MQTTBROKER`|`tcp://localhost:1883`|MQTT broker URL|
 |`OLLAMAMODEL`|`llava`|Model name used in query to Ollama|
 |`OLLAMAURL`|`http://localhost:11434/api/generate`|URL for the Ollama REST endpoint|
+|`OPENAIMODEL`|`/mnt/models`|Model for the OpenAI API|
+|`OPENAIPROMPT`||The prompt to be sent to the OpenAI model|
+|`OPENAIURL`|`http://localhost:8012/v1`|URL for the OpenAI API|
 |`PORT`|`8080`|Web server port|
-|`PROMPTS`||Path to file containing prompts to use - will use hardcoded prompts if this is not set|
+|`PROMPTS`||Path to file containing prompts for Ollama - will use hardcoded prompts if this is not set|
 
 
 ## Prompts File

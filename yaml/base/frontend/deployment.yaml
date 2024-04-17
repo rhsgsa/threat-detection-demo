@@ -37,6 +37,12 @@ spec:
           value: "llava:34b-v1.6"
         - name: PROMPTS
           value: "/frontend/config/prompts.txt"
+        - name: OPENAIMODEL
+          value: /mnt/models
+        - name: OPENAIPROMPT
+          value: ""
+        - name: OPENAIURL
+          value: http://llm-internal:8012/v1	
         ports:
         - name: http
           containerPort: 8080
