@@ -1,11 +1,12 @@
 PROJ=demo
+REMOTE_INSTALL_PROJ=$(PROJ)
 IMAGE_ACQUIRER=ghcr.io/kwkoo/image-acquirer
 FRONTEND_IMAGE=ghcr.io/rhsgsa/threat-frontend
 FRONTEND_VERSION=1.9
 MOCK_OLLAMA_IMAGE=ghcr.io/kwkoo/mock-ollama
 BUILDERNAME=multiarch-builder
-MODEL_NAME=NCS_YOLOv8-20Epochs.pt
-MODEL_URL=https://github.com/rhsgsa/threat-detection-demo/releases/download/v0.1/$(MODEL_NAME)
+MODEL_NAME=yolov8l_retrained.pt
+MODEL_URL=https://github.com/rhsgsa/threat-detection-demo/releases/download/v0.2/$(MODEL_NAME)
 
 BASE:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
@@ -18,10 +19,8 @@ configure-infra: configure-user-workload-monitoring deploy-nvidia deploy-kserve-
 deploy: ensure-logged-in
 	oc new-project $(PROJ) 2>/dev/null; \
 	if [ $$? -eq 0 ]; then sleep 3; fi
-	oc get limitrange -n $(PROJ) >/dev/null 2>/dev/null \
-	&& \
-	if [ $$? -eq 0 ]; then \
-	  oc get limitrange -n $(PROJ) -o name | xargs oc delete -n $(PROJ); \
+	if [ `oc get limitrange -n $(PROJ) --no-headers 2>/dev/null | wc -l` -gt 0 ]; then \
+	  oc delete -n $(PROJ) `oc get limitrange -n $(PROJ) -o name`; \
 	fi
 	oc apply -n $(PROJ) -k $(BASE)/yaml/overlays/all-in-one/
 
@@ -332,3 +331,26 @@ minio-console:
 clean-minio:
 	oc delete -n $(PROJ) -f $(BASE)/yaml/minio.yaml
 	oc delete -n $(PROJ) pvc -l app.kubernetes.io/instance=minio,app.kubernetes.io/name=minio
+
+.PHONY: remote-install
+remote-install: clean-remote-install
+	oc new-project $(REMOTE_INSTALL_PROJ) || echo "$(REMOTE_INSTALL_PROJ) exists"
+	oc create -n $(REMOTE_INSTALL_PROJ) sa remote-installer
+	oc adm policy add-cluster-role-to-user -n $(REMOTE_INSTALL_PROJ) cluster-admin -z remote-installer
+	oc apply -f $(BASE)/yaml/remote-installer/remote-installer.yaml
+	@/bin/echo -n "waiting for job to appear..."
+	@until oc get -n $(REMOTE_INSTALL_PROJ) job/remote-installer 2>/dev/null >/dev/null; do \
+	  /bin/echo -n "."; \
+	  sleep 10; \
+	done
+	@echo "done"
+	oc wait -n $(REMOTE_INSTALL_PROJ) --for condition=ready po -l job-name=remote-installer
+	oc logs -n $(REMOTE_INSTALL_PROJ) -f job/remote-installer
+
+.PHONY: clean-remote-install
+clean-remote-install:
+	-oc delete -n $(REMOTE_INSTALL_PROJ) job/remote-installer
+	-oc delete -n $(REMOTE_INSTALL_PROJ) sa/remote-installer
+	-for s in `oc get clusterrolebinding -o jsonpath='{.items[?(@.subjects[0].name == "remote-installer")].metadata.name}'`; do \
+	  oc delete clusterrolebinding $$s; \
+	done
