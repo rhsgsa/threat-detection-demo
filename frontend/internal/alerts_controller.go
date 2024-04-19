@@ -386,7 +386,6 @@ func (controller *AlertsController) openAIRequest(ctx context.Context, text stri
 			json.NewEncoder(controller.openaiFile).Encode(resp)
 		}
 		for _, choice := range resp.Choices {
-			var buf bytes.Buffer
 			message := struct {
 				Model    string `json:"model"`
 				Response string `json:"response"`
@@ -396,13 +395,14 @@ func (controller *AlertsController) openAIRequest(ctx context.Context, text stri
 				Response: choice.Delta.Content,
 				Done:     choice.FinishReason == openai.FinishReasonStop,
 			}
-			if err := json.NewEncoder(&buf).Encode(&message); err != nil {
+			marshaled, err := json.Marshal(&message)
+			if err != nil {
 				log.Printf("error converting openai stream response to json: %v", err)
 				continue
 			}
 			controller.sendToSSECh((SSEEvent{
 				EventType: "openai_response",
-				Data:      buf.Bytes(),
+				Data:      marshaled,
 			}))
 		}
 	}
