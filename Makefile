@@ -263,6 +263,11 @@ deploy-minio:
 	  MINIO_BROWSER_REDIRECT_URL="http://`oc get -n $(PROJ) route/minio-console -o jsonpath='{.spec.host}'`"
 
 
+.PHONY: clean-minio
+clean-minio:
+	-oc delete -n $(PROJ) -f $(BASE)/yaml/minio.yaml
+
+
 .PHONY: upload-model
 upload-model:
 	@echo "removing any previous jobs..."
