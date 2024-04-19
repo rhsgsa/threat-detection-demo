@@ -73,12 +73,12 @@ body {
     margin-bottom: 10px;
 }
 
-#llm-response {
+#ollama-response, #openai-response {
     width: 80%;
     display: block;
 }
 
-#llm-response-spinner {
+#ollama-response-spinner, #openai-response-spinner {
     display: none;
     margin-left: auto;
     margin-right: auto;

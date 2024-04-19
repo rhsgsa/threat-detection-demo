@@ -28,7 +28,7 @@ spec:
         - name: PORT
           value: "8080"
         - name: MODEL
-          value: NCS_YOLOv8-20Epochs.pt
+          value: yolov8l_retrained.pt
         - name: CONFIDENCE
           value: "0.5"
         ports:

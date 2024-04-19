@@ -9,6 +9,7 @@ graph TD
     A(image-acquirer) -- MQTT --> B(mosquitto)
     B -- MQTT --> C(frontend)
     C -- REST --> D(LLaVA)
+    C -- REST --> F(Mistral)
     E(web browser) -- HTTP --> C
     C -- SSE --> E
 ```
@@ -28,6 +29,8 @@ sequenceDiagram
     frontend->>+LLaVA: image and prompt
     LLaVA->>-frontend: analysis of image
     frontend-->>-web browsers: analysis of image
+    frontend->>+Mistral: LLava image analysis and prompt
+    frontend-->>-web browsers: threat analysis
 ```
 
 

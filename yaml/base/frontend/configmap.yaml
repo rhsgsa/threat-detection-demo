@@ -1,12 +1,8 @@
 apiVersion: v1
 data:
   prompts.txt: |
-    Please describe this picture
-    Is this person a threat?
-    Identify the weapon in the picture
-    Can this person pass security?|You are not allowed to bring any weapons past an airport security checkpoint, even if they are toys. Will this person be allowed to pass the security check?
-    How many people are there in the picture?
-    Write a security report|You are monitoring a security camera. Write a security report about this incident.
+    Are there any guns, knives or water bottles in the image? Describe what you see and the context.
+    What should I be noticing here?
 kind: ConfigMap
 metadata:
   labels:

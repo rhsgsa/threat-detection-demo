@@ -21,6 +21,8 @@ func main() {
 		Port           int    `default:"8080" usage:"HTTP listener port"`
 		Source         string `usage:"Source for responses" mandatory:"true"`
 		LineSleepMsecs int    `default:"100" usage:"Delay between lines in milliseconds"`
+		ResponseStop   string `default:"\"done\":true" usage:"Substring that denotes the end of a response"`
+		ResponsePrefix string `usage:"Prefix for each response"`
 	}{}
 	if err := configparser.Parse(&config); err != nil {
 		log.Fatal(err)
@@ -47,6 +49,9 @@ func main() {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		for {
 			line := lines[currentLine]
+			if config.ResponsePrefix != "" {
+				w.Write([]byte(config.ResponsePrefix))
+			}
 			w.Write(line)
 			w.Write([]byte{'\n'})
 			flusher.Flush()
@@ -55,7 +60,7 @@ func main() {
 				currentLine = 0
 				return
 			}
-			if strings.Contains(string(line), "\"done\":true") {
+			if strings.Contains(string(line), config.ResponseStop) {
 				return
 			}
 			time.Sleep(time.Duration(config.LineSleepMsecs) * time.Millisecond)

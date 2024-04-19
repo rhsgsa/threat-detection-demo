@@ -4,3 +4,4 @@ ultralytics
 lapx>=0.5.2
 numpy
 paho-mqtt
+dill

@@ -14,6 +14,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"sync"
 	"time"
@@ -25,6 +26,9 @@ import (
 
 const llmRequestTimeoutSeconds = 60
 const llmChannelSize = 3
+
+const mockOllamaOutput = "/tmp/ollama.txt"
+const mockOpenAIOutput = "/tmp/openai.txt"
 
 // Alert coming from the image-acquirer via MQTT
 type alertMQTT struct {
@@ -42,17 +46,20 @@ type alertEvent struct {
 }
 
 type AlertsController struct {
-	sseCh          chan SSEEvent
-	ollamaURL      string
-	ollamaModel    string
-	keepAlive      string
-	prompts        *prompts.PromptsContainer
-	openAIModel    string
-	openAIPrompt   string
-	openAIURL      string
-	latestAlert    alertEvent
-	latestAlertMux sync.RWMutex
-	llmCh          chan alertEvent
+	sseCh              chan SSEEvent
+	ollamaURL          string
+	ollamaModel        string
+	keepAlive          string
+	prompts            *prompts.PromptsContainer
+	openAIModel        string
+	openAIPrompt       string
+	openAIURL          string
+	latestAlert        alertEvent
+	latestAlertMux     sync.RWMutex
+	llmCh              chan alertEvent
+	saveModelResponses bool
+	ollamaFile         *os.File
+	openaiFile         *os.File
 }
 
 // Ensure that ch is a buffered channel - if the channel is not buffered,
@@ -85,6 +92,31 @@ func NewAlertsController(ch chan SSEEvent, ollamaURL, ollamaModel, keepAlive, pr
 		llmCh:        make(chan alertEvent, llmChannelSize),
 	}
 	return &c
+}
+
+func (controller *AlertsController) Shutdown() {
+	if controller.ollamaFile != nil {
+		controller.ollamaFile.Close()
+		controller.ollamaFile = nil
+	}
+	if controller.openaiFile != nil {
+		controller.openaiFile.Close()
+		controller.openaiFile = nil
+	}
+}
+
+// Used to save mock data
+func (controller *AlertsController) SaveModelResponses() {
+	controller.saveModelResponses = true
+	var err error
+	controller.ollamaFile, err = os.Create(mockOllamaOutput)
+	if err != nil {
+		log.Printf("could not create %s: %v", mockOllamaOutput, err)
+	}
+	controller.openaiFile, err = os.Create(mockOpenAIOutput)
+	if err != nil {
+		log.Printf("could not create %s: %v", mockOpenAIOutput, err)
+	}
 }
 
 // PromptHandler gets invoked when a REST call is made to list the available prompts or to set the prompt
@@ -234,7 +266,7 @@ func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 			}{
 				Model:     controller.ollamaModel,
 				KeepAlive: controller.keepAlive,
-				Stream:    controller.openAIURL == "",
+				Stream:    true,
 				Prompt:    event.prompt.Descriptive,
 			}
 			if event.rawImage != nil {
@@ -260,6 +292,10 @@ func (controller *AlertsController) ollamaRequest(parentCtx context.Context, pay
 		return
 	}
 
+	controller.sendToSSECh(SSEEvent{
+		EventType: "ollama_response_start",
+		Data:      nil,
+	})
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Printf("error making request to %s: %v", controller.ollamaURL, err)
@@ -272,45 +308,40 @@ func (controller *AlertsController) ollamaRequest(parentCtx context.Context, pay
 	}
 	defer res.Body.Close()
 
-	if controller.openAIURL != "" {
-		// parse res.Body as JSON - grab response field
-		ollamaResponse := struct {
-			Response string `json:"response"`
-		}{}
-		if err := json.NewDecoder(res.Body).Decode(&ollamaResponse); err != nil {
-			log.Printf("error trying to decode ollama response: %v", err)
-			return
+	var b bytes.Buffer
+	scanner := bufio.NewScanner(res.Body)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		text := scanner.Text()
+		if controller.ollamaFile != nil {
+			controller.ollamaFile.WriteString(text + "\n")
 		}
+		decodedResponse, err := decodeOllamaResponse(text)
+		if err != nil {
+			log.Print(err)
+			continue
+		}
+		b.WriteString(decodedResponse)
 
+		controller.sendToSSECh(SSEEvent{
+			EventType: "ollama_response",
+			Data:      []byte(text),
+		})
+	}
+	controller.sendToSSECh(SSEEvent{
+		EventType: "ollama_response_stop",
+		Data:      nil,
+	})
+
+	if controller.openAIURL != "" {
 		// make request to OpenAI API here, passing it the prompt and the response from Ollama
-		if err := controller.openAIRequest(parentCtx, ollamaResponse.Response); err != nil {
+		if err := controller.openAIRequest(parentCtx, b.String()); err != nil {
 			log.Printf("error making openai request: %v", err)
 			return
 		}
 		return
 	}
 
-	// openAIURL not defined - stream Ollama responses to SSE clients
-	scanner := bufio.NewScanner(res.Body)
-	scanner.Split(bufio.ScanLines)
-	waitForFirstLine := true
-	for scanner.Scan() {
-		if waitForFirstLine {
-			controller.sendToSSECh(SSEEvent{
-				EventType: "llm_response_start",
-				Data:      nil,
-			})
-			waitForFirstLine = false
-		}
-		controller.sendToSSECh(SSEEvent{
-			EventType: "llm_response",
-			Data:      []byte(scanner.Text()),
-		})
-	}
-	controller.sendToSSECh(SSEEvent{
-		EventType: "llm_response_stop",
-		Data:      nil,
-	})
 }
 
 func (controller *AlertsController) openAIRequest(ctx context.Context, text string) error {
@@ -323,22 +354,26 @@ func (controller *AlertsController) openAIRequest(ctx context.Context, text stri
 		N:           1,
 		Messages: []openai.ChatCompletionMessage{
 			{
-				Role:    "system",
-				Content: "You are in charge of monitoring security camera feeds - your job is to determine if the situation on camera constitutes a threat. Do not repeat yourself",
-			},
-			{
 				Role:    "user",
 				Content: controller.openAIPrompt + "\n\n" + text,
 			},
 		},
 	}
+
+	defer controller.sendToSSECh(SSEEvent{
+		EventType: "openai_response_stop",
+		Data:      nil,
+	})
+	controller.sendToSSECh(SSEEvent{
+		EventType: "openai_response_start",
+		Data:      nil,
+	})
+
 	stream, err := client.CreateChatCompletionStream(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error creating openai chat completion stream: %w", err)
 	}
 	defer stream.Close()
-	var buf bytes.Buffer
-	isFirstLine := true
 	for {
 		resp, err := stream.Recv()
 		if errors.Is(err, io.EOF) {
@@ -347,30 +382,26 @@ func (controller *AlertsController) openAIRequest(ctx context.Context, text stri
 		if err != nil {
 			return fmt.Errorf("error receiving openai stream response: %w", err)
 		}
+		if controller.openaiFile != nil {
+			json.NewEncoder(controller.openaiFile).Encode(resp)
+		}
 		for _, choice := range resp.Choices {
-			buf.Reset()
+			var buf bytes.Buffer
 			message := struct {
+				Model    string `json:"model"`
 				Response string `json:"response"`
+				Done     bool   `json:"true"`
 			}{
+				Model:    "openai",
 				Response: choice.Delta.Content,
+				Done:     choice.FinishReason == openai.FinishReasonStop,
 			}
 			if err := json.NewEncoder(&buf).Encode(&message); err != nil {
 				log.Printf("error converting openai stream response to json: %v", err)
 				continue
 			}
-			if isFirstLine {
-				isFirstLine = false
-				defer controller.sendToSSECh(SSEEvent{
-					EventType: "llm_response_stop",
-					Data:      nil,
-				})
-				controller.sendToSSECh(SSEEvent{
-					EventType: "llm_response_start",
-					Data:      nil,
-				})
-			}
 			controller.sendToSSECh((SSEEvent{
-				EventType: "llm_response",
+				EventType: "openai_response",
 				Data:      buf.Bytes(),
 			}))
 		}
@@ -416,4 +447,20 @@ func (controller *AlertsController) setLatestAlert(newAlert alertEvent) {
 	controller.latestAlertMux.Lock()
 	controller.latestAlert = newAlert
 	controller.latestAlertMux.Unlock()
+}
+
+// extracts response field from JSON
+func decodeOllamaResponse(j string) (string, error) {
+	if j == "" {
+		return "", errors.New("unexpected response from ollama - did not contain JSON")
+	}
+
+	// parse res.Body as JSON - grab response field
+	ollamaResponse := struct {
+		Response string `json:"response"`
+	}{}
+	if err := json.Unmarshal([]byte(j), &ollamaResponse); err != nil {
+		return "", fmt.Errorf("error trying to decode ollama response: %v", err)
+	}
+	return ollamaResponse.Response, nil
 }

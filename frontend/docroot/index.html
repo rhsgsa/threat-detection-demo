@@ -26,10 +26,16 @@
     <div id="prompt-choices"></div>
   </div>
   <div class="grid-item">
+    <div class="label">Image Analysis</div>
     <div id="prompt">&nbsp;</div>
     <div class="llm-response-container">
-        <textarea id="llm-response" rows="20" cols="80" readonly></textarea>
-        <img src="ajax-loader.gif" id="llm-response-spinner"/>
+        <textarea id="ollama-response" rows="20" cols="80" readonly></textarea>
+        <img src="ajax-loader.gif" id="ollama-response-spinner"/>
+    </div>
+    <div class="label">Threat Analysis</div>
+    <div class="llm-response-container">
+        <textarea id="openai-response" rows="20" cols="80" readonly></textarea>
+        <img src="ajax-loader.gif" id="openai-response-spinner"/>
     </div>
   </div>
 </div>

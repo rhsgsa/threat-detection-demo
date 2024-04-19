@@ -54,28 +54,47 @@ services:
     environment:
     - MQTTBROKER=tcp://mqtt:1883
     - PORT=8080
-    #- DOCROOT=/var/www/html
+    - CORS=*
+    #- DOCROOT=
     - ALERTSTOPIC=alerts
-    - LLMURL=http://mock-ollama:11434/api/generate
+    - OLLAMAURL=http://mock-ollama:11434/api/generate
+    - OPENAIURL=http://mock-openai:8012/v1
+    - OPENAIPROMPT=You are tailored to provide concise threat assessments. Reply with the level of threat, either low, medium or high. Explanations for assessments are not provided, maintaining a focus on clear, concise classification without additional commentary.
+    - PROMPTS=/mocks/prompts.txt
     ports:
     - 8080:8080
     volumes:
     - react:/var/www/html
+    - ../../mocks/prompts.txt:/mocks/prompts.txt:ro,z
     depends_on:
     - mqtt
     - build_react
 
   mock-ollama:
     container_name: mock-ollama
-    image: "ghcr.io/kwkoo/mock-ollama"
+    image: "ghcr.io/kwkoo/mock-llm"
     environment:
     - PORT=11434
     - SOURCE=/mocks/ollama.txt
-    - LINESLEEPMSECS=100
+    - LINESLEEPMSECS=50
     ports:
     - 11434:11434
     volumes:
     - ../../mocks/ollama.txt:/mocks/ollama.txt:ro,z
+
+  mock-openai:
+    container_name: mock-openai
+    image: "ghcr.io/kwkoo/mock-llm"
+    environment:
+    - PORT=8012
+    - SOURCE=/mocks/openai.txt
+    - LINESLEEPMSECS=50
+    - 'RESPONSEPREFIX=data: '
+    - RESPONSESTOP="finish_reason":"stop"
+    ports:
+    - 8012:8012
+    volumes:
+    - ../../mocks/openai.txt:/mocks/openai.txt:ro,z
 
 volumes:
   react:

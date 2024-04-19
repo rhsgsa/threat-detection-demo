@@ -3,8 +3,10 @@ var photo = null;
 var rawImage = null;
 var annotatedImage = null;
 var showAnnotated = null;
-var llmResponse = null;
-var llmResponseSpinner = null;
+var ollamaResponse = null;
+var ollamaResponseSpinner = null;
+var openaiResponse = null;
+var openaiResponseSpinner = null;
 var prompt = null;
 var promptChoices = null;
 var promptChoicesSpinner = null;
@@ -95,22 +97,52 @@ function setPrompt(event) {
   prompt.innerText = obj.prompt;
 }
 
-function showLLMResponseSpinner(event) {
-  llmResponse.value = '';
-  llmResponse.style.display = 'none';
-  llmResponseSpinner.style.display = 'block';
+function showOllamaResponseSpinner(event) {
+  ollamaResponse.value = '';
+  ollamaResponse.style.display = 'none';
+  ollamaResponseSpinner.style.display = 'block';
 }
 
-function hideLLMResponseSpinner(event) {
-  llmResponseSpinner.style.display = 'none';
-  llmResponse.style.display = 'block';
+function hideOllamaResponseSpinner(event) {
+  ollamaResponseSpinner.style.display = 'none';
+  ollamaResponse.style.display = 'block';
 }
 
-function processLLMResponse(event) {
+function processOllamaResponse(event) {
   if (event == null || event.data == null) return;
-  const obj = JSON.parse(event.data);
+  let obj = null;
+  try {
+    obj = JSON.parse(event.data);
+  } catch (e) {
+    console.log(e);
+    console.log(event);
+  }
   if (obj == null || obj.response == null) return;
-  llmResponse.value += obj.response;
+  ollamaResponse.value += obj.response;
+}
+
+function showOpenaiResponseSpinner(event) {
+  openaiResponse.value = '';
+  openaiResponse.style.display = 'none';
+  openaiResponseSpinner.style.display = 'block';
+}
+
+function hideOpenaiResponseSpinner(event) {
+  openaiResponseSpinner.style.display = 'none';
+  openaiResponse.style.display = 'block';
+}
+
+function processOpenaiResponse(event) {
+  if (event == null || event.data == null) return;
+  let obj = null;
+  try {
+    obj = JSON.parse(event.data);
+  } catch (e) {
+    console.log(e);
+    console.log(event);
+  }
+  if (obj == null || obj.response == null) return;
+  openaiResponse.value += obj.response;
 }
 
 function refreshPhoto() {
@@ -154,8 +186,10 @@ function startup() {
   clearPhoto();
 
   showAnnotated = document.getElementById('show-annotated');
-  llmResponse = document.getElementById('llm-response');
-  llmResponseSpinner = document.getElementById('llm-response-spinner');
+  ollamaResponse = document.getElementById('ollama-response');
+  ollamaResponseSpinner = document.getElementById('ollama-response-spinner');
+  openaiResponse = document.getElementById('openai-response');
+  openaiResponseSpinner = document.getElementById('openai-response-spinner');
   prompt = document.getElementById('prompt');
   promptChoices = document.getElementById('prompt-choices');
   promptChoicesSpinner = document.getElementById('prompt-choices-spinner');
@@ -165,9 +199,15 @@ function startup() {
   evtSource.addEventListener("timestamp", processTimestampEvent);
   evtSource.addEventListener("annotated_image", processImageEvent);
   evtSource.addEventListener("raw_image", processImageEvent);
-  evtSource.addEventListener("llm_request_start", showLLMResponseSpinner);
-  evtSource.addEventListener("llm_response", processLLMResponse);
-  evtSource.addEventListener("llm_response_start", hideLLMResponseSpinner);
+  evtSource.addEventListener("ollama_response_start", function() {
+    showOllamaResponseSpinner();
+    showOpenaiResponseSpinner();
+  });
+  evtSource.addEventListener("ollama_response", processOllamaResponse);
+  evtSource.addEventListener("ollama_response_start", hideOllamaResponseSpinner);
+  evtSource.addEventListener("openai_response_start", showOpenaiResponseSpinner);
+  evtSource.addEventListener("openai_response", processOpenaiResponse);
+  evtSource.addEventListener("openai_response_start", hideOpenaiResponseSpinner);
   evtSource.addEventListener("prompt", setPrompt);
 
   evtSource.onerror = (e) => {

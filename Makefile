@@ -3,7 +3,7 @@ REMOTE_INSTALL_PROJ=$(PROJ)
 IMAGE_ACQUIRER=ghcr.io/kwkoo/image-acquirer
 FRONTEND_IMAGE=ghcr.io/rhsgsa/threat-frontend
 FRONTEND_VERSION=1.9
-MOCK_OLLAMA_IMAGE=ghcr.io/kwkoo/mock-ollama
+MOCK_LLM_IMAGE=ghcr.io/kwkoo/mock-llm
 BUILDERNAME=multiarch-builder
 MODEL_NAME=yolov8l_retrained.pt
 MODEL_URL=https://github.com/rhsgsa/threat-detection-demo/releases/download/v0.2/$(MODEL_NAME)
@@ -103,8 +103,8 @@ image-frontend: buildx-builder
 	docker manifest push --purge $(FRONTEND_IMAGE):latest
 	@#docker build --rm -t $(FRONTEND_IMAGE) $(BASE)/frontend
 
-.PHONY: image-mock-ollama
-image-mock-ollama: buildx-builder
+.PHONY: image-mock-llm
+image-mock-llm: buildx-builder
 	docker buildx build \
 	  --push \
 	  --provenance false \
@@ -113,8 +113,8 @@ image-mock-ollama: buildx-builder
 	  --cache-to type=local,dest=$(BASE)/docker-cache/amd64,mode=max \
 	  --cache-from type=local,src=$(BASE)/docker-cache/amd64 \
 	  --rm \
-	  -t $(MOCK_OLLAMA_IMAGE):amd64 \
-	  $(BASE)/mock-ollama
+	  -t $(MOCK_LLM_IMAGE):amd64 \
+	  $(BASE)/mock-llm
 	docker buildx build \
 	  --push \
 	  --provenance false \
@@ -123,14 +123,14 @@ image-mock-ollama: buildx-builder
 	  --cache-to type=local,dest=$(BASE)/docker-cache/arm64,mode=max \
 	  --cache-from type=local,src=$(BASE)/docker-cache/arm64 \
 	  --rm \
-	  -t $(MOCK_OLLAMA_IMAGE):arm64 \
-	  $(BASE)/mock-ollama
+	  -t $(MOCK_LLM_IMAGE):arm64 \
+	  $(BASE)/mock-llm
 	docker manifest create \
-	  $(MOCK_OLLAMA_IMAGE):latest \
-	  --amend $(MOCK_OLLAMA_IMAGE):amd64 \
-	  --amend $(MOCK_OLLAMA_IMAGE):arm64
-	docker manifest push --purge $(MOCK_OLLAMA_IMAGE):latest
-	@#docker build --rm -t $(MOCK_OLLAMA_IMAGE) $(BASE)/mock-ollama
+	  $(MOCK_LLM_IMAGE):latest \
+	  --amend $(MOCK_LLM_IMAGE):amd64 \
+	  --amend $(MOCK_LLM_IMAGE):arm64
+	docker manifest push --purge $(MOCK_LLM_IMAGE):latest
+	@#docker build --rm -t $(MOCK_LLM_IMAGE) $(BASE)/mock-llm
 
 .PHONY: buildx-builder
 buildx-builder:
