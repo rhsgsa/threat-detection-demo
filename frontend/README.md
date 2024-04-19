@@ -37,7 +37,7 @@
 
 ## Testing with mocks
 
-*   Start up mock `image-acquirer`, `frontend`, mock `ollama`, then bring `frontend` container down
+*   Start up mock `image-acquirer`, `frontend`, mock `ollama`, mock `openai`, then bring `frontend` container down
 
 		docker compose -f ../yaml/docker-compose/frontend-with-mocks.yaml up
 

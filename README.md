@@ -123,7 +123,7 @@ To run all components on your local computer with `docker compose`
 
 ## Frontend with mocks
 
-If you wish to make changes to the static content for the frontend, you can run the frontend with a mock `image-acquirer` and a mock `ollama`
+If you wish to make changes to the static content for the frontend, you can run the frontend with a mock `image-acquirer`, mock `ollama` and a mock `openai`
 
 	cd yaml/docker-compose
 
