@@ -314,7 +314,8 @@ func (controller *AlertsController) ollamaRequest(parentCtx context.Context, pay
 	for scanner.Scan() {
 		text := scanner.Text()
 		if controller.ollamaFile != nil {
-			controller.ollamaFile.WriteString(text + "\n")
+			controller.ollamaFile.WriteString(text)
+			controller.ollamaFile.Write([]byte{'\n'})
 		}
 		decodedResponse, err := decodeOllamaResponse(text)
 		if err != nil {

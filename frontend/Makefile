@@ -25,7 +25,7 @@ remote:
 	 OLLAMAURL=http://`oc get -n demo route/ollama -o jsonpath='{.spec.host}'`/api/generate \
 	 OPENAIPROMPT="You are tailored to provide concise threat assessments. Reply with the level of threat, either low, medium or high. Explanations for assessments are not provided, maintaining a focus on clear, concise classification without additional commentary." \
 	 PROMPTS=$(BASE)/../mocks/prompts.txt \
-	 SAVEMODELRESPONSES=true \
+	 SAVEMODELRESPONSES=false \
 	 go run .
 	-kill `cat /tmp/port-forward-mqtt.pid`
 	-rm -f /tmp/port-forward-mqtt.pid
