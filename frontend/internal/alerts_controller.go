@@ -292,10 +292,6 @@ func (controller *AlertsController) ollamaRequest(parentCtx context.Context, pay
 		return
 	}
 
-	controller.sendToSSECh(SSEEvent{
-		EventType: "ollama_response_start",
-		Data:      nil,
-	})
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Printf("error making request to %s: %v", controller.ollamaURL, err)
@@ -307,6 +303,10 @@ func (controller *AlertsController) ollamaRequest(parentCtx context.Context, pay
 		return
 	}
 	defer res.Body.Close()
+	controller.sendToSSECh(SSEEvent{
+		EventType: "ollama_response_start",
+		Data:      nil,
+	})
 
 	var b bytes.Buffer
 	scanner := bufio.NewScanner(res.Body)
@@ -360,6 +360,11 @@ func (controller *AlertsController) openAIRequest(ctx context.Context, text stri
 		},
 	}
 
+	stream, err := client.CreateChatCompletionStream(ctx, req)
+	if err != nil {
+		return fmt.Errorf("error creating openai chat completion stream: %w", err)
+	}
+	defer stream.Close()
 	defer controller.sendToSSECh(SSEEvent{
 		EventType: "openai_response_stop",
 		Data:      nil,
@@ -368,12 +373,6 @@ func (controller *AlertsController) openAIRequest(ctx context.Context, text stri
 		EventType: "openai_response_start",
 		Data:      nil,
 	})
-
-	stream, err := client.CreateChatCompletionStream(ctx, req)
-	if err != nil {
-		return fmt.Errorf("error creating openai chat completion stream: %w", err)
-	}
-	defer stream.Close()
 	for {
 		resp, err := stream.Recv()
 		if errors.Is(err, io.EOF) {

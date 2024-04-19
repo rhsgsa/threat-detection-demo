@@ -168,6 +168,9 @@ function processTimestampEvent(event) {
     currentImageTimestamp = event.data;
     sound.play();
   }
+
+  showOllamaResponseSpinner();
+  showOpenaiResponseSpinner();
 }
 
 function processImageEvent(event) {
@@ -199,13 +202,8 @@ function startup() {
   evtSource.addEventListener("timestamp", processTimestampEvent);
   evtSource.addEventListener("annotated_image", processImageEvent);
   evtSource.addEventListener("raw_image", processImageEvent);
-  evtSource.addEventListener("ollama_response_start", function() {
-    showOllamaResponseSpinner();
-    showOpenaiResponseSpinner();
-  });
   evtSource.addEventListener("ollama_response", processOllamaResponse);
   evtSource.addEventListener("ollama_response_start", hideOllamaResponseSpinner);
-  evtSource.addEventListener("openai_response_start", showOpenaiResponseSpinner);
   evtSource.addEventListener("openai_response", processOpenaiResponse);
   evtSource.addEventListener("openai_response_start", hideOpenaiResponseSpinner);
   evtSource.addEventListener("prompt", setPrompt);
