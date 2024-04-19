@@ -20,6 +20,7 @@ graph TD
 |`mosquitto`|MQTT broker|
 |`frontend`|Receives events from the MQTT broker and broadcasts these events to connected web browsers using Server-Sent Events (SSE). At the same time, a request is made to LLaVA to analyze the image. The analysis is then broadcasted to connected web browsers.|
 |`LLaVA`|A large-language model that is capable of analyzing images.|
+|`Mistral`|A model based on Mistral that has fine-tuned to recognize certain threats.|
 
 ```mermaid
 sequenceDiagram
@@ -28,8 +29,9 @@ sequenceDiagram
     frontend-->>web browsers: image of suspected threat
     frontend->>+LLaVA: image and prompt
     LLaVA->>-frontend: analysis of image
-    frontend-->>-web browsers: analysis of image
+    frontend-->>web browsers: analysis of image
     frontend->>+Mistral: LLava image analysis and prompt
+    Mistral->>-frontend: threat analysis
     frontend-->>-web browsers: threat analysis
 ```
 
