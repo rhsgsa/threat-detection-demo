@@ -21,8 +21,6 @@ spec:
       - image: ghcr.io/kwkoo/image-acquirer
         name: image-acquirer
         env:
-        #- name: INTERESTED_CLASSES
-        #  value: "1,2"
         - name: MQTT_TOPIC
           value: alerts
         - name: PORT
@@ -31,6 +29,8 @@ spec:
           value: yolov8l_retrained.pt
         - name: CONFIDENCE
           value: "0.5"
+        - name: INTERESTED_CLASSES
+          value: "14"
         ports:
         - name: http
           containerPort: 8080
