@@ -3,6 +3,7 @@ package internal_test
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -35,6 +36,9 @@ type mocks struct {
 		req             mockOllamaReq
 		requestReceived chan struct{} // channel is closed when a request is received
 	}
+	openai struct {
+		httpServer *httptest.Server
+	}
 	sseClient struct {
 		ch     chan internal.SSEEvent
 		prompt string
@@ -50,6 +54,7 @@ func newMocks(t *testing.T, promptsFile string) *mocks {
 			req             mockOllamaReq
 			requestReceived chan struct{} // channel is closed when a request is received
 		}{},
+		openai: struct{ httpServer *httptest.Server }{},
 		sseClient: struct {
 			ch     chan internal.SSEEvent
 			prompt string
@@ -60,15 +65,16 @@ func newMocks(t *testing.T, promptsFile string) *mocks {
 		},
 	}
 	m.ollama.httpServer = httptest.NewServer(http.HandlerFunc(m.ollamaHandler))
+	m.openai.httpServer = httptest.NewServer(http.HandlerFunc(m.openaiHandler))
 	m.controller = internal.NewAlertsController(
 		m.sseClient.ch,
 		m.ollama.httpServer.URL,
 		"dummy-model",
 		"-1s", // keepalive
 		promptsFile,
-		"",
-		"",
-		"",
+		"/mnt/models",
+		"dummy prompt",
+		m.openai.httpServer.URL,
 	)
 	m.resetOllamaRequestReceivedChannel()
 	m.launchGoroutines()
@@ -99,6 +105,7 @@ func (m *mocks) close() {
 	time.Sleep(time.Second) // sleep to allow LLM HTTP client requests to complete
 	m.cancel()
 	m.ollama.httpServer.Close()
+	m.openai.httpServer.Close()
 	close(m.sseClient.ch)
 	m.wg.Wait()
 }
@@ -119,7 +126,22 @@ func (m *mocks) ollamaHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	m.ollama.req = req
 
-	w.Write([]byte(`{"response":"dummy"}`))
+	w.Write([]byte(`{"response":"dummy ollama response"}`))
+}
+
+func (m *mocks) openaiHandler(w http.ResponseWriter, r *http.Request) {
+	m.t.Logf("openai handler called with URL %s", r.URL)
+	defer r.Body.Close()
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		m.t.Errorf("error received trying to read body of openai request: %v", err)
+		http.Error(w, "error reading request body", http.StatusPreconditionFailed)
+		return
+	}
+	m.t.Logf("openai handler received body %s", string(body))
+	writeSSEEvent(w, `{"id":"cmpl-dfdfa582006c4fd89e52adf0d0f32317","object":"chat.completion.chunk","created":1713497907,"model":"/mnt/models","choices":[{"index":0,"delta":{"role":"assistant"},"finish_reason":null,"content_filter_results":{"hate":{"filtered":false},"self_harm":{"filtered":false},"sexual":{"filtered":false},"violence":{"filtered":false}}}]}`)
+	writeSSEEvent(w, `{"id":"cmpl-dfdfa582006c4fd89e52adf0d0f32317","object":"chat.completion.chunk","created":1713497907,"model":"/mnt/models","choices":[{"index":0,"delta":{"content":" Medium threat"},"finish_reason":null,"content_filter_results":{"hate":{"filtered":false},"self_harm":{"filtered":false},"sexual":{"filtered":false},"violence":{"filtered":false}}}]}`)
+	writeSSEEvent(w, `{"id":"cmpl-dfdfa582006c4fd89e52adf0d0f32317","object":"chat.completion.chunk","created":1713497907,"model":"/mnt/models","choices":[{"index":0,"delta":{},"finish_reason":"stop","content_filter_results":{"hate":{"filtered":false},"self_harm":{"filtered":false},"sexual":{"filtered":false},"violence":{"filtered":false}}}]}`)
 }
 
 func (m *mocks) waitForOllamaRequest() {
@@ -153,9 +175,20 @@ func (m *mocks) consumeSSEEvents(ctx context.Context) {
 	}
 }
 
+/*
 func (m *mocks) sseEventExists(eventType string, substring string) bool {
 	for _, event := range m.sseClient.events {
 		if event.EventType == eventType && strings.Contains(string(event.Data), substring) {
+			return true
+		}
+	}
+	return false
+}
+*/
+
+func (m *mocks) sseEventsExist(eventType string) bool {
+	for _, event := range m.sseClient.events {
+		if event.EventType == eventType {
 			return true
 		}
 	}
@@ -169,6 +202,12 @@ func (m *mocks) unmarshalSSEClientPrompt() (mockShortPrompt, error) {
 		return mockShortPrompt{}, err
 	}
 	return sp, nil
+}
+
+func writeSSEEvent(w io.Writer, data string) {
+	w.Write([]byte("data: "))
+	w.Write([]byte(data))
+	w.Write([]byte("\n\n"))
 }
 
 /*

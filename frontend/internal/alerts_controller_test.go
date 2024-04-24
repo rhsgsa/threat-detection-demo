@@ -34,8 +34,9 @@ func TestMQTTToOllama(t *testing.T) {
 	}
 }
 
-// Test that the AlertsController makes a request to ollama whenever a REST
-// call is made to change the prompt
+// Test that the AlertsController makes a request to ollama and openai
+// whenever a REST call is made to change the prompt
+// Also test that the appropriate SSE events are sent
 func TestSetPrompt(t *testing.T) {
 	customPrompts := []string{
 		"short0|descriptiveprompt0",
@@ -106,6 +107,16 @@ func TestSetPrompt(t *testing.T) {
 	}
 	if shortPrompt.Prompt != "short2" {
 		t.Errorf(`expected short prompt to be "short2" but got "%s" instead`, shortPrompt.Prompt)
+	}
+
+	// ensure that ollama_response SSE events are received
+	if !m.sseEventsExist("ollama_response") {
+		t.Errorf(`did not receive expected ollama_response SSE events`)
+	}
+
+	// ensure that openai_response SSE events are received
+	if !m.sseEventsExist("openai_response") {
+		t.Errorf(`did not receive expected openai_response SSE events`)
 	}
 }
 
