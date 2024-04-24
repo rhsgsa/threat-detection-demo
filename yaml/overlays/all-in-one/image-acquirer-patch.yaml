@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-acquirer
+spec:
+  strategy:
+    type: Recreate
+  template:
+    spec:
+      initContainers:
+      - name: download-video
+        image: "docker.io/curlimages/curl:7.78.0"
+        command:
+        - sh
+        - "-c"
+        - |
+          if [ -f "/videos/video.mp4" ]; then
+            echo "video exists"
+            exit
+          fi
+          echo "downloading video..."
+          curl -Lo /videos/video.mp4 https://github.com/kwkoo/redhat-pins-ai-demo/raw/main/container/video.mp4
+        volumeMounts:
+        - name: videos
+          mountPath: /videos
+      containers:
+      - name: image-acquirer
+        envFrom:
+        - configMapRef:
+            name: image-acquirer-mqtt
+        env:
+        - name: CAMERA
+          value: /videos/video.mp4
+        volumeMounts:
+        - name: videos
+          mountPath: /videos
+      volumes:
+      - name: videos
+        persistentVolumeClaim:
+          claimName: image-acquirer
