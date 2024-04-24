@@ -38,6 +38,7 @@ type mocks struct {
 	sseClient struct {
 		ch     chan internal.SSEEvent
 		prompt string
+		events []internal.SSEEvent
 	}
 }
 
@@ -52,8 +53,10 @@ func newMocks(t *testing.T, promptsFile string) *mocks {
 		sseClient: struct {
 			ch     chan internal.SSEEvent
 			prompt string
+			events []internal.SSEEvent
 		}{
-			ch: make(chan internal.SSEEvent, 100),
+			ch:     make(chan internal.SSEEvent, 100),
+			events: []internal.SSEEvent{},
 		},
 	}
 	m.ollama.httpServer = httptest.NewServer(http.HandlerFunc(m.ollamaHandler))
@@ -142,11 +145,21 @@ func (m *mocks) consumeSSEEvents(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case event := <-m.sseClient.ch:
+			m.sseClient.events = append(m.sseClient.events, event)
 			if event.EventType == "prompt" {
 				m.sseClient.prompt = string(event.Data)
 			}
 		}
 	}
+}
+
+func (m *mocks) sseEventExists(eventType string, substring string) bool {
+	for _, event := range m.sseClient.events {
+		if event.EventType == eventType && strings.Contains(string(event.Data), substring) {
+			return true
+		}
+	}
+	return false
 }
 
 func (m *mocks) unmarshalSSEClientPrompt() (mockShortPrompt, error) {
