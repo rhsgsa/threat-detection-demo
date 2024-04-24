@@ -14,27 +14,27 @@ import (
 	"github.com/kwkoo/threat-detection-frontend/internal"
 )
 
-// Test that the AlertsController makes a request to the LLM whenever an MQTT
+// Test that the AlertsController makes a request to ollama whenever an MQTT
 // message is received
-func TestMQTTToLLM(t *testing.T) {
+func TestMQTTToOllama(t *testing.T) {
 	m := newMocks(t, "")
 	defer m.close()
 
 	// simulate alert coming in from MQTT
 	m.controller.MQTTHandler(nil, newMockMQTTMessage(`{"annotated_image":"dummyannogtated","raw_image":"dummy","timestamp":1234}`))
-	// wait for request to be received by LLM
-	m.waitForLLMRequest()
+	// wait for request to be received by ollama
+	m.waitForOllamaRequest()
 
-	if m.llm.req.Images == nil || len(m.llm.req.Images) == 0 {
-		t.Error("LLM did not receive any images")
-	} else if m.llm.req.Images[0] != "dummy" {
-		t.Errorf(`LLM received an image ("%s") different from what was expected`, m.llm.req.Images[0])
+	if m.ollama.req.Images == nil || len(m.ollama.req.Images) == 0 {
+		t.Error("ollama did not receive any images")
+	} else if m.ollama.req.Images[0] != "dummy" {
+		t.Errorf(`ollama received an image ("%s") different from what was expected`, m.ollama.req.Images[0])
 	} else {
-		t.Log("LLM received the raw image correctly")
+		t.Log("ollama received the raw image correctly")
 	}
 }
 
-// Test that the AlertsController makes a request to the LLM whenever a REST
+// Test that the AlertsController makes a request to ollama whenever a REST
 // call is made to change the prompt
 func TestSetPrompt(t *testing.T) {
 	customPrompts := []string{
@@ -69,28 +69,28 @@ func TestSetPrompt(t *testing.T) {
 
 	// simulate alert coming in from MQTT
 	m.controller.MQTTHandler(nil, mockMQTTMessage{[]byte(`{"annotated_image":"dummy","raw_image":"dummy","timestamp":1234}`)})
-	// wait for request to be received by LLM
-	t.Log("waiting for request to be received by LLM...")
-	<-m.llm.requestReceived
-	t.Log("LLM request received")
-	m.resetRequestReceivedChannel()
+	// wait for request to be received by ollama
+	t.Log("waiting for request to be received by ollama...")
+	<-m.ollama.requestReceived
+	t.Log("ollama request received")
+	m.resetOllamaRequestReceivedChannel()
 
 	if abort := setPrompt(t, m.controller, fmt.Sprintf(`{"id":%d}`, newPromptID), false); abort {
 		return
 	}
 
-	// wait for request to be received by LLM
-	m.waitForLLMRequest()
+	// wait for request to be received by ollama
+	m.waitForOllamaRequest()
 
-	// ensure that newPrompt gets sent to the LLM
-	// Note - the LLM is supposed to get the descriptive prompt - however,
+	// ensure that newPrompt gets sent to ollama
+	// Note - ollama is supposed to get the descriptive prompt - however,
 	// we are using the default prompts so the descriptive prompts are set to
-	// the short prompts; that's why we're ok to compare the LLM prompt with
+	// the short prompts; that's why we're ok to compare ollama's prompt with
 	// the short prompt
-	if m.llm.req.Prompt == "descriptiveprompt2" {
-		t.Log("LLM prompt was set correctly")
+	if m.ollama.req.Prompt == "descriptiveprompt2" {
+		t.Log("ollama prompt was set correctly")
 	} else {
-		t.Errorf(`LLM prompt was expected to be "descriptiveprompt2" but was "%s" instead`, m.llm.req.Prompt)
+		t.Errorf(`ollama prompt was expected to be "descriptiveprompt2" but was "%s" instead`, m.ollama.req.Prompt)
 	}
 
 	// pause to allow mockSSEClient to consume the new prompt event
@@ -132,8 +132,8 @@ func TestSetPromptREST(t *testing.T) {
 
 	// simulate alert coming in from MQTT
 	m.controller.MQTTHandler(nil, mockMQTTMessage{[]byte(`{"annotated_image":"dummy","raw_image":"dummy","timestamp":1234}`)})
-	// wait for request to be received by LLM
-	m.waitForLLMRequest()
+	// wait for request to be received by ollama
+	m.waitForOllamaRequest()
 
 	// happy case
 	setPrompt(t, m.controller, `{"id":1}`, false)

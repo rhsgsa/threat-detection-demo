@@ -13,7 +13,7 @@ import (
 	"github.com/kwkoo/threat-detection-frontend/internal"
 )
 
-type mockLLMReq struct {
+type mockOllamaReq struct {
 	Model  string   `json:"model"`
 	Prompt string   `json:"prompt"`
 	Images []string `json:"images"`
@@ -30,9 +30,9 @@ type mocks struct {
 	ctx        context.Context    // for goroutines
 	cancel     context.CancelFunc // for goroutines
 	controller *internal.AlertsController
-	llm        struct {
+	ollama     struct {
 		httpServer      *httptest.Server
-		req             mockLLMReq
+		req             mockOllamaReq
 		requestReceived chan struct{} // channel is closed when a request is received
 	}
 	sseClient struct {
@@ -44,9 +44,9 @@ type mocks struct {
 func newMocks(t *testing.T, promptsFile string) *mocks {
 	m := mocks{
 		t: t,
-		llm: struct {
+		ollama: struct {
 			httpServer      *httptest.Server
-			req             mockLLMReq
+			req             mockOllamaReq
 			requestReceived chan struct{} // channel is closed when a request is received
 		}{},
 		sseClient: struct {
@@ -56,10 +56,10 @@ func newMocks(t *testing.T, promptsFile string) *mocks {
 			ch: make(chan internal.SSEEvent, 100),
 		},
 	}
-	m.llm.httpServer = httptest.NewServer(http.HandlerFunc(m.llmHandler))
+	m.ollama.httpServer = httptest.NewServer(http.HandlerFunc(m.ollamaHandler))
 	m.controller = internal.NewAlertsController(
 		m.sseClient.ch,
-		m.llm.httpServer.URL,
+		m.ollama.httpServer.URL,
 		"dummy-model",
 		"-1s", // keepalive
 		promptsFile,
@@ -67,7 +67,7 @@ func newMocks(t *testing.T, promptsFile string) *mocks {
 		"",
 		"",
 	)
-	m.resetRequestReceivedChannel()
+	m.resetOllamaRequestReceivedChannel()
 	m.launchGoroutines()
 	return &m
 }
@@ -95,45 +95,45 @@ func (m *mocks) launchGoroutines() {
 func (m *mocks) close() {
 	time.Sleep(time.Second) // sleep to allow LLM HTTP client requests to complete
 	m.cancel()
-	m.llm.httpServer.Close()
+	m.ollama.httpServer.Close()
 	close(m.sseClient.ch)
 	m.wg.Wait()
 }
 
-func (m *mocks) llmHandler(w http.ResponseWriter, r *http.Request) {
+func (m *mocks) ollamaHandler(w http.ResponseWriter, r *http.Request) {
 	defer func() {
-		if m.llm.requestReceived == nil {
+		if m.ollama.requestReceived == nil {
 			return
 		}
-		close(m.llm.requestReceived)
-		m.llm.requestReceived = nil
+		close(m.ollama.requestReceived)
+		m.ollama.requestReceived = nil
 	}()
-	m.t.Log("LLM handler called")
-	var req mockLLMReq
+	m.t.Log("ollama handler called")
+	var req mockOllamaReq
 	defer r.Body.Close()
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		m.t.Errorf("could not decode incoming mockLLMReq: %v", err)
+		m.t.Errorf("could not decode incoming mockOllamaReq: %v", err)
 	}
-	m.llm.req = req
+	m.ollama.req = req
 
 	w.Write([]byte(`{"response":"dummy"}`))
 }
 
-func (m *mocks) waitForLLMRequest() {
-	if m.llm.requestReceived == nil {
-		m.t.Error("LLM requestReceived channel is nil")
+func (m *mocks) waitForOllamaRequest() {
+	if m.ollama.requestReceived == nil {
+		m.t.Error("ollama requestReceived channel is nil")
 		return
 	}
-	m.t.Log("waiting for request to be received by LLM...")
-	<-m.llm.requestReceived
-	m.t.Log("LLM request received")
+	m.t.Log("waiting for request to be received by ollama...")
+	<-m.ollama.requestReceived
+	m.t.Log("ollama request received")
 }
 
-func (m *mocks) resetRequestReceivedChannel() {
-	if m.llm.requestReceived != nil {
-		close(m.llm.requestReceived)
+func (m *mocks) resetOllamaRequestReceivedChannel() {
+	if m.ollama.requestReceived != nil {
+		close(m.ollama.requestReceived)
 	}
-	m.llm.requestReceived = make(chan struct{})
+	m.ollama.requestReceived = make(chan struct{})
 }
 
 func (m *mocks) consumeSSEEvents(ctx context.Context) {
