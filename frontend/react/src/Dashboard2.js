@@ -18,7 +18,6 @@ import {
     Flex,
     HStack,
     Badge,
-    Spacer,
 } from '@chakra-ui/react';
 
 import {
@@ -31,7 +30,6 @@ import {
 import axios from 'axios';
 import ncsrhlogo from './ncs_rh_logo.jpg';
 import threatAudio from './warning.mp3';
-//import AppBar from './Components/ButtonAppBar';
 
 let baseurl = 'http://localhost:8080'
 
@@ -198,22 +196,24 @@ function Promptlist () {
     return <textarea cols={70} rows={5} readOnly value={ response } />
   }
 
-  function ThreatLevel({ response }) {
+  function ThreatLevel({ threat }) {
     const [ colour, setColour ] = useState('');
-    console.log(response)
+    console.log(threat)
 
     useEffect(() => {
-      if (response === 'Low') {
+      if (threat === '') {
+        setColour('white')
+      } else if (threat === 'Low') {
         setColour('green')
-      } else if (response === 'Medium') {
+      } else if (threat === 'Medium') {
         setColour('yellow')
-      } else if (response === 'High') {
+      } else if (threat === 'High') {
         setColour('red')
       }
-    }, [colour, response]);
+    }, [colour, threat]);
     
 
-    return <Badge variant='solid' colorScheme={ colour } fontSize='0.8em'>{ response}</Badge>
+    return <Badge variant='solid' colorScheme={ colour } fontSize='0.8em'>{ threat }</Badge>
   }
 
 function Dashboard2 () {
@@ -224,7 +224,6 @@ function Dashboard2 () {
     const [ prompt, setPrompt ] = useState(0);
     const [ llm_response, setLLMResponse ] = useState('');
     const [ ai_response, setAIResponse ] = useState('');
-    //const [ threat_response, setThreatResponse ] = useState('');
 
     useEffect(() => {
         const evtSource = new EventSource(baseurl + "/api/sse");
@@ -243,6 +242,7 @@ function Dashboard2 () {
         evtSource.addEventListener("timestamp", event => {
         let date = new Date(event.data * 1000);
         setTimestamp(date.toString().split(' ')[4]);
+        setAIResponse('');
         });
 
         evtSource.addEventListener("prompt", event => {
@@ -340,7 +340,7 @@ function Dashboard2 () {
                 <Heading as='h3' size='md' mr='4'>
                   Threat Level
                 </Heading>
-                <ThreatLevel response={ai_response.split(' ').slice(1,3).join(' ').toString()}/>
+                <ThreatLevel threat={ai_response.split(' ').slice(1,3).join(' ').toString()}/>
               </Flex>
               <Card>
                 <CardBody>
