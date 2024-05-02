@@ -15,6 +15,8 @@ import {
     Select,
     useToast,
     Skeleton, 
+    Text,
+    HStack,
 } from '@chakra-ui/react';
 
 import {
@@ -27,6 +29,7 @@ import {
 import axios from 'axios';
 import ncsrhlogo from './ncs_rh_logo.jpg';
 import threatAudio from './warning.mp3';
+//import AppBar from './Components/ButtonAppBar';
 
 let baseurl = 'http://localhost:8080'
 
@@ -185,7 +188,11 @@ function Promptlist () {
   }
   
   function LLM({ response }) {
-    return <textarea cols={70} rows={15} readOnly value={ response } />
+    return <textarea cols={70} rows={10} readOnly value={ response } />
+  }
+
+  function AI({ response }) {
+    return <textarea cols={70} rows={5} readOnly value={ response } />
   }
 
 function Dashboard2 () {
@@ -194,7 +201,8 @@ function Dashboard2 () {
     const [ rawImage, setRawImage ] = useState('');
     const [ timestamp, setTimestamp ] = useState('');
     const [ prompt, setPrompt ] = useState(0);
-    const [ response, setResponse ] = useState('');
+    const [ llm_response, setLLMResponse ] = useState('');
+    const [ ai_response, setAIResponse ] = useState('');
 
     useEffect(() => {
         const evtSource = new EventSource(baseurl + "/api/sse");
@@ -221,28 +229,44 @@ function Dashboard2 () {
         setPrompt(obj.id);
         });
 
-        evtSource.addEventListener("llm_response_start", event => {
-        setResponse('');
+        evtSource.addEventListener("ollama_response_start", event => {
+        setLLMResponse('');
         });
 
-        evtSource.addEventListener("llm_response", event => {
+        evtSource.addEventListener("ollama_response", event => {
         const obj = JSON.parse(event.data);
-        setResponse(oldResponse => oldResponse + obj.response);
+        setLLMResponse(oldResponse => oldResponse + obj.response);
         });
+
+        evtSource.addEventListener("openai_response_start", event => {
+          setAIResponse('');
+          });
+  
+        evtSource.addEventListener("openai_response", event => {
+          const obj = JSON.parse(event.data);
+          setAIResponse(oldResponse => oldResponse + obj.response);
+          });
     }, []);
     
   return (
     <Container maxW="8xl" centerContent>
     
-    <Center p={3} w="100%" m="40px 0 15px 0">
+    {/* <Center p={3} w="100%" m="40px 0 15px 0">
         <Image objectFit='cover' src={ncsrhlogo} />  
-    </Center>
+    </Center> */}
+
+    <HStack>
+      <Center p={3} w="100%" m="40px 0 15px 0">
+        <Box w='30%' p={4}>
+          <Image objectFit='cover' src={ncsrhlogo} />
+        </Box>
+        <Heading size='lg'>Threat Detection Dashboard</Heading>
+      </Center>
+    </HStack>
 
     <Divider orientation="horizontal" />
 
-    <Box m="20px"></Box>
-    
-    <Heading size='lg'>Threat Detection Dashboard</Heading>
+    {/* <Box m="20px"></Box> */}
 
     <Center>
         <Grid
@@ -278,13 +302,25 @@ function Dashboard2 () {
 
             <GridItem colSpan={1} rowSpan={1}>
             <VStack spacing={4}>
-                <Dropdown promptID={prompt}/>
-                <Divider orientation="horizontal" />   
-                <Card>
+              <Dropdown promptID={prompt}/>
+              <Divider orientation="horizontal" /> 
+              <Heading as='h3' size='md'>
+                Image Analysis
+              </Heading>  
+              <Card>
                 <CardBody>
-                    <LLM response={response.trim()}/>
+                    <LLM response={llm_response.trim()}/>
                 </CardBody>
-                </Card>
+              </Card>
+              <Divider orientation="horizontal" />
+              <Heading as='h3' size='md'>
+                Threat Analysis
+              </Heading>  
+              <Card>
+                <CardBody>
+                    <AI response={ai_response.trim()}/>
+                </CardBody>
+              </Card>
             </VStack>
             </GridItem>   
         </Grid>
