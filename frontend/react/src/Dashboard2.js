@@ -15,8 +15,10 @@ import {
     Select,
     useToast,
     Skeleton, 
-    Text,
+    Flex,
     HStack,
+    Badge,
+    Spacer,
 } from '@chakra-ui/react';
 
 import {
@@ -67,6 +69,7 @@ function Photo({ annotatedImage, rawImage }) {
         onChange={(e) => setChecked(e.target.checked)}>Annotated
         </Checkbox>
         <Image 
+        mt='4'
         objectFit='cover' 
         borderRadius='10px' 
         src={photo} 
@@ -195,6 +198,24 @@ function Promptlist () {
     return <textarea cols={70} rows={5} readOnly value={ response } />
   }
 
+  function ThreatLevel({ response }) {
+    const [ colour, setColour ] = useState('');
+    console.log(response)
+
+    useEffect(() => {
+      if (response === 'Low') {
+        setColour('green')
+      } else if (response === 'Medium') {
+        setColour('yellow')
+      } else if (response === 'High') {
+        setColour('red')
+      }
+    }, [colour, response]);
+    
+
+    return <Badge variant='solid' colorScheme={ colour } fontSize='0.8em'>{ response}</Badge>
+  }
+
 function Dashboard2 () {
     const [ isLoaded, setIsLoaded ] = useState(true);
     const [ annotatedImage, setAnnotatedImage ] = useState('');
@@ -203,6 +224,7 @@ function Dashboard2 () {
     const [ prompt, setPrompt ] = useState(0);
     const [ llm_response, setLLMResponse ] = useState('');
     const [ ai_response, setAIResponse ] = useState('');
+    //const [ threat_response, setThreatResponse ] = useState('');
 
     useEffect(() => {
         const evtSource = new EventSource(baseurl + "/api/sse");
@@ -250,10 +272,6 @@ function Dashboard2 () {
     
   return (
     <Container maxW="8xl" centerContent>
-    
-    {/* <Center p={3} w="100%" m="40px 0 15px 0">
-        <Image objectFit='cover' src={ncsrhlogo} />  
-    </Center> */}
 
     <HStack>
       <Center p={3} w="100%" m="40px 0 15px 0">
@@ -265,8 +283,6 @@ function Dashboard2 () {
     </HStack>
 
     <Divider orientation="horizontal" />
-
-    {/* <Box m="20px"></Box> */}
 
     <Center>
         <Grid
@@ -281,14 +297,19 @@ function Dashboard2 () {
           borderWidth="1px"
         >
             <GridItem colSpan={1} rowSpan={1}>
+            <VStack spacing={4}>
+              <Heading as='h3' size='md'>
+                  Image Detection
+                </Heading> 
                 <Center>
+                
                 <Card w='100%'>
                     <CardBody>
-                        <Stack mb='6' spacing='3'>   
+                        <Stack mb='6' spacing='3'>  
                           <Timestamp timestamp={timestamp}/>
                           <PlaySound timestamp={timestamp}/>
                           <Skeleton
-                            height='345px'
+                            height='450px'
                             isLoaded={isLoaded}
                             fadeDuration={1}
                           >
@@ -298,24 +319,29 @@ function Dashboard2 () {
                     </CardBody>
                 </Card>
                 </Center>
+                </VStack>
             </GridItem>
 
             <GridItem colSpan={1} rowSpan={1}>
             <VStack spacing={4}>
-              <Dropdown promptID={prompt}/>
-              <Divider orientation="horizontal" /> 
+             
               <Heading as='h3' size='md'>
                 Image Analysis
               </Heading>  
+              <Dropdown promptID={prompt}/>
+              <Divider orientation="horizontal" /> 
               <Card>
                 <CardBody>
                     <LLM response={llm_response.trim()}/>
                 </CardBody>
               </Card>
               <Divider orientation="horizontal" />
-              <Heading as='h3' size='md'>
-                Threat Analysis
-              </Heading>  
+              <Flex>
+                <Heading as='h3' size='md' mr='4'>
+                  Threat Level
+                </Heading>
+                <ThreatLevel response={ai_response.split(' ').slice(1,3).join(' ').toString()}/>
+              </Flex>
               <Card>
                 <CardBody>
                     <AI response={ai_response.trim()}/>
