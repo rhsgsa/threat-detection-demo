@@ -2,7 +2,7 @@ PROJ=demo
 REMOTE_INSTALL_PROJ=$(PROJ)
 IMAGE_ACQUIRER=ghcr.io/kwkoo/image-acquirer
 FRONTEND_IMAGE=ghcr.io/rhsgsa/threat-frontend
-FRONTEND_VERSION=1.9
+FRONTEND_VERSION=1.91
 MOCK_LLM_IMAGE=ghcr.io/kwkoo/mock-llm
 BUILDERNAME=multiarch-builder
 MODEL_NAME=yolov8l_retrained.pt
@@ -261,11 +261,6 @@ deploy-minio:
 	  sts/minio \
 	  MINIO_SERVER_URL="http://`oc get -n $(PROJ) route/minio -o jsonpath='{.spec.host}'`" \
 	  MINIO_BROWSER_REDIRECT_URL="http://`oc get -n $(PROJ) route/minio-console -o jsonpath='{.spec.host}'`"
-
-
-.PHONY: clean-minio
-clean-minio:
-	-oc delete -n $(PROJ) -f $(BASE)/yaml/minio.yaml
 
 
 .PHONY: upload-model
