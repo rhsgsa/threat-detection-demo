@@ -198,22 +198,23 @@ function Promptlist () {
 
   function ThreatLevel({ threat }) {
     const [ colour, setColour ] = useState('');
-    console.log(threat)
 
     useEffect(() => {
-      if (threat === '') {
-        setColour('white')
-      } else if (threat === 'Low') {
+      threat = threat.toUpperCase()
+      console.log('"' + threat + '"')
+      if (threat === 'LOW') {
         setColour('green')
-      } else if (threat === 'Medium') {
+      } else if (threat === 'MEDIUM') {
         setColour('yellow')
-      } else if (threat === 'High') {
+      } else if (threat === 'HIGH') {
         setColour('red')
+      } else {
+        setColour('white')
       }
-    }, [colour, threat]);
+    }, [threat]);
     
 
-    return <Badge variant='solid' colorScheme={ colour } fontSize='0.8em'>{ threat }</Badge>
+    return <Badge variant='solid'  colorScheme={ colour } fontSize='0.8em'>{ threat }</Badge>
   }
 
 function Dashboard2 () {
@@ -340,7 +341,7 @@ function Dashboard2 () {
                 <Heading as='h3' size='md' mr='4'>
                   Threat Level
                 </Heading>
-                <ThreatLevel threat={ai_response.split(' ').slice(1,3).join(' ').toString()}/>
+                <ThreatLevel threat={ai_response.split(' ').slice(1,2).toString()}/>
               </Flex>
               <Card>
                 <CardBody>

@@ -1,0 +1,42 @@
+version: "3.5"
+
+# Before starting, setup the following port forwarding rules:
+# oc port-forward -n demo svc/mosquitto 1883:1883
+# oc port-forward -n demo svc/llm-internal 8012:8012
+# oc port-forward -n demo svc/ollama 11434:11434
+
+services:
+
+  react:
+    container_name: react
+    build: ../../frontend/react
+    working_dir: /app
+    entrypoint:
+    - npm
+    - start
+    ports:
+    - 3000:3000
+    volumes:
+    - ../../frontend/react/package.json:/app/package.json
+    - ../../frontend/react/package-lock.json:/app/package-lock.json
+    - ../../frontend/react/public/:/app/public/
+    - ../../frontend/react/src/:/app/src/
+
+  frontend:
+    container_name: frontend
+    image: "ghcr.io/rhsgsa/threat-frontend:1.91"
+    environment:
+    - MQTTBROKER=tcp://host.docker.internal:1883
+    - PORT=8080
+    - CORS=*
+    - DOCROOT=/var/www/html
+    - ALERTSTOPIC=alerts
+    - OLLAMAURL=http://host.docker.internal:11434/api/generate
+    - OLLAMAMODEL=llava:34b-v1.6
+    - OPENAIURL=http://host.docker.internal:8012/v1
+    - OPENAIPROMPT=You are tailored to provide concise threat assessments. Reply with the level of threat, either low, medium or high. Explanations for assessments are not provided, maintaining a focus on clear, concise classification without additional commentary.
+    - PROMPTS=/mocks/prompts.txt
+    ports:
+    - 8080:8080
+    volumes:
+    - ../../mocks/prompts.txt:/mocks/prompts.txt:ro,z

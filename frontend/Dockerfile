@@ -10,6 +10,7 @@ RUN \
 
 COPY . .
 
+ARG TARGETARCH
 RUN \
   GOOS=linux \
   GOARCH=$TARGETARCH \
