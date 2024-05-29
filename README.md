@@ -50,13 +50,13 @@ sequenceDiagram
 
 			openshift-install create install-config
 
-	*   Set the compute pool to 2 replicas with `p3.8xlarge` intances, and set the control plane to a single master (you will need to have `yq` installed)
+	*   Set the compute pool to 2 replicas with `p3.8xlarge` instances, and set the control plane to a single master (you will need to have `yq` installed)
 
 			mv install-config.yaml install-config-old.yaml
 
 			yq '.compute[0].replicas=2' < install-config-old.yaml \
 			| \
-			yq '.compute[0].platform = {"aws":{"zones":["ap-southeast-1a"], "type":"p3.8xlarge"}}' \
+			yq '.compute[0].platform = {"aws":{"zones":["ap-southeast-1b"], "type":"p3.8xlarge"}}' \
 			| \
 			yq '.controlPlane.replicas=1' \
 			> install-config.yaml
