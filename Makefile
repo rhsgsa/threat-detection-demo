@@ -1,12 +1,13 @@
 PROJ=demo
 REMOTE_INSTALL_PROJ=$(PROJ)
 IMAGE_ACQUIRER=ghcr.io/kwkoo/image-acquirer
+IMAGE_ACQUIRER_VERSION=0.1
 FRONTEND_IMAGE=ghcr.io/rhsgsa/threat-frontend
 FRONTEND_VERSION=1.91
 MOCK_LLM_IMAGE=ghcr.io/kwkoo/mock-llm
 BUILDERNAME=multiarch-builder
-MODEL_NAME=yolov8l_retrained.pt
-MODEL_URL=https://github.com/rhsgsa/threat-detection-demo/releases/download/v0.2/$(MODEL_NAME)
+MODEL_NAME=yolo-toy-gun-nano-311.pt
+MODEL_URL=https://github.com/rhsgsa/yolo-toy-gun/raw/main/$(MODEL_NAME)
 
 BASE:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
@@ -41,7 +42,7 @@ image-acquirer: buildx-builder
 	  --rm \
 	  --build-arg MODEL_NAME=$(MODEL_NAME) \
 	  --build-arg MODEL_URL=$(MODEL_URL) \
-	  -t $(IMAGE_ACQUIRER):amd64 \
+	  -t $(IMAGE_ACQUIRER):$(IMAGE_ACQUIRER_VERSION)-amd64 \
 	  $(BASE)/image-acquirer
 	docker buildx build \
 	  --push \
@@ -53,12 +54,17 @@ image-acquirer: buildx-builder
 	  --rm \
 	  --build-arg MODEL_NAME=$(MODEL_NAME) \
 	  --build-arg MODEL_URL=$(MODEL_URL) \
-	  -t $(IMAGE_ACQUIRER):arm64 \
+	  -t $(IMAGE_ACQUIRER):$(IMAGE_ACQUIRER_VERSION)-arm64 \
 	  $(BASE)/image-acquirer
 	docker manifest create \
+	  $(IMAGE_ACQUIRER):$(IMAGE_ACQUIRER_VERSION) \
+	  --amend $(IMAGE_ACQUIRER):$(IMAGE_ACQUIRER_VERSION)-amd64 \
+	  --amend $(IMAGE_ACQUIRER):$(IMAGE_ACQUIRER_VERSION)-arm64
+	docker manifest push --purge $(IMAGE_ACQUIRER):$(IMAGE_ACQUIRER_VERSION)
+	docker manifest create \
 	  $(IMAGE_ACQUIRER):latest \
-	  --amend $(IMAGE_ACQUIRER):amd64 \
-	  --amend $(IMAGE_ACQUIRER):arm64
+	  --amend $(IMAGE_ACQUIRER):$(IMAGE_ACQUIRER_VERSION)-amd64 \
+	  --amend $(IMAGE_ACQUIRER):$(IMAGE_ACQUIRER_VERSION)-arm64
 	docker manifest push --purge $(IMAGE_ACQUIRER):latest
 	@#docker build \
 	@#  --rm \
