@@ -50,7 +50,7 @@ services:
 
   frontend:
     container_name: frontend
-    image: "ghcr.io/rhsgsa/threat-frontend:1.9"
+    image: "quay.io/xlimxlim/threat-frontend"
     environment:
     - MQTTBROKER=tcp://mqtt:1883
     - PORT=8080

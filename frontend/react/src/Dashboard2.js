@@ -274,15 +274,13 @@ function Dashboard2 () {
     <Container maxW="8xl" centerContent>
 
     <HStack>
-      <Center p={3} w="100%" m="40px 0 15px 0">
+      <Center p={3} w="100%">
         <Box w='30%' p={4}>
           <Image objectFit='cover' src={ncsrhlogo} />
         </Box>
         <Heading size='lg'>Threat Detection Dashboard</Heading>
       </Center>
     </HStack>
-
-    <Divider orientation="horizontal" />
 
     <Center>
         <Grid
@@ -292,7 +290,7 @@ function Dashboard2 () {
           p={3}
           w="300%"
           bgColor="#eff7fa"
-          m="40px 0 15px 0"
+          m="0px 0 0px 0"
           borderRadius="lg"
           borderWidth="1px"
         >
@@ -312,6 +310,7 @@ function Dashboard2 () {
                             height='450px'
                             isLoaded={isLoaded}
                             fadeDuration={1}
+                            fitContent
                           >
                             <Photo annotatedImage={annotatedImage} rawImage={rawImage}/>
                           </Skeleton>
@@ -330,7 +329,7 @@ function Dashboard2 () {
               </Heading>  
               <Dropdown promptID={prompt}/>
               <Divider orientation="horizontal" /> 
-              <Card>
+              <Card w='100%'>
                 <CardBody>
                     <LLM response={llm_response.trim()}/>
                 </CardBody>
@@ -342,7 +341,7 @@ function Dashboard2 () {
                 </Heading>
                 <ThreatLevel threat={ai_response.split(' ').slice(1,3).join(' ').toString()}/>
               </Flex>
-              <Card>
+              <Card w='100%'>
                 <CardBody>
                     <AI response={ai_response.trim()}/>
                 </CardBody>
