@@ -18,19 +18,17 @@ spec:
         app: image-acquirer
     spec:
       containers:
-      - image: ghcr.io/kwkoo/image-acquirer
+      - image: quay.io/rhsgsa/image-acquirer
         name: image-acquirer
         env:
         - name: MQTT_TOPIC
           value: alerts
         - name: PORT
           value: "8080"
-        - name: MODEL
-          value: yolov8l_retrained.pt
+        #- name: MODEL
+        #  value: yolov8l_retrained.pt
         - name: CONFIDENCE
           value: "0.5"
-        - name: INTERESTED_CLASSES
-          value: "14"
         ports:
         - name: http
           containerPort: 8080

@@ -3,7 +3,7 @@
 # This script runs the image-acquirer using a video file as a source
 # It runs standalone without an MQTT_SERVER
 
-IMAGE=ghcr.io/kwkoo/image-acquirer
+IMAGE=quay.io/rhsgsa/image-acquirer
 
 podman run \
   --name image-acquirer \

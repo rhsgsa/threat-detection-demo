@@ -4,7 +4,7 @@
 # Ensure that /dev/video0 exists before running this script
 # Don't forget to set MQTT_SERVER to point to your actual server
 
-IMAGE=ghcr.io/kwkoo/image-acquirer
+IMAGE=quay.io/rhsgsa/image-acquirer
 MQTT_SERVER=mosquitto-demo.apps.replace.me
 
 podman run \

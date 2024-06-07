@@ -3,7 +3,7 @@
 # This script runs the image-acquirer using a video file as a source
 # Don't forget to set MQTT_SERVER to point to your actual server
 
-IMAGE=ghcr.io/kwkoo/image-acquirer
+IMAGE=quay.io/rhsgsa/image-acquirer
 MQTT_SERVER=mosquitto-demo.apps.replace.me
 
 podman run \

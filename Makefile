@@ -1,13 +1,13 @@
 PROJ=demo
 REMOTE_INSTALL_PROJ=$(PROJ)
-IMAGE_ACQUIRER=ghcr.io/kwkoo/image-acquirer
-IMAGE_ACQUIRER_VERSION=0.1
+IMAGE_ACQUIRER=quay.io/rhsgsa/image-acquirer
+IMAGE_ACQUIRER_VERSION=0.2
 FRONTEND_IMAGE=ghcr.io/rhsgsa/threat-frontend
 FRONTEND_VERSION=1.91
 MOCK_LLM_IMAGE=ghcr.io/kwkoo/mock-llm
 BUILDERNAME=multiarch-builder
-MODEL_NAME=yolo-toy-gun-nano-311.pt
-MODEL_URL=https://github.com/rhsgsa/yolo-toy-gun/raw/main/$(MODEL_NAME)
+MODEL_NAME=20240606-nano.pt
+MODEL_URL=https://github.com/rhsgsa/yolo-toy-gun/raw/main/weights/$(MODEL_NAME)
 
 BASE:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
