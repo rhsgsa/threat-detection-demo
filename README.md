@@ -54,11 +54,9 @@ sequenceDiagram
 
 			mv install-config.yaml install-config-old.yaml
 
-			yq '.compute[0].replicas=2' < install-config-old.yaml \
-			| \
-			yq '.compute[0].platform = {"aws":{"zones":["ap-southeast-1b"], "type":"p3.8xlarge"}}' \
-			| \
-			yq '.controlPlane.replicas=1' \
+			yq \
+			  '(.compute[0].replicas=2) | (.compute[0].platform = {"aws":{"zones":["ap-southeast-1b"], "type":"p3.8xlarge"}}) | (.controlPlane.replicas=1)' \
+			  install-config-old.yaml \
 			> install-config.yaml
 
 	*   Create the cluster
