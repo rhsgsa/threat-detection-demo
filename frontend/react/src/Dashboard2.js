@@ -18,6 +18,8 @@ import {
     Flex,
     HStack,
     Badge,
+    Button,
+    ChakraProvider,
 } from '@chakra-ui/react';
 
 import {
@@ -30,6 +32,7 @@ import {
 import axios from 'axios';
 import ncsrhlogo from './ncs_rh_logo.jpg';
 import threatAudio from './warning.mp3';
+import theme from './theme/Card.js';
 
 let baseurl = 'http://localhost:8080'
 
@@ -192,8 +195,31 @@ function Promptlist () {
     return <textarea cols={70} rows={10} readOnly value={ response } />
   }
 
-  function AI({ response }) {
-    return <textarea cols={70} rows={5} readOnly value={ response } />
+  function AI({ response, threat }) {
+    const [ colour, setColour ] = useState('');
+    console.log(threat)
+
+    useEffect(() => {
+      if (threat === '') {
+        setColour('whiteborder')
+      } else if (threat === 'Low') {
+        setColour('greenborder')
+      } else if (threat === 'Medium') {
+        setColour('yellowborder')
+      } else if (threat === 'High') {
+        setColour('redborder')
+      }
+    }, [colour, threat]);
+
+    return (
+      <ChakraProvider theme={theme}>
+        <Card w='100%' variant={ colour }>
+          <CardBody>
+            <textarea cols={70} rows={5} readOnly value={ response } />
+          </CardBody>
+        </Card>
+      </ChakraProvider>
+    )
   }
 
   function ThreatLevel({ threat }) {
@@ -216,6 +242,7 @@ function Promptlist () {
     return <Badge variant='solid' colorScheme={ colour } fontSize='0.8em'>{ threat }</Badge>
   }
 
+
 function Dashboard2 () {
     const [ isLoaded, setIsLoaded ] = useState(true);
     const [ annotatedImage, setAnnotatedImage ] = useState('');
@@ -224,6 +251,7 @@ function Dashboard2 () {
     const [ prompt, setPrompt ] = useState(0);
     const [ llm_response, setLLMResponse ] = useState('');
     const [ ai_response, setAIResponse ] = useState('');
+    const [ showButton, setShowButton ] = useState(true);
 
     useEffect(() => {
         const evtSource = new EventSource(baseurl + "/api/sse");
@@ -262,15 +290,24 @@ function Dashboard2 () {
 
         evtSource.addEventListener("openai_response_start", event => {
           setAIResponse('');
-          });
+        });
   
         evtSource.addEventListener("openai_response", event => {
           const obj = JSON.parse(event.data);
           setAIResponse(oldResponse => oldResponse + obj.response);
-          });
+        });
+
+        evtSource.addEventListener("pause_events", event => {
+          setShowButton(false);
+        });
+        
+        evtSource.addEventListener("resume_events", event => {
+          setShowButton(true);
+        });
     }, []);
     
   return (
+    
     <Container maxW="8xl" centerContent>
 
     <HStack>
@@ -314,6 +351,7 @@ function Dashboard2 () {
                           >
                             <Photo annotatedImage={annotatedImage} rawImage={rawImage}/>
                           </Skeleton>
+                          <Button colorScheme='blue' isDisabled={showButton}> Resume Stream </Button>
                         </Stack>
                     </CardBody>
                 </Card>
@@ -341,11 +379,7 @@ function Dashboard2 () {
                 </Heading>
                 <ThreatLevel threat={ai_response.split(' ').slice(1,3).join(' ').toString()}/>
               </Flex>
-              <Card w='100%'>
-                <CardBody>
-                    <AI response={ai_response.trim()}/>
-                </CardBody>
-              </Card>
+              <AI response={ai_response.trim()} threat={ai_response.split(' ').slice(1,2).toString()}/>
             </VStack>
             </GridItem>   
         </Grid>
