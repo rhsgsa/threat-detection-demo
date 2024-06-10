@@ -298,12 +298,10 @@ function Dashboard2 () {
         });
 
         evtSource.addEventListener("pause_events", event => {
-          console.log("show button");
           setShowButton(true);
         });
         
         evtSource.addEventListener("resume_events", event => {
-          console.log("hide button");
           setShowButton(false);
         });
     }, []);
