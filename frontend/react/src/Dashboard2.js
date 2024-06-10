@@ -243,23 +243,6 @@ function Promptlist () {
     return <Badge variant='solid'  colorScheme={ colour } fontSize='0.8em'>{ threat }</Badge>
   }
 
-    //GET Display Data on Button Click
-    function SubmitHandler () {
-      useEffect(() => {
-        const callAxios = async () => {
-          await axios
-            .get(baseurl + '/api/resumeevents')
-            .then(response => {
-              console.log('SUCCESS', response);
-            })
-            .catch(error => {
-              console.log(error);
-            });
-        };
-        callAxios();
-      }, []);
-    }
-
 function Dashboard2 () {
     const [ isLoaded, setIsLoaded ] = useState(true);
     const [ annotatedImage, setAnnotatedImage ] = useState('');
@@ -315,13 +298,31 @@ function Dashboard2 () {
         });
 
         evtSource.addEventListener("pause_events", event => {
+          console.log("show button");
           setShowButton(true);
         });
         
         evtSource.addEventListener("resume_events", event => {
+          console.log("hide button");
           setShowButton(false);
         });
     }, []);
+
+    //GET Display Data on Button Click
+    function SubmitHandler(e) {
+      e.preventDefault();
+      const callAxios = async () => {
+        await axios
+          .get(baseurl + '/api/resumeevents')
+          .then(response => {
+            console.log('SUCCESS', response);
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      };
+      callAxios();
+    }
     
   return (
     
@@ -371,9 +372,7 @@ function Dashboard2 () {
                           <Button 
                             colorScheme='blue' 
                             isActive={showButton}
-                            onClick={() => {
-                              SubmitHandler();
-                            }}
+                            onClick={SubmitHandler}
                           > 
                             Resume Stream 
                           </Button>
