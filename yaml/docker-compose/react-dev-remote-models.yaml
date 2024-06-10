@@ -1,5 +1,3 @@
-version: "3.5"
-
 # Before starting, setup the following port forwarding rules:
 # oc port-forward -n demo svc/mosquitto 1883:1883
 # oc port-forward -n demo svc/llm-internal 8012:8012
@@ -24,7 +22,7 @@ services:
 
   frontend:
     container_name: frontend
-    image: "quay.io/rhsgsa/threat-frontend:1.92"
+    image: "quay.io/rhsgsa/threat-frontend:1.93"
     environment:
     - MQTTBROKER=tcp://host.docker.internal:1883
     - PORT=8080
