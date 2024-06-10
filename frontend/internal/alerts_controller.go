@@ -17,6 +17,7 @@ import (
 	"os"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
@@ -46,6 +47,7 @@ type alertEvent struct {
 }
 
 type AlertsController struct {
+	eventsPaused       atomic.Bool
 	sseCh              chan SSEEvent
 	ollamaURL          string
 	ollamaModel        string
@@ -171,6 +173,17 @@ func (controller *AlertsController) PromptHandler(w http.ResponseWriter, r *http
 	}
 }
 
+// ResumeEventsHandler is called when the user clicks on the "Resume Stream" button in the web UI
+func (controller *AlertsController) ResumeEventsHandler(w http.ResponseWriter, r *http.Request) {
+	log.Print("resuming event stream")
+	controller.eventsPaused.Store(false)
+	w.Write([]byte("OK"))
+	controller.sseCh <- SSEEvent{
+		EventType: "resume_events",
+		Data:      nil,
+	}
+}
+
 // MQTTHandler gets invoked when a message is received on the alerts MQTT topic
 func (controller *AlertsController) MQTTHandler(_ MQTT.Client, mqttMessage MQTT.Message) {
 	var msg alertMQTT
@@ -249,6 +262,14 @@ func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 				log.Print("LLM channel processor could not read from LLM channel")
 				return
 			}
+			if controller.eventsPaused.Load() {
+				log.Print("ignoring alert event because events are paused")
+				continue
+			}
+
+			// pause stream
+			controller.eventsPaused.Store(true)
+
 			controller.setLatestAlert(event)
 			controller.broadcastImages()
 
@@ -279,6 +300,10 @@ func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 				continue
 			}
 			controller.ollamaRequest(ctx, payload)
+			controller.sseCh <- SSEEvent{
+				EventType: "pause_events",
+				Data:      nil,
+			}
 		}
 	}
 }

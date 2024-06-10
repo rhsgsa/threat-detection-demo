@@ -14,6 +14,7 @@ var sseErrors = 0;
 var playSound = null;
 var sound = new Audio("warning.mp3");
 var currentImageTimestamp = 0; // used by the sound.play() logic to determine if we have already played the emergency sound on this image
+var resumeButton = null;
 
 // https://www.w3schools.com/howto/howto_js_snackbar.asp
 function showMessage(msg) {
@@ -183,6 +184,18 @@ function processImageEvent(event) {
   refreshPhoto();
 }
 
+function resumeEvents() {
+  fetch('/api/resumeevents');
+}
+
+function showResumeButton() {
+  resumeButton.style.display = 'block';
+}
+
+function hideResumeButton() {
+  resumeButton.style.display = 'none';
+}
+
 function startup() {
   timestamp = document.getElementById('timestamp');
   photo = document.getElementById('photo');
@@ -197,6 +210,7 @@ function startup() {
   promptChoices = document.getElementById('prompt-choices');
   promptChoicesSpinner = document.getElementById('prompt-choices-spinner');
   playSound = document.getElementById('play-sound');
+  resumeButton = document.getElementById('resume');
 
   const evtSource = new EventSource("/api/sse");
   evtSource.addEventListener("timestamp", processTimestampEvent);
@@ -207,6 +221,8 @@ function startup() {
   evtSource.addEventListener("openai_response", processOpenaiResponse);
   evtSource.addEventListener("openai_response_start", hideOpenaiResponseSpinner);
   evtSource.addEventListener("prompt", setPrompt);
+  evtSource.addEventListener("pause_events", showResumeButton);
+  evtSource.addEventListener("resume_events", hideResumeButton);
 
   evtSource.onerror = (e) => {
     sseErrors++;
