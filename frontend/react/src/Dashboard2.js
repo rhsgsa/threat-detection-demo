@@ -387,7 +387,7 @@ function Dashboard2 () {
                           </Skeleton>
                           <Button 
                             colorScheme='blue' 
-                            isActive={showButton}
+                            isDisabled={!showButton}
                             onClick={SubmitHandler}
                           > 
                             Resume Stream 
@@ -401,7 +401,6 @@ function Dashboard2 () {
 
             <GridItem colSpan={1} rowSpan={1}>
             <VStack spacing={4}>
-             
               <Heading as='h3' size='md'>
                 Image Analysis
               </Heading>  
