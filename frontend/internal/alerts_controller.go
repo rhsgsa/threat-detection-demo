@@ -201,7 +201,7 @@ func (controller *AlertsController) CurrentStateHandler(w http.ResponseWriter, r
 		AnnotatedImage: string(latestAlert.annotatedImage),
 		RawImage:       string(latestAlert.rawImage),
 		Timestamp:      latestAlert.timestamp,
-		Prompt:         latestAlert.prompt.Short,
+		Prompt:         string(latestAlert.prompt.GetSSEBytes()),
 		ImageAnalysis:  controller.imageAnalysis.Load(),
 		ThreatAnalysis: controller.threatAnalysis.Load(),
 		EventsPaused:   controller.eventsPaused.Load(),

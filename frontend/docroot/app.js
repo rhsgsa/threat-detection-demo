@@ -94,14 +94,14 @@ function loadPromptChoices() {
 }
 
 function setPrompt(data) {
-  prompt.innerText = data;
+  const obj = JSON.parse(data);
+  if (obj == null || obj.prompt == null) return;
+  prompt.innerText = obj.prompt;
 }
 
 function processPromptEvent(event) {
   if (event == null || event.data == null) return;
-  const obj = JSON.parse(event.data);
-  if (obj.prompt == null) return;
-  setPrompt(obj.prompt);
+  setPrompt(event.data);
 }
 
 function loadCurrentState() {
