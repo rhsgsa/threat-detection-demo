@@ -67,6 +67,7 @@ func main() {
 	http.HandleFunc("/api/prompt", internal.InitCORSMiddleware(config.CORS, alertsController.PromptHandler).Handler)
 	http.HandleFunc("/api/alertsstatus", internal.InitCORSMiddleware(config.CORS, alertsController.StatusHandler).Handler)
 	http.HandleFunc("/api/resumeevents", internal.InitCORSMiddleware(config.CORS, alertsController.ResumeEventsHandler).Handler)
+	http.HandleFunc("/api/currentstate", internal.InitCORSMiddleware(config.CORS, alertsController.CurrentStateHandler).Handler)
 	wg.Add(1)
 	go func() {
 		alertsController.LLMChannelProcessor(shutdownCtx)

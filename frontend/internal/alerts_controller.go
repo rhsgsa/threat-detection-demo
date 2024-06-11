@@ -58,6 +58,8 @@ type AlertsController struct {
 	openAIURL          string
 	latestAlert        alertEvent
 	latestAlertMux     sync.RWMutex
+	imageAnalysis      AtomicString
+	threatAnalysis     AtomicString
 	llmCh              chan alertEvent
 	saveModelResponses bool
 	ollamaFile         *os.File
@@ -182,6 +184,29 @@ func (controller *AlertsController) ResumeEventsHandler(w http.ResponseWriter, r
 		EventType: "resume_events",
 		Data:      nil,
 	}
+}
+
+// CurrentStateHandler is called when the web UI is first loaded
+func (controller *AlertsController) CurrentStateHandler(w http.ResponseWriter, r *http.Request) {
+	latestAlert := controller.getLatestAlert()
+	resp := struct {
+		AnnotatedImage string `json:"annotated_image"`
+		RawImage       string `json:"raw_image"`
+		Timestamp      int64  `json:"timestamp"`
+		Prompt         string `json:"prompt"`
+		ImageAnalysis  string `json:"image_analysis"`
+		ThreatAnalysis string `json:"threat_analysis"`
+		EventsPaused   bool   `json:"events_paused"`
+	}{
+		AnnotatedImage: string(latestAlert.annotatedImage),
+		RawImage:       string(latestAlert.rawImage),
+		Timestamp:      latestAlert.timestamp,
+		Prompt:         latestAlert.prompt.Short,
+		ImageAnalysis:  controller.imageAnalysis.Load(),
+		ThreatAnalysis: controller.threatAnalysis.Load(),
+		EventsPaused:   controller.eventsPaused.Load(),
+	}
+	json.NewEncoder(w).Encode(resp)
 }
 
 // MQTTHandler gets invoked when a message is received on the alerts MQTT topic
@@ -359,9 +384,12 @@ func (controller *AlertsController) ollamaRequest(parentCtx context.Context, pay
 		Data:      nil,
 	})
 
+	llmResponse := b.String()
+	controller.imageAnalysis.Store(llmResponse)
+
 	if controller.openAIURL != "" {
 		// make request to OpenAI API here, passing it the prompt and the response from Ollama
-		if err := controller.openAIRequest(parentCtx, b.String()); err != nil {
+		if err := controller.openAIRequest(parentCtx, llmResponse); err != nil {
 			log.Printf("error making openai request: %v", err)
 			return
 		}
@@ -395,6 +423,12 @@ func (controller *AlertsController) openAIRequest(ctx context.Context, text stri
 		EventType: "openai_response_stop",
 		Data:      nil,
 	})
+
+	var llmResponse bytes.Buffer
+	defer func(resp *bytes.Buffer) {
+		controller.threatAnalysis.Store(resp.String())
+	}(&llmResponse)
+
 	controller.sendToSSECh(SSEEvent{
 		EventType: "openai_response_start",
 		Data:      nil,
@@ -425,6 +459,7 @@ func (controller *AlertsController) openAIRequest(ctx context.Context, text stri
 				log.Printf("error converting openai stream response to json: %v", err)
 				continue
 			}
+			llmResponse.WriteString(message.Response)
 			controller.sendToSSECh((SSEEvent{
 				EventType: "openai_response",
 				Data:      marshaled,

@@ -85,17 +85,45 @@ function loadPromptChoices() {
       d.innerText = p.prompt;
       d.onclick = function() { setNewPromptOnServer(p.id) };
       promptChoices.appendChild(d);
-    })
+    });
+    loadCurrentState();
   })
   .catch(error => {
     showMessage(error);
   })
 }
-function setPrompt(event) {
+
+function setPrompt(data) {
+  prompt.innerText = data;
+}
+
+function processPromptEvent(event) {
   if (event == null || event.data == null) return;
   const obj = JSON.parse(event.data);
   if (obj.prompt == null) return;
-  prompt.innerText = obj.prompt;
+  setPrompt(obj.prompt);
+}
+
+function loadCurrentState() {
+  fetch('/api/currentstate', {
+    method: 'GET',
+    headers: {
+        'Accept': 'application/json',
+    },
+  })
+  .then(response => response.json())
+  .then(response => {
+    if (response == null) return;
+    if (response.annotated_image != null) annotatedImage = response.annotated_image;
+    if (response.raw_image != null) rawImage = response.raw_image;
+    if (response.annotated_image != null || response.raw_image != null) refreshPhoto();
+    if (response.timestamp != null) setTimestamp(response.timestamp);
+    if (response.prompt != null) setPrompt(response.prompt);
+    if (response.image_analysis != null) ollamaResponse.value = response.image_analysis;
+    if (response.threat_analysis != null) openaiResponse.value = response.threat_analysis;
+    if (response.events_paused != null) response.events_paused?showResumeButton():hideResumeButton();
+  })
+  .catch(error => {console.log(error);showMessage(error);});
 }
 
 function showOllamaResponseSpinner(event) {
@@ -156,12 +184,16 @@ function refreshPhoto() {
   photo.setAttribute('src', 'data:image/jpeg;charset=utf-8;base64,' + data);
 }
 
+function setTimestamp(data) {
+  let date = new Date(data * 1000);
+  let time = date.toString().split(' ')[4];
+  timestamp.innerText = time;
+}
+
 function processTimestampEvent(event) {
   if (event == null || event.data == null) return;
 
-  let date = new Date(event.data * 1000);
-  let time = date.toString().split(' ')[4];
-  timestamp.innerText = time;
+  setTimestamp(event.data);
 
   // play sound if we have never seen this timestamp before
   if (playSound.checked && currentImageTimestamp != event.data) {
@@ -220,7 +252,7 @@ function startup() {
   evtSource.addEventListener("ollama_response_start", hideOllamaResponseSpinner);
   evtSource.addEventListener("openai_response", processOpenaiResponse);
   evtSource.addEventListener("openai_response_start", hideOpenaiResponseSpinner);
-  evtSource.addEventListener("prompt", setPrompt);
+  evtSource.addEventListener("prompt", processPromptEvent);
   evtSource.addEventListener("pause_events", showResumeButton);
   evtSource.addEventListener("resume_events", hideResumeButton);
 
