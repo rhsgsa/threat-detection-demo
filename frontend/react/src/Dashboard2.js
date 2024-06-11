@@ -304,6 +304,24 @@ function Dashboard2 () {
         evtSource.addEventListener("resume_events", event => {
           setShowButton(false);
         });
+
+        fetch(baseurl + '/api/currentstate')
+        .then(response => response.json())
+        .then(json => {
+          if (json == null) return;
+          if (json.annotated_image != null) setAnnotatedImage(json.annotated_image);
+          if (json.raw_image != null) setRawImage(json.raw_image);
+          if (json.annotated_image != null || json.raw_image != null) setIsLoaded(true);
+          if (json.timestamp != null) {
+            let date = new Date(json.timestamp * 1000);
+            setTimestamp(date.toString().split(' ')[4]);
+          }
+          if (json.prompt != null && json.prompt.id != null) setPrompt(json.prompt.id);
+          if (json.image_analysis != null) setLLMResponse(json.image_analysis);
+          if (json.threat_analysis != null) setAIResponse(json.threat_analysis);
+          if (json.events_paused != null) setShowButton(json.events_paused);
+        })
+        .catch(error => console.error(error));
     }, []);
 
     //GET Display Data on Button Click

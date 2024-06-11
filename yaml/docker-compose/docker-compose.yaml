@@ -29,7 +29,7 @@ services:
 
   frontend:
     container_name: frontend
-    image: "quay.io/rhsgsa/threat-frontend:1.93"
+    image: "quay.io/rhsgsa/threat-frontend:1.94"
     environment:
     - MQTTBROKER=tcp://mqtt:1883
     - PORT=8080
