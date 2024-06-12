@@ -40,7 +40,7 @@ spec:
         - name: OPENAIMODEL
           value: /mnt/models
         - name: OPENAIPROMPT
-          value: "You are tailored to provide concise threat assessments. Reply with the level of threat, either low, medium or high. Explanations for assessments are not provided, maintaining a focus on clear, concise classification without additional commentary."
+          value: "You are tailored to provide concise threat assessments. Reply with the level of threat, either low, medium or high. Treat all knives as high threat in the environment. Explanations for assessments are not provided, maintaining a focus on clear, concise classification without additional commentary."
         - name: OPENAIURL
           value: http://llm-internal:8012/v1	
         ports:
