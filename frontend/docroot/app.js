@@ -114,9 +114,9 @@ function loadCurrentState() {
   .then(response => response.json())
   .then(response => {
     if (response == null) return;
-    if (response.annotated_image != null) annotatedImage = response.annotated_image;
-    if (response.raw_image != null) rawImage = response.raw_image;
-    if (response.annotated_image != null || response.raw_image != null) refreshPhoto();
+    if (response.annotated_image != null && response.annotated_image != "") annotatedImage = response.annotated_image;
+    if (response.raw_image != null && response.raw_image != "") rawImage = response.raw_image;
+    if ((response.annotated_image != null && response.annotated_image != "") || (response.raw_image != null && response.raw_image != "")) refreshPhoto();
     if (response.timestamp != null) setTimestamp(response.timestamp);
     if (response.prompt != null) setPrompt(response.prompt);
     if (response.image_analysis != null) ollamaResponse.value = response.image_analysis;

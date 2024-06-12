@@ -309,9 +309,9 @@ function Dashboard2 () {
         .then(response => response.json())
         .then(json => {
           if (json == null) return;
-          if (json.annotated_image != null) setAnnotatedImage(json.annotated_image);
-          if (json.raw_image != null) setRawImage(json.raw_image);
-          if (json.annotated_image != null || json.raw_image != null) setIsLoaded(true);
+          if (json.annotated_image != null && json.annotated_image != "") setAnnotatedImage(json.annotated_image);
+          if (json.raw_image != null && json.raw_image != "") setRawImage(json.raw_image);
+          if ((json.annotated_image != null && json.annotated_image != "") || (json.raw_image != null && json.raw_image != "")) setIsLoaded(true);
           if (json.timestamp != null) {
             let date = new Date(json.timestamp * 1000);
             setTimestamp(date.toString().split(' ')[4]);
