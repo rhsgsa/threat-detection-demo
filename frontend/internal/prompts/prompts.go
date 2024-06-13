@@ -26,7 +26,7 @@ type PromptItem struct {
 	Descriptive string `json:"descriptive"`
 }
 
-func (item PromptItem) GetSSEBytes() []byte {
+func (item PromptItem) GetJSONBytes() []byte {
 	var b bytes.Buffer
 	event := struct {
 		ID     int    `json:"id"`

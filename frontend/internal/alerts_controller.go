@@ -201,7 +201,7 @@ func (controller *AlertsController) CurrentStateHandler(w http.ResponseWriter, r
 		AnnotatedImage: string(latestAlert.annotatedImage),
 		RawImage:       string(latestAlert.rawImage),
 		Timestamp:      latestAlert.timestamp,
-		Prompt:         string(latestAlert.prompt.GetSSEBytes()),
+		Prompt:         string(latestAlert.prompt.GetJSONBytes()),
 		ImageAnalysis:  controller.imageAnalysis.Load(),
 		ThreatAnalysis: controller.threatAnalysis.Load(),
 		EventsPaused:   controller.eventsPaused.Load(),
@@ -278,6 +278,7 @@ func (controller *AlertsController) broadcastImages() {
 
 // Start this in a goroutine - cancel the Context to terminate the goroutine
 func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
+	oldPromptID := -1
 	for {
 		select {
 		case <-ctx.Done():
@@ -287,7 +288,12 @@ func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 				log.Print("LLM channel processor could not read from LLM channel")
 				return
 			}
-			if controller.eventsPaused.Load() {
+			promptID := event.prompt.ID
+
+			// ignore incoming event if events are paused
+			// make an exception for events with a new prompt because that
+			// means the user has changed the prompt
+			if oldPromptID == promptID && controller.eventsPaused.Load() {
 				log.Print("ignoring alert event because events are paused")
 				continue
 			}
@@ -295,12 +301,13 @@ func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 			// pause stream
 			controller.eventsPaused.Store(true)
 
+			oldPromptID = promptID
 			controller.setLatestAlert(event)
 			controller.broadcastImages()
 
 			controller.sendToSSECh(SSEEvent{
 				EventType: "prompt",
-				Data:      []byte(event.prompt.GetSSEBytes()),
+				Data:      []byte(event.prompt.GetJSONBytes()),
 			})
 
 			ollamaReq := struct {
