@@ -14,8 +14,8 @@ run:
 	PORT=8000 \
 	MQTT_SERVER=localhost \
 	MQTT_TOPIC=alerts \
-	INTERESTED_CLASSES=1 \
-	CAMERA=../../redhat-pins-ai-demo/container/video.mp4 \
+	CAMERA=../../Gun_Video.mp4 \
+	TRACKING=yes \
 	python3 ./app/app.py
 
 t:

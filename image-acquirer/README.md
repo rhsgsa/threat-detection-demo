@@ -19,6 +19,7 @@ The `image-acquirer` can be configured with the following environment variables:
 |`MQTT_TRANSPORT`|`tcp`|`websockets` is also valid|
 |`PORT`|`8080`|Web server port number|
 |`RESIZE`||Resolution to resize the image to, in the form `widthxheight` (e.g. `640x480`); will not resize if not set|
+|`TRACKING`|`yes`|If set to `yes`, YOLO's tracker will be used, and an event will be sent to the MQTT broker when a new tracker ID is found.<br/><br/>If set to `no`, a new event will be sent to the MQTT broker every time an object is detected in the frame|
 
 
 ## Resources

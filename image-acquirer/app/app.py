@@ -81,9 +81,15 @@ def process_resize_str(resize: str) -> (int, int):
     except ValueError:
         return 0, 0
 
-def detection_task(camera_device, resize, model_name, confidence, force_cpu, interested_classes, mqttc, mqtt_topic):
+def detection_task(camera_device, resize, model_name, confidence, force_cpu, interested_classes, mqttc, mqtt_topic, tracking):
     retry = 500
-    interesting_objects = InterestingObjects()
+
+    if tracking:
+        interesting_objects = InterestingObjects()
+        logging.info("tracking on")
+    else:
+        interesting_objects = None
+        logging.info("tracking off")
 
     resize_width, resize_height = process_resize_str(resize)
     if resize_width > 0 and resize_height > 0:
@@ -135,7 +141,11 @@ def detection_task(camera_device, resize, model_name, confidence, force_cpu, int
         if resize_width > 0 and resize_height > 0:
             frame = cv2.resize(cam_frame, (resize_width, resize_height))
 
-        results = model.track(frame, persist=True, device=accel_device, conf=confidence, classes=interested_classes)
+        if tracking:
+            results = model.track(frame, persist=True, device=accel_device, conf=confidence, classes=interested_classes)
+        else:
+            results = model(frame, device=accel_device, conf=confidence, classes=interested_classes)
+
         if len(results) < 1:
             continue
 
@@ -149,7 +159,16 @@ def detection_task(camera_device, resize, model_name, confidence, force_cpu, int
         im_encoded = cv2.imencode('.jpg', output_frame)[1]
         im_b64 = base64.b64encode(im_encoded.tobytes()).decode('ascii')
 
-        if interesting_objects.update(result.boxes) and mqttc is not None:
+        trigger_event = False
+        if mqttc is not None:
+            if tracking:
+                if interesting_objects.update(result.boxes):
+                    trigger_event = True
+            else:
+                if result.boxes.cls is not None and len(result.boxes.cls) > 0:
+                    trigger_event = True
+
+        if trigger_event:
             frame_encoded = cv2.imencode('.jpg', frame)[1]
             frame_b64 = base64.b64encode(frame_encoded.tobytes()).decode('ascii')
 
@@ -162,9 +181,12 @@ def detection_task(camera_device, resize, model_name, confidence, force_cpu, int
             mqttc.publish(mqtt_topic, json.dumps(mqtt_message), qos=1)
 
         message = {
-            "image": im_b64,
-            "threatcount": interesting_objects.count
+            "image": im_b64
         }
+        if interesting_objects is None:
+            message['threatcount'] = "unknown"
+        else:
+            message['threatcount'] = interesting_objects.count
         if inference_speed is not None:
             message['inference'] = math.ceil(inference_speed * 100) / 100
         announcer.announce(format_sse(data=json.dumps(message), event="image", retry=retry))
@@ -271,6 +293,11 @@ if __name__ == '__main__':
 
     resize = os.getenv('RESIZE', '')
 
+    tracking_lower = os.getenv('TRACKING', 'yes').lower()
+    tracking = True
+    if tracking_lower == '0' or tracking_lower == 'false' or tracking_lower == 'no':
+        tracking = False
+
     announcer = MessageAnnouncer()
 
     with app.app_context():
@@ -278,7 +305,7 @@ if __name__ == '__main__':
         continue_running.set()
         background_thread = threading.Thread(
             target=detection_task,
-            args=(camera_device, resize, model_name, confidence, force_cpu, interested_classes, mqttc, mqtt_topic)
+            args=(camera_device, resize, model_name, confidence, force_cpu, interested_classes, mqttc, mqtt_topic, tracking)
         )
         background_thread.start()
 
