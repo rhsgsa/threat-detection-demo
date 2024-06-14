@@ -1,7 +1,7 @@
 apiVersion: v1
 data:
   prompts.txt: |
-    Are there any guns, knives or water bottles in the image? Describe what you see and the context.
+    Are there any guns or knives in the image? Describe what you see and the context.
     What should I be noticing here?
 kind: ConfigMap
 metadata:
