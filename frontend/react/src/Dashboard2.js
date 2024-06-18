@@ -338,6 +338,9 @@ function Dashboard2 () {
           });
       };
       callAxios();
+      setIsLoaded(false);
+      setLLMResponse('');
+      setAIResponse('');
     }
     
   return (

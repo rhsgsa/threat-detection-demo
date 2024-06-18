@@ -218,6 +218,9 @@ function processImageEvent(event) {
 
 function resumeEvents() {
   fetch('/api/resumeevents');
+  clearPhoto();
+  ollamaResponse.value = "";
+  openaiResponse.value = "";
 }
 
 function showResumeButton() {
