@@ -1,7 +1,7 @@
 PROJ=demo
 REMOTE_INSTALL_PROJ=$(PROJ)
 IMAGE_ACQUIRER=quay.io/rhsgsa/image-acquirer
-IMAGE_ACQUIRER_VERSION=0.3
+IMAGE_ACQUIRER_VERSION=0.4
 FRONTEND_IMAGE=quay.io/rhsgsa/threat-frontend
 FRONTEND_VERSION=1.95
 MOCK_LLM_IMAGE=ghcr.io/kwkoo/mock-llm
