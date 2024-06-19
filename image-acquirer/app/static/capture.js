@@ -2,11 +2,14 @@
     var photo = null;
     var defects = null;
     var sseErrors = 0;
+    var inference = null;
+    var threatsDiv = null;
   
     function startup() {
       photo = document.getElementById('photo');
       threatcount = document.getElementById('threatcount');
       inference = document.getElementById('inference');
+      threatsDiv = document.getElementById('threatsdiv');
       clearphoto();
 
       const evtSource = new EventSource("/listen");
@@ -18,14 +21,19 @@
           if (body.image != null) {
             photo.setAttribute('src', 'data:image/jpeg;charset=utf-8;base64,' + body.image);
           }
-          if (body.threatcount != null) {
+          let threatsInt = NaN;
+          if (body.threatcount != null)
+            threatsInt = parseInt(body.threatcount);
+          if (isNaN(threatsInt))
+            threatsDiv.style.display = 'none';
+          else {
+            threatsDiv.style.display = 'block';
             threatcount.innerText = body.threatcount;
           }
-          if (body.inference == null) {
-            inference.innerText = 'unknown';
-          } else {
+          if (body.inference != null)
             inference.innerText = body.inference + ' ms';
-          }
+          else
+          inference.innerText = 'unknown';
         }
       });
       evtSource.onerror = (e) => {

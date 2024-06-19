@@ -62,11 +62,11 @@ services:
     ports:
     - 8080:8080
     volumes:
-    - react:/var/www/html
+    #- react:/var/www/html
     - ../../mocks/prompts.txt:/mocks/prompts.txt:ro,z
     depends_on:
     - mqtt
-    - build_react
+    #- build_react
 
   mock-ollama:
     container_name: mock-ollama

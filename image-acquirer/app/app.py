@@ -160,15 +160,14 @@ def detection_task(camera_device, resize, model_name, confidence, force_cpu, int
         im_b64 = base64.b64encode(im_encoded.tobytes()).decode('ascii')
 
         trigger_event = False
-        if mqttc is not None:
-            if tracking:
-                if interesting_objects.update(result.boxes):
-                    trigger_event = True
-            else:
-                if result.boxes.cls is not None and len(result.boxes.cls) > 0:
-                    trigger_event = True
+        if tracking:
+            if interesting_objects.update(result.boxes):
+                trigger_event = True
+        else:
+            if result.boxes.cls is not None and len(result.boxes.cls) > 0:
+                trigger_event = True
 
-        if trigger_event:
+        if trigger_event and mqttc is not None:
             frame_encoded = cv2.imencode('.jpg', frame)[1]
             frame_b64 = base64.b64encode(frame_encoded.tobytes()).decode('ascii')
 
