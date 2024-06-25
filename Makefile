@@ -6,7 +6,7 @@ FRONTEND_IMAGE=quay.io/rhsgsa/threat-frontend
 FRONTEND_VERSION=1.95
 MOCK_LLM_IMAGE=ghcr.io/kwkoo/mock-llm
 BUILDERNAME=multiarch-builder
-MODEL_NAME=20240624-nano.pt
+MODEL_NAME=20240625-nano.pt
 MODEL_URL=https://github.com/rhsgsa/yolo-toy-gun/raw/main/weights/$(MODEL_NAME)
 
 BASE:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
