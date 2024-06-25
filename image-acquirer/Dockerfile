@@ -65,8 +65,9 @@ EXPOSE 8080
 
 RUN \
   --mount=type=bind,source=./app/requirements.txt,target=/app/requirements.txt \
-  pip3 install --no-cache-dir -r requirements.txt \
-  && \
+  pip3 install --no-cache-dir -r requirements.txt
+
+RUN \
   curl -LO $MODEL_URL
 
 COPY --chown=:0 ./app/ /app/
