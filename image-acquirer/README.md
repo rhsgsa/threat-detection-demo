@@ -25,3 +25,4 @@ The `image-acquirer` can be configured with the following environment variables:
 ## Resources
 
 *   [Paho Python Docs](https://eclipse.dev/paho/files/paho.mqtt.python/html/)
+*   [Exporting a YOLO model in the TensorRT format](https://docs.ultralytics.com/integrations/tensorrt/#usage)

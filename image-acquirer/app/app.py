@@ -86,9 +86,11 @@ def detection_task(camera_device, resize, model_name, confidence, force_cpu, int
 
     if tracking:
         interesting_objects = InterestingObjects()
+        task = 'track'
         logging.info("tracking on")
     else:
         interesting_objects = None
+        task = 'detect'
         logging.info("tracking off")
 
     resize_width, resize_height = process_resize_str(resize)
@@ -117,7 +119,7 @@ def detection_task(camera_device, resize, model_name, confidence, force_cpu, int
     logging.info(f"model names = {model.names}")
 
     torch.device(accel_device)
-    if accel_device != "cpu":
+    if accel_device != "cpu" and model_name.endswith('.pt'):
         logging.info(f"moving model to {accel_device}")
         model.to(accel_device)
 
@@ -141,10 +143,7 @@ def detection_task(camera_device, resize, model_name, confidence, force_cpu, int
         if resize_width > 0 and resize_height > 0:
             frame = cv2.resize(cam_frame, (resize_width, resize_height))
 
-        if tracking:
-            results = model.track(frame, persist=True, device=accel_device, conf=confidence, classes=interested_classes)
-        else:
-            results = model(frame, device=accel_device, conf=confidence, classes=interested_classes)
+        results = model(frame, task=task, device=accel_device, conf=confidence, classes=interested_classes)
 
         if len(results) < 1:
             continue
