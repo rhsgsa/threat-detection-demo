@@ -84,6 +84,10 @@ def process_resize_str(resize: str) -> (int, int):
 def detection_task(camera_device, resize, model_name, confidence, force_cpu, interested_classes, mqttc, mqtt_topic, tracking):
     retry = 500
 
+    if model_name.endswith('.engine'):
+        tracking = False
+        logging.info('tracking off because we are using TensorRT')
+
     if tracking:
         interesting_objects = InterestingObjects()
         task = 'track'
@@ -114,9 +118,13 @@ def detection_task(camera_device, resize, model_name, confidence, force_cpu, int
             logging.info("CUDA and MPS are not available")
 
     logging.info(f"loading model ({model_name})...")
-    model = YOLO(model_name)
+    model = YOLO(model_name, task=task)
     logging.info("done loading model")
-    logging.info(f"model names = {model.names}")
+    try:
+        if hasattr(model, 'names'):
+            logging.info(f"model names = {model.names}")
+    except:
+        pass
 
     torch.device(accel_device)
     if accel_device != "cpu" and model_name.endswith('.pt'):
@@ -143,7 +151,10 @@ def detection_task(camera_device, resize, model_name, confidence, force_cpu, int
         if resize_width > 0 and resize_height > 0:
             frame = cv2.resize(cam_frame, (resize_width, resize_height))
 
-        results = model(frame, task=task, device=accel_device, conf=confidence, classes=interested_classes)
+        if tracking:
+            results = model.track(frame, device=accel_device, conf=confidence, classes=interested_classes)
+        else:
+            results = model(frame, device=accel_device, conf=confidence, classes=interested_classes)
 
         if len(results) < 1:
             continue

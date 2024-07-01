@@ -1,8 +1,9 @@
 opencv-python
 Flask
 ultralytics
+torchvision
 lapx>=0.5.2
-numpy
+numpy==1.23
 paho-mqtt
 dill
 tensorrt
