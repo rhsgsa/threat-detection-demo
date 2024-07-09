@@ -152,7 +152,7 @@ def detection_task(camera_device, resize, model_name, confidence, force_cpu, int
             frame = cv2.resize(cam_frame, (resize_width, resize_height))
 
         if tracking:
-            results = model.track(frame, device=accel_device, conf=confidence, classes=interested_classes)
+            results = model.track(frame, device=accel_device, conf=confidence, classes=interested_classes, persist=True)
         else:
             results = model(frame, device=accel_device, conf=confidence, classes=interested_classes)
 

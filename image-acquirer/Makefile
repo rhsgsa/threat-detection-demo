@@ -26,9 +26,9 @@ t:
 	conda activate $(CONDA_ENV) \
 	&& \
 	PORT=8000 \
-	MQTT_SERVER=localhost \
+	MQTT_SERVER="" \
 	MQTT_TOPIC=alerts \
 	CONFIDENCE=0.5 \
-	CAMERA=/Users/kkoo/Downloads/Gun_Video.mp4 \
-	MODEL=NCS_YOLOv8-20Epochs.pt \
+	CAMERA=/Users/kkoo/Downloads/yolo-training/test/videos/combined.mp4 \
+	MODEL=/Users/kkoo/Downloads/yolo-training/test/20240628-small.pt \
 	python3 ./app/app.py
