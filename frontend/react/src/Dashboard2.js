@@ -53,7 +53,7 @@ function Photo({ annotatedImage, rawImage }) {
     
       useEffect(() => {
           let data = (checked?annotatedImage:rawImage);
-          if (data == null) {
+          if (data == null || data === '') {
             clearPhoto();
             return;
           }else{
@@ -226,13 +226,13 @@ function Promptlist () {
     const [ colour, setColour ] = useState('');
 
     useEffect(() => {
-      threat = threat.toUpperCase()
+      var threatUpper = threat.toUpperCase()
       console.log('"' + threat + '"')
-      if (threat === 'LOW') {
+      if (threatUpper === 'LOW') {
         setColour('green')
-      } else if (threat === 'MEDIUM') {
+      } else if (threatUpper === 'MEDIUM') {
         setColour('yellow')
-      } else if (threat === 'HIGH') {
+      } else if (threatUpper === 'HIGH') {
         setColour('red')
       } else {
         setColour('white')
@@ -309,9 +309,9 @@ function Dashboard2 () {
         .then(response => response.json())
         .then(json => {
           if (json == null) return;
-          if (json.annotated_image != null && json.annotated_image != "") setAnnotatedImage(json.annotated_image);
-          if (json.raw_image != null && json.raw_image != "") setRawImage(json.raw_image);
-          if ((json.annotated_image != null && json.annotated_image != "") || (json.raw_image != null && json.raw_image != "")) setIsLoaded(true);
+          if (json.annotated_image != null && json.annotated_image !== "") setAnnotatedImage(json.annotated_image);
+          if (json.raw_image != null && json.raw_image !== "") setRawImage(json.raw_image);
+          if ((json.annotated_image != null && json.annotated_image !== "") || (json.raw_image != null && json.raw_image !== "")) setIsLoaded(true);
           if (json.timestamp != null) {
             let date = new Date(json.timestamp * 1000);
             setTimestamp(date.toString().split(' ')[4]);
