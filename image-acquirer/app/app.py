@@ -131,6 +131,11 @@ def detection_task(camera_device, resize, model_name, confidence, force_cpu, int
         logging.info(f"moving model to {accel_device}")
         model.to(accel_device)
 
+    try:
+        camera_device = int(camera_device)
+    except ValueError:
+        pass
+
     cam = cv2.VideoCapture(camera_device)
     retry_pause = False
 
