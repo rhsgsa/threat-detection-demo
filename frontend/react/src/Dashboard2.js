@@ -48,7 +48,7 @@ function Photo({ annotatedImage, rawImage }) {
         context.fillRect(0, 0, canvas.width, canvas.height);
       
         var data = canvas.toDataURL('image/png');
-        setPhoto('data:image/jpeg;charset=utf-8;base64,' + data);
+        setPhoto(data);
       }
     
       useEffect(() => {
