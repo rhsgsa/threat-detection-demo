@@ -4,12 +4,14 @@
     var sseErrors = 0;
     var inference = null;
     var threatsDiv = null;
+    var dropped = null;
   
     function startup() {
       photo = document.getElementById('photo');
       threatcount = document.getElementById('threatcount');
       inference = document.getElementById('inference');
       threatsDiv = document.getElementById('threatsdiv');
+      dropped = document.getElementById('dropped');
       clearphoto();
 
       const evtSource = new EventSource("/listen");
@@ -30,6 +32,8 @@
             threatsDiv.style.display = 'block';
             threatcount.innerText = body.threatcount;
           }
+          if (body.dropped != null)
+            dropped.innerText = body.dropped;
           if (body.inference != null)
             inference.innerText = body.inference + ' ms';
           else

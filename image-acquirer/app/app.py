@@ -81,12 +81,16 @@ def process_resize_str(resize: str) -> (int, int):
     except ValueError:
         return 0, 0
 
-def detection_task(camera_device, resize, model_name, confidence, force_cpu, interested_classes, mqttc, mqtt_topic, tracking):
+def detection_task(camera_device, resize, model_name, confidence, force_cpu, interested_classes, mqttc, mqtt_topic, mqtt_publish_timeout, tracking):
     retry = 500
+    dropped_count = 0
 
     if model_name.endswith('.engine'):
         tracking = False
         logging.info('tracking off because we are using TensorRT')
+
+    if mqttc is not None:
+        logging.info(f"mqtt publish timeout set to {mqtt_publish_timeout}")
 
     if tracking:
         interesting_objects = InterestingObjects()
@@ -192,10 +196,17 @@ def detection_task(camera_device, resize, model_name, confidence, force_cpu, int
                 "raw_image": frame_b64,
                 "timestamp": int(time.time())
             }
-            mqttc.publish(mqtt_topic, json.dumps(mqtt_message), qos=1)
+            msg_info = mqttc.publish(mqtt_topic, json.dumps(mqtt_message), qos=0)
+            try:
+                msg_info.wait_for_publish(timeout=mqtt_publish_timeout)
+            except:
+                pass
+            if not msg_info.is_published():
+                dropped_count += 1
 
         message = {
-            "image": im_b64
+            "image": im_b64,
+            "dropped": dropped_count
         }
         if interesting_objects is None:
             message['threatcount'] = "unknown"
@@ -290,6 +301,14 @@ if __name__ == '__main__':
         mqttc.connect(mqtt_server, mqtt_port, 60)
         mqttc.loop_start()
 
+    mqtt_publish_timeout_str = os.getenv('MQTT_PUBLISH_TIMEOUT', '3')
+    mqtt_publish_timeout = 0
+    try:
+        mqtt_publish_timeout = int(mqtt_publish_timeout_str)
+    except ValueError:
+        logging.error(f'could not convert MQTT_PUBLISH_TIMEOUT ({mqtt_publish_timeout_str}) to integer')
+        sys.exit(1)
+
     force_cpu_lower = os.getenv('FORCE_CPU', 'no').lower()
     force_cpu = False
     if force_cpu_lower == '1' or force_cpu_lower == 'true' or force_cpu_lower == 'yes':
@@ -319,7 +338,7 @@ if __name__ == '__main__':
         continue_running.set()
         background_thread = threading.Thread(
             target=detection_task,
-            args=(camera_device, resize, model_name, confidence, force_cpu, interested_classes, mqttc, mqtt_topic, tracking)
+            args=(camera_device, resize, model_name, confidence, force_cpu, interested_classes, mqttc, mqtt_topic, mqtt_publish_timeout, tracking)
         )
         background_thread.start()
 

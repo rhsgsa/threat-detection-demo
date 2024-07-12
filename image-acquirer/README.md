@@ -14,6 +14,7 @@ The `image-acquirer` can be configured with the following environment variables:
 |`INTERESTED_CLASSES`||Comma-separated list of class indexes - when classes in this list are detected in a frame, a message will be sent to an MQTT topic; if this is not set then messages will be sent whenever any class is detected|
 |`MODEL`|`best.pt`|YOLO model name|
 |`MQTT_PORT`|`1883`|Port number of the MQTT broker|
+|`MQTT_PUBLISH_TIMEOUT`|`3`|Number of seconds to wait for a message to be published successfully|
 |`MQTT_SERVER`|`localhost`|Hostname of the MQTT broker|
 |`MQTT_TOPIC`|`alerts`|MQTT topic to publish messages to|
 |`MQTT_TRANSPORT`|`tcp`|`websockets` is also valid|
