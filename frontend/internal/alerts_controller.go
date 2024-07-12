@@ -46,6 +46,22 @@ type alertEvent struct {
 	prompt         prompts.PromptItem
 }
 
+func (s alertEvent) copy() alertEvent {
+	d := alertEvent{
+		timestamp: s.timestamp,
+		prompt:    s.prompt,
+	}
+	if s.annotatedImage != nil {
+		d.annotatedImage = make([]byte, len(s.annotatedImage))
+		copy(d.annotatedImage, s.annotatedImage)
+	}
+	if s.rawImage != nil {
+		d.rawImage = make([]byte, len(s.rawImage))
+		copy(d.rawImage, s.rawImage)
+	}
+	return d
+}
+
 type AlertsController struct {
 	eventsPaused       atomic.Bool
 	sseCh              chan SSEEvent
@@ -256,19 +272,18 @@ func (controller *AlertsController) StatusHandler(w http.ResponseWriter, r *http
 	json.NewEncoder(w).Encode(&status)
 }
 
-func (controller *AlertsController) broadcastImages() {
-	latestAlert := controller.getLatestAlert()
+func (controller *AlertsController) broadcastImages(alert alertEvent) {
 	controller.sseCh <- SSEEvent{
 		EventType: "timestamp",
-		Data:      []byte(strconv.FormatInt(latestAlert.timestamp, 10)),
+		Data:      []byte(strconv.FormatInt(alert.timestamp, 10)),
 	}
 	controller.sseCh <- SSEEvent{
 		EventType: "annotated_image",
-		Data:      latestAlert.annotatedImage,
+		Data:      alert.annotatedImage,
 	}
 	controller.sseCh <- SSEEvent{
 		EventType: "raw_image",
-		Data:      latestAlert.rawImage,
+		Data:      alert.rawImage,
 	}
 	controller.sseCh <- SSEEvent{
 		EventType: "llm_request_start",
@@ -303,7 +318,7 @@ func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 
 			oldPromptID = promptID
 			controller.setLatestAlert(event)
-			controller.broadcastImages()
+			controller.broadcastImages(event)
 
 			controller.sendToSSECh(SSEEvent{
 				EventType: "prompt",
@@ -494,25 +509,12 @@ func (controller *AlertsController) getLatestAlert() alertEvent {
 		return alertEvent{}
 	}
 
-	dup := alertEvent{
-		timestamp: controller.latestAlert.timestamp,
-		prompt:    controller.latestAlert.prompt,
-	}
-	if controller.latestAlert.annotatedImage != nil {
-		dup.annotatedImage = make([]byte, len(controller.latestAlert.annotatedImage))
-		copy(dup.annotatedImage, controller.latestAlert.annotatedImage)
-	}
-	if controller.latestAlert.rawImage != nil {
-		dup.rawImage = make([]byte, len(controller.latestAlert.rawImage))
-		copy(dup.rawImage, controller.latestAlert.rawImage)
-	}
-
-	return dup
+	return controller.latestAlert.copy()
 }
 
 func (controller *AlertsController) setLatestAlert(newAlert alertEvent) {
 	controller.latestAlertMux.Lock()
-	controller.latestAlert = newAlert
+	controller.latestAlert = newAlert.copy()
 	controller.latestAlertMux.Unlock()
 }
 

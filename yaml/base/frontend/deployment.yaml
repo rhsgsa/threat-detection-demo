@@ -18,7 +18,7 @@ spec:
         app: frontend
     spec:
       containers:
-      - image: quay.io/rhsgsa/threat-frontend:1.95
+      - image: quay.io/rhsgsa/threat-frontend:1.96
         name: frontend
         env:
         - name: MQTTBROKER
