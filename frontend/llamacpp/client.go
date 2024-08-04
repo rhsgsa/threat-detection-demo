@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+const mockOutputFilename = "/tmp/llamacpp.txt"
+
 type Client struct {
 	url            *url.URL
 	requestTimeout time.Duration
@@ -87,17 +89,28 @@ func WithKeepAlive(t time.Duration) func(*Client) {
 	}
 }
 
-// Used to store responses from the LLM - useful for capturing mock data.
-func WithDebugFile(f *os.File) func(*Client) {
-	return func(c *Client) {
-		c.debugFile = f
-	}
-}
-
 // Create a CompletionPayload struct with the appropriate prompt prefix,
 // prompt suffix, and stops.
 func (client Client) NewCompletionPayload(prompt string) *CompletionPayload {
 	payload := NewCompletionPayload(client.promptPrefix + prompt + client.promptSuffix)
 	payload.SetStops(client.stop)
 	return payload
+}
+
+// Used to store responses from the LLM - useful for capturing mock data.
+func (c *Client) SaveModelResponses() error {
+	f, err := os.Create(mockOutputFilename)
+	if err != nil {
+		return err
+	}
+	c.debugFile = f
+	return nil
+}
+
+func (c *Client) Shutdown() {
+	if c.debugFile == nil {
+		return
+	}
+	c.debugFile.Close()
+	c.debugFile = nil
 }

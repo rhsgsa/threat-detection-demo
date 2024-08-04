@@ -11,6 +11,8 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
+const mockThreatAnalysisOutputFilename = "/tmp/threatanalysis.txt"
+
 type threatAnalysisResponse struct {
 	err     error
 	content string
@@ -80,4 +82,21 @@ func (c *threatAnalysisClient) request(ctx context.Context, prompt string, text 
 			}
 		}
 	}
+}
+
+func (c *threatAnalysisClient) SaveModelResponses() error {
+	f, err := os.Create(mockThreatAnalysisOutputFilename)
+	if err != nil {
+		return err
+	}
+	c.debugFile = f
+	return nil
+}
+
+func (c *threatAnalysisClient) Shutdown() {
+	if c.debugFile == nil {
+		return
+	}
+	c.debugFile.Close()
+	c.debugFile = nil
 }

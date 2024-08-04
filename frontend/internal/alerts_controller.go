@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -25,9 +24,6 @@ import (
 
 const llmRequestTimeoutSeconds = 60
 const llmChannelSize = 3
-
-const mockLlavaOutput = "/tmp/llava.txt"
-const mockOpenAIOutput = "/tmp/openai.txt"
 
 // Alert coming from the image-acquirer via MQTT
 type alertMQTT struct {
@@ -63,7 +59,7 @@ func (s alertEvent) copy() alertEvent {
 type AlertsController struct {
 	eventsPaused       atomic.Bool
 	sseCh              chan SSEEvent
-	llavaClient        llamacpp.Client
+	llavaClient        *llamacpp.Client
 	prompts            *prompts.PromptsContainer
 	threatAnalysisCl   *threatAnalysisClient
 	openAIPrompt       string
@@ -73,8 +69,6 @@ type AlertsController struct {
 	threatAnalysis     AtomicString
 	llmCh              chan alertEvent
 	saveModelResponses bool
-	llavaFile          *os.File
-	openaiFile         *os.File
 }
 
 // Ensure that ch is a buffered channel - if the channel is not buffered,
@@ -102,7 +96,7 @@ func NewAlertsController(ch chan SSEEvent, llavaURL, promptsFile, openAIModel, o
 
 	c := AlertsController{
 		sseCh:            ch,
-		llavaClient:      *llavaClient,
+		llavaClient:      llavaClient,
 		prompts:          prompts,
 		threatAnalysisCl: newThreatAnalysisClient(openAIURL, openAIModel),
 		openAIPrompt:     openAIPrompt,
@@ -112,30 +106,30 @@ func NewAlertsController(ch chan SSEEvent, llavaURL, promptsFile, openAIModel, o
 }
 
 func (controller *AlertsController) Shutdown() {
-	if controller.llavaFile != nil {
-		controller.llavaFile.Close()
-		controller.llavaFile = nil
+	if controller.llavaClient != nil {
+		controller.llavaClient.Shutdown()
+		controller.llavaClient = nil
 	}
-	if controller.openaiFile != nil {
-		controller.openaiFile.Close()
-		controller.openaiFile = nil
+	if controller.threatAnalysisCl != nil {
+		controller.threatAnalysisCl.Shutdown()
+		controller.threatAnalysisCl = nil
 	}
 }
 
 // Used to save mock data
 func (controller *AlertsController) SaveModelResponses() {
 	controller.saveModelResponses = true
-	var err error
-	controller.llavaFile, err = os.Create(mockLlavaOutput)
-	if err != nil {
-		log.Printf("could not create %s: %v", mockLlavaOutput, err)
+	if controller.llavaClient != nil {
+		if err := controller.llavaClient.SaveModelResponses(); err != nil {
+			log.Printf("could not create mock llava output file: %v", err)
+		}
 	}
-	llamacpp.WithDebugFile(controller.llavaFile)(&controller.llavaClient)
-	controller.openaiFile, err = os.Create(mockOpenAIOutput)
-	if err != nil {
-		log.Printf("could not create %s: %v", mockOpenAIOutput, err)
+
+	if controller.threatAnalysisCl != nil {
+		if err := controller.threatAnalysisCl.SaveModelResponses(); err != nil {
+			log.Printf("could not create mock threat analysis output file: %v", err)
+		}
 	}
-	controller.threatAnalysisCl.debugFile = controller.openaiFile
 }
 
 // PromptHandler gets invoked when a REST call is made to list the available prompts or to set the prompt
