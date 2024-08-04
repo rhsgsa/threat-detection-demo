@@ -1,0 +1,30 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    openshift.io/display-name: llava
+  labels:
+    app: llava
+    opendatahub.io/dashboard: 'true'
+    #networking.knative.dev/visibility: cluster-local # to disable route creation
+  name: llava
+spec:
+  predictor:
+    minReplicas: 1
+    maxReplicas: 1
+    model:
+      modelFormat:
+        name: gguf
+      resources:
+        requests:
+          cpu: "1"
+          memory: 4Gi
+          nvidia.com/gpu: "2"
+        limits:
+          cpu: "4"
+          memory: 16Gi
+          nvidia.com/gpu: "2"
+      runtime: llava
+      storage:
+        key: aws-connection-models
+        path: /llava/

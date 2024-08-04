@@ -1,0 +1,58 @@
+apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
+metadata:
+  annotations:
+    opendatahub.io/apiProtocol: REST
+    opendatahub.io/accelerator-name: migrated-gpu
+    opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
+    opendatahub.io/template-display-name: llamacpp ServingRuntime for KServe
+    opendatahub.io/template-name: llamacpp
+    openshift.io/display-name: llava
+  labels:
+    opendatahub.io/dashboard: "true"
+  name: llava
+spec:
+  annotations:
+    prometheus.io/path: /metrics
+    prometheus.io/port: "8080"
+  multiModel: false
+  supportedModelFormats:
+  - name: gguf
+    autoSelect: true
+  containers:
+  - name: kserve-container
+    image: ghcr.io/ggerganov/llama.cpp:server-cuda
+    ports:
+    - containerPort: 8080
+    command:
+    - /bin/bash
+    - "-c"
+    - |
+      model="$(ls /mnt/models/ | head -1)"
+      if [ -z "$model" ]; then
+        echo "could not get model file"
+        exit 1
+      fi
+      echo "using model filename $model"
+      exec /llama-server --metrics -m "/mnt/models/$model" -ngl 999 --host 0.0.0.0 --port 8080 -c $MAX_TOKENS_CONTEXT -n $MAX_TOKENS_PREDICT
+    env:
+    - name: "MAX_TOKENS_CONTEXT"
+      value: "4096"
+    - name: "MAX_TOKENS_PREDICT"
+      value: "1000"
+    livenessProbe:
+     httpGet:
+       path: /health
+       port: 8080
+     initialDelaySeconds: 600
+    readinessProbe:
+     httpGet:
+       path: /health
+       port: 8080
+    volumeMounts:
+    - name: dshm
+      mountPath: /dev/shm
+  volumes:
+  - name: dshm
+    emptyDir:
+      medium: Memory

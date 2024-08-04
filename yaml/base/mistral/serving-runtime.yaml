@@ -1,0 +1,78 @@
+apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
+metadata:
+  annotations:
+    opendatahub.io/apiProtocol: REST
+    opendatahub.io/accelerator-name: managed-gpu
+    opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
+    opendatahub.io/template-display-name: vLLM OpenAI ServingRuntime for KServe
+    opendatahub.io/template-name: vllm-openai-runtime
+    openshift.io/display-name: mistral
+  labels:
+    opendatahub.io/dashboard: "true"
+  name: mistral
+spec:
+  annotations:
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/metrics"
+  multiModel: false
+  supportedModelFormats:
+  - name: vllm
+    autoSelect: true
+  containers:
+  - name: kserve-container
+    image: docker.io/vllm/vllm-openai:v0.4.0
+    #image: docker.io/kserve/vllmserver:latest
+    workingDir: /root
+    args:
+    - "--port"
+    - "8080"
+    - "--model"
+    - "/mnt/models"
+    command:
+    - python3
+    - "-m"
+    - vllm.entrypoints.openai.api_server
+    - "--gpu-memory-utilization"
+    - "0.9"
+    - "--dtype=half"
+    - "--tensor-parallel-size"
+    - "2"
+    - "--max-model-len"
+    - "2048"
+    #- "--trust-remote-code"
+    #- vllm.entrypoints.api_server
+    ports:
+    - containerPort: 8080
+      protocol: TCP
+    env:
+    - name: HOME # needed because we need to write to $HOME/.cache
+      value: /root
+    - name: PYTHONPATH
+      value: /workspace
+    volumeMounts:
+    - name: home
+      mountPath: /root
+    - name: shm
+      mountPath: /dev/shm
+    livenessProbe:
+      httpGet:
+        path: /version
+        port: 8080
+      initialDelaySeconds: 240
+    readinessProbe:
+      httpGet:
+        path: /version
+        port: 8080
+      initialDelaySeconds: 30
+  volumes:
+  - name: home
+    emptyDir: {}
+  - name: shm
+    emptyDir:
+      medium: Memory
+      sizeLimit: 2Gi
+  tolerations:
+    - key: nvidia.com/gpu
+      operator: "Exists"
+      effect: NoSchedule

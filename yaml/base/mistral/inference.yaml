@@ -1,0 +1,31 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    openshift.io/display-name: mistral
+    serving.kserve.io/enable-prometheus-scraping: "true"
+  labels:
+    app: mistral
+    opendatahub.io/dashboard: 'true'
+    #networking.knative.dev/visibility: cluster-local # to disable route creation
+  name: mistral
+spec:
+  predictor:
+    minReplicas: 1
+    maxReplicas: 1
+    model:
+      modelFormat:
+        name: vllm
+      resources:
+        requests:
+          cpu: "1"
+          memory: 16Gi
+          nvidia.com/gpu: "2"
+        limits:
+          cpu: "2"
+          memory: 32Gi
+          nvidia.com/gpu: "2"
+      runtime: mistral
+      storage:
+        key: aws-connection-models
+        path: /mistral/
