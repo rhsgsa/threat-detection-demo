@@ -279,11 +279,11 @@ function Dashboard2 () {
         setPrompt(obj.id);
         });
 
-        evtSource.addEventListener("ollama_response_start", event => {
+        evtSource.addEventListener("llava_response_start", event => {
         setLLMResponse('');
         });
 
-        evtSource.addEventListener("ollama_response", event => {
+        evtSource.addEventListener("llava_response", event => {
         const obj = JSON.parse(event.data);
         setLLMResponse(oldResponse => oldResponse + obj.response);
         });

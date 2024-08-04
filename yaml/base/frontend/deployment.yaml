@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"StatefulSet","name":"ollama"},{"apiVersion":"apps/v1","kind":"Deployment","name":"mosquitto"}]'
+    app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"StatefulSet","name":"llava"},{"apiVersion":"apps/v1","kind":"Deployment","name":"mosquitto"}]'
   labels:
     app: frontend
   name: frontend
@@ -31,10 +31,8 @@ spec:
           value: "-1s"
         - name: ALERTSTOPIC
           value: alerts
-        - name: OLLAMAURL
-          value: http://ollama:11434/api/generate
-        - name: OLLAMAMODEL
-          value: "llava:34b-v1.6"
+        - name: LLAVAURL
+          value: http://llava:8080
         - name: PROMPTS
           value: "/frontend/config/prompts.txt"
         - name: OPENAIMODEL

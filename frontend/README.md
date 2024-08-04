@@ -7,15 +7,13 @@
 |`ALERTSTOPIC`|`alerts`|MQTT topic for incoming alerts|
 `CORS`||Value of `Access-Control-Allow-Origin` HTTP header - header will not be set if this is not set|
 |`DOCROOT`||HTML document root - will use the embedded docroot if not specified|
-|`KEEPALIVE`|`300m`|The duration that Ollama should keep the model in memory|
+|`LLAVAURL`|`http://localhost:8000`|URL for the Llava `llama.cpp` REST endpoint|
 |`MQTTBROKER`|`tcp://localhost:1883`|MQTT broker URL|
-|`OLLAMAMODEL`|`llava`|Model name used in query to Ollama|
-|`OLLAMAURL`|`http://localhost:11434/api/generate`|URL for the Ollama REST endpoint|
 |`OPENAIMODEL`|`/mnt/models`|Model for the OpenAI API|
 |`OPENAIPROMPT`||The prompt to be sent to the OpenAI model|
 |`OPENAIURL`|`http://localhost:8012/v1`|URL for the OpenAI API|
 |`PORT`|`8080`|Web server port|
-|`PROMPTS`||Path to file containing prompts for Ollama - will use hardcoded prompts if this is not set|
+|`PROMPTS`||Path to file containing prompts for Llava - will use hardcoded prompts if this is not set|
 
 
 ## Prompts File
@@ -37,7 +35,7 @@
 
 ## Testing with mocks
 
-*   Start up mock `image-acquirer`, `frontend`, mock `ollama`, mock `openai`, then bring `frontend` container down
+*   Start up mock `image-acquirer`, `frontend`, mock `llava`, mock `openai`, then bring `frontend` container down
 
 		docker compose -f ../yaml/docker-compose/frontend-with-mocks.yaml up
 

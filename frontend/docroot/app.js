@@ -3,8 +3,8 @@ var photo = null;
 var rawImage = null;
 var annotatedImage = null;
 var showAnnotated = null;
-var ollamaResponse = null;
-var ollamaResponseSpinner = null;
+var llavaResponse = null;
+var llavaResponseSpinner = null;
 var openaiResponse = null;
 var openaiResponseSpinner = null;
 var prompt = null;
@@ -119,25 +119,25 @@ function loadCurrentState() {
     if ((response.annotated_image != null && response.annotated_image != "") || (response.raw_image != null && response.raw_image != "")) refreshPhoto();
     if (response.timestamp != null) setTimestamp(response.timestamp);
     if (response.prompt != null) setPrompt(response.prompt);
-    if (response.image_analysis != null) ollamaResponse.value = response.image_analysis;
+    if (response.image_analysis != null) llavaResponse.value = response.image_analysis;
     if (response.threat_analysis != null) openaiResponse.value = response.threat_analysis;
     if (response.events_paused != null) response.events_paused?showResumeButton():hideResumeButton();
   })
   .catch(error => {console.log(error);showMessage(error);});
 }
 
-function showOllamaResponseSpinner(event) {
-  ollamaResponse.value = '';
-  ollamaResponse.style.display = 'none';
-  ollamaResponseSpinner.style.display = 'block';
+function showLlavaResponseSpinner(event) {
+  llavaResponse.value = '';
+  llavaResponse.style.display = 'none';
+  llavaResponseSpinner.style.display = 'block';
 }
 
-function hideOllamaResponseSpinner(event) {
-  ollamaResponseSpinner.style.display = 'none';
-  ollamaResponse.style.display = 'block';
+function hideLlavaResponseSpinner(event) {
+  llavaResponseSpinner.style.display = 'none';
+  llavaResponse.style.display = 'block';
 }
 
-function processOllamaResponse(event) {
+function processLlavaResponse(event) {
   if (event == null || event.data == null) return;
   let obj = null;
   try {
@@ -147,7 +147,7 @@ function processOllamaResponse(event) {
     console.log(event);
   }
   if (obj == null || obj.response == null) return;
-  ollamaResponse.value += obj.response;
+  llavaResponse.value += obj.response;
 }
 
 function showOpenaiResponseSpinner(event) {
@@ -202,7 +202,7 @@ function processTimestampEvent(event) {
     sound.play();
   }
 
-  showOllamaResponseSpinner();
+  showLlavaResponseSpinner();
   showOpenaiResponseSpinner();
 }
 
@@ -219,7 +219,7 @@ function processImageEvent(event) {
 function resumeEvents() {
   fetch('/api/resumeevents');
   clearPhoto();
-  ollamaResponse.value = "";
+  llavaResponse.value = "";
   openaiResponse.value = "";
 }
 
@@ -237,8 +237,8 @@ function startup() {
   clearPhoto();
 
   showAnnotated = document.getElementById('show-annotated');
-  ollamaResponse = document.getElementById('ollama-response');
-  ollamaResponseSpinner = document.getElementById('ollama-response-spinner');
+  llavaResponse = document.getElementById('llava-response');
+  llavaResponseSpinner = document.getElementById('llava-response-spinner');
   openaiResponse = document.getElementById('openai-response');
   openaiResponseSpinner = document.getElementById('openai-response-spinner');
   prompt = document.getElementById('prompt');
@@ -251,8 +251,8 @@ function startup() {
   evtSource.addEventListener("timestamp", processTimestampEvent);
   evtSource.addEventListener("annotated_image", processImageEvent);
   evtSource.addEventListener("raw_image", processImageEvent);
-  evtSource.addEventListener("ollama_response", processOllamaResponse);
-  evtSource.addEventListener("ollama_response_start", hideOllamaResponseSpinner);
+  evtSource.addEventListener("llava_response", processLlavaResponse);
+  evtSource.addEventListener("llava_response_start", hideLlavaResponseSpinner);
   evtSource.addEventListener("openai_response", processOpenaiResponse);
   evtSource.addEventListener("openai_response_start", hideOpenaiResponseSpinner);
   evtSource.addEventListener("prompt", processPromptEvent);

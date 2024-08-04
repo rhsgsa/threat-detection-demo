@@ -4,4 +4,3 @@ kind: Kustomization
 resources:
 - ../../base/frontend
 - ../../base/mqtt
-- ../../base/ollama

@@ -14,27 +14,27 @@ import (
 	"github.com/kwkoo/threat-detection-frontend/internal"
 )
 
-// Test that the AlertsController makes a request to ollama whenever an MQTT
+// Test that the AlertsController makes a request to llava whenever an MQTT
 // message is received
-func TestMQTTToOllama(t *testing.T) {
+func TestMQTTToLlava(t *testing.T) {
 	m := newMocks(t, "")
 	defer m.close()
 
 	// simulate alert coming in from MQTT
 	m.controller.MQTTHandler(nil, newMockMQTTMessage(`{"annotated_image":"dummyannogtated","raw_image":"dummy","timestamp":1234}`))
-	// wait for request to be received by ollama
-	m.waitForOllamaRequest()
+	// wait for request to be received by llava
+	m.waitForLlavaRequest()
 
-	if m.ollama.req.Images == nil || len(m.ollama.req.Images) == 0 {
-		t.Error("ollama did not receive any images")
-	} else if m.ollama.req.Images[0] != "dummy" {
-		t.Errorf(`ollama received an image ("%s") different from what was expected`, m.ollama.req.Images[0])
+	if m.llava.req.Images == nil || len(m.llava.req.Images) == 0 {
+		t.Error("llava did not receive any images")
+	} else if m.llava.req.Images[0] != "dummy" {
+		t.Errorf(`llava received an image ("%s") different from what was expected`, m.llava.req.Images[0])
 	} else {
-		t.Log("ollama received the raw image correctly")
+		t.Log("llava received the raw image correctly")
 	}
 }
 
-// Test that the AlertsController makes a request to ollama and openai
+// Test that the AlertsController makes a request to llava and openai
 // whenever a REST call is made to change the prompt
 // Also test that the appropriate SSE events are sent
 func TestSetPrompt(t *testing.T) {
@@ -70,28 +70,28 @@ func TestSetPrompt(t *testing.T) {
 
 	// simulate alert coming in from MQTT
 	m.controller.MQTTHandler(nil, mockMQTTMessage{[]byte(`{"annotated_image":"dummy","raw_image":"dummy","timestamp":1234}`)})
-	// wait for request to be received by ollama
-	t.Log("waiting for request to be received by ollama...")
-	<-m.ollama.requestReceived
-	t.Log("ollama request received")
-	m.resetOllamaRequestReceivedChannel()
+	// wait for request to be received by llava
+	t.Log("waiting for request to be received by llava...")
+	<-m.llava.requestReceived
+	t.Log("llava request received")
+	m.resetLlavaRequestReceivedChannel()
 
 	if abort := setPrompt(t, m.controller, fmt.Sprintf(`{"id":%d}`, newPromptID), false); abort {
 		return
 	}
 
-	// wait for request to be received by ollama
-	m.waitForOllamaRequest()
+	// wait for request to be received by llava
+	m.waitForLlavaRequest()
 
-	// ensure that newPrompt gets sent to ollama
-	// Note - ollama is supposed to get the descriptive prompt - however,
+	// ensure that newPrompt gets sent to llava
+	// Note - llava is supposed to get the descriptive prompt - however,
 	// we are using the default prompts so the descriptive prompts are set to
-	// the short prompts; that's why we're ok to compare ollama's prompt with
+	// the short prompts; that's why we're ok to compare llava's prompt with
 	// the short prompt
-	if m.ollama.req.Prompt == "descriptiveprompt2" {
-		t.Log("ollama prompt was set correctly")
+	if m.llava.req.Prompt == "descriptiveprompt2" {
+		t.Log("llava prompt was set correctly")
 	} else {
-		t.Errorf(`ollama prompt was expected to be "descriptiveprompt2" but was "%s" instead`, m.ollama.req.Prompt)
+		t.Errorf(`llava prompt was expected to be "descriptiveprompt2" but was "%s" instead`, m.llava.req.Prompt)
 	}
 
 	// pause to allow mockSSEClient to consume the new prompt event
@@ -109,9 +109,9 @@ func TestSetPrompt(t *testing.T) {
 		t.Errorf(`expected short prompt to be "short2" but got "%s" instead`, shortPrompt.Prompt)
 	}
 
-	// ensure that ollama_response SSE events are received
-	if !m.sseEventsExist("ollama_response") {
-		t.Errorf(`did not receive expected ollama_response SSE events`)
+	// ensure that llava_response SSE events are received
+	if !m.sseEventsExist("llava_response") {
+		t.Errorf(`did not receive expected llava_response SSE events`)
 	}
 
 	// ensure that openai_response SSE events are received
@@ -143,8 +143,8 @@ func TestSetPromptREST(t *testing.T) {
 
 	// simulate alert coming in from MQTT
 	m.controller.MQTTHandler(nil, mockMQTTMessage{[]byte(`{"annotated_image":"dummy","raw_image":"dummy","timestamp":1234}`)})
-	// wait for request to be received by ollama
-	m.waitForOllamaRequest()
+	// wait for request to be received by llava
+	m.waitForLlavaRequest()
 
 	// happy case
 	setPrompt(t, m.controller, `{"id":1}`, false)

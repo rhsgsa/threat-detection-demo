@@ -35,33 +35,16 @@ services:
     - PORT=8080
     #- DOCROOT=/docroot
     - ALERTSTOPIC=alerts
-    - LLMURL=http://ollama:11434/api/generate
+    - LLMURL=http://llava:8080
     ports:
     - 8080:8080
     depends_on:
     - mqtt
 
-  ollama:
-    container_name: ollama
+  llava:
+    container_name: llava
     image: "ollama/ollama:0.1.28"
     environment:
     - OLLAMA_ORIGINS=*
     ports:
     - 11434:11434
-
-  imagepull:
-    container_name: imagepull
-    image: "docker.io/curlimages/curl:7.78.0"
-    environment:
-    - MODEL=llava
-    command:
-    - sh
-    - "-c"
-    - |
-      until curl ollama:11434 >/dev/null 2>/dev/null; do
-        sleep 5
-      done
-      echo "pulling $$MODEL..."
-      curl ollama:11434/api/pull -d '{"name":"'"$$MODEL"'"}'
-    depends_on:
-    - ollama

@@ -23,6 +23,10 @@ deploy: ensure-logged-in
 	if [ `oc get limitrange -n $(PROJ) --no-headers 2>/dev/null | wc -l` -gt 0 ]; then \
 	  oc delete -n $(PROJ) `oc get limitrange -n $(PROJ) -o name`; \
 	fi
+	oc label --overwrite ns/$(PROJ) modelmesh-enabled="false"
+	oc label --overwrite ns/$(PROJ) opendatahub.io/dashboard="true"
+	oc annotate --overwrite ns/$(PROJ) openshift.io/description="$(PROJ)"
+	oc annotate --overwrite ns/$(PROJ) openshift.io/display-name="$(PROJ)"
 	oc apply -n $(PROJ) -k $(BASE)/yaml/overlays/all-in-one/
 
 .PHONY: ensure-logged-in
@@ -291,35 +295,37 @@ upload-model:
 	oc logs -n $(PROJ) -f job/setup-s3
 	oc delete -n $(PROJ) -k $(BASE)/yaml/base/s3-job/
 
-.PHONY: deploy-llm
-deploy-llm:
+.PHONY: deploy-mistral
+deploy-mistral:
 	oc create ns $(PROJ) || echo "$(PROJ) namespace exists"
-	@echo "deploying inference service..."
-	# inference service
-	#
-	@AWS_ACCESS_KEY_ID="`oc extract secret/minio -n $(PROJ) --to=- --keys=MINIO_ROOT_USER 2>/dev/null`" \
-	&& \
-	AWS_SECRET_ACCESS_KEY="`oc extract secret/minio -n $(PROJ) --to=- --keys=MINIO_ROOT_PASSWORD 2>/dev/null`" \
-	&& \
-	echo "AWS_ACCESS_KEY_ID=$$AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$$AWS_SECRET_ACCESS_KEY" \
-	&& \
-	oc kustomize $(BASE)/yaml/base/inferenceservice/ \
-	| \
-	sed \
-	  -e "s/AWS_ACCESS_KEY_ID: .*/AWS_ACCESS_KEY_ID: $$AWS_ACCESS_KEY_ID/" \
-	  -e "s/AWS_SECRET_ACCESS_KEY: .*/AWS_SECRET_ACCESS_KEY: $$AWS_SECRET_ACCESS_KEY/" \
-	| \
-	oc apply -n $(PROJ) -f -
-	@/bin/echo -n "waiting for inferenceservice to appear..."
-	@until oc get -n $(PROJ) inferenceservice/llm >/dev/null 2>/dev/null; do \
+	@echo "deploying mistral..."
+	oc apply -n $(PROJ) -k $(BASE)/yaml/base/mistral/
+	@/bin/echo -n "waiting for mistral inferenceservice to appear..."
+	@until oc get -n $(PROJ) inferenceservice/mistral >/dev/null 2>/dev/null; do \
 	  /bin/echo -n "."; \
 	  sleep 5; \
 	done
 	@echo "done"
 
-.PHONY: clean-llm
-clean-llm:
-	oc delete -n $(PROJ) -k $(BASE)/yaml/base/inferenceservice/ || exit 0
+.PHONY: clean-mistral
+clean-mistral:
+	oc delete -n $(PROJ) -k $(BASE)/yaml/base/mistral/ || exit 0
+
+.PHONY: deploy-llava
+deploy-llava:
+	oc create ns $(PROJ) || echo "$(PROJ) namespace exists"
+	@echo "deploying mistral..."
+	oc apply -n $(PROJ) -k $(BASE)/yaml/base/llava/
+	@/bin/echo -n "waiting for llava inferenceservice to appear..."
+	@until oc get -n $(PROJ) inferenceservice/llava >/dev/null 2>/dev/null; do \
+	  /bin/echo -n "."; \
+	  sleep 5; \
+	done
+	@echo "done"
+
+.PHONY: clean-llava
+clean-llava:
+	oc delete -n $(PROJ) -k $(BASE)/yaml/base/llava/ || exit 0
 
 .PHONY: configure-user-workload-monitoring
 configure-user-workload-monitoring:

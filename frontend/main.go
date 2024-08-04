@@ -28,10 +28,8 @@ type Config struct {
 	AlertsTopic        string `usage:"MQTT topic for incoming alerts" default:"alerts"`
 	CORS               string `usage:"Value of Access-Control-Allow-Origin HTTP header - header will not be set if this is not set"`
 	Docroot            string `usage:"HTML document root - will use the embedded docroot if not specified"`
-	KeepAlive          string `usage:"The duration that Ollama should keep the model in memory" default:"300m"`
 	MQTTBroker         string `usage:"MQTT broker URL" default:"tcp://localhost:1883" mandatory:"true"`
-	OllamaModel        string `usage:"Model name used in query to Ollama" default:"llava"`
-	OllamaURL          string `usage:"URL for the LLM REST endpoint" default:"http://localhost:11434/api/generate"`
+	LlavaURL           string `usage:"URL for the LLM REST endpoint" default:"http://localhost:8000"`
 	OpenAIModel        string `usage:"Model for the OpenAI API" default:"/mnt/models"`
 	OpenAIPrompt       string `usage:"The prompt to be sent to the OpenAI model" default:"Does the text in the following paragraph describe a dangerous situation - answer yes or no"`
 	OpenAIURL          string `usage:"URL for the OpenAI API" default:"http://localhost:8012/v1"`
@@ -60,7 +58,7 @@ func main() {
 		wg.Done()
 	}()
 
-	alertsController := internal.NewAlertsController(sseCh, config.OllamaURL, config.OllamaModel, config.KeepAlive, config.Prompts, config.OpenAIModel, config.OpenAIPrompt, config.OpenAIURL)
+	alertsController := internal.NewAlertsController(sseCh, config.LlavaURL, config.Prompts, config.OpenAIModel, config.OpenAIPrompt, config.OpenAIURL)
 	if config.SaveModelResponses {
 		alertsController.SaveModelResponses()
 	}

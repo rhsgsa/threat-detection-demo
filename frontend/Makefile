@@ -21,8 +21,7 @@ remote:
 	oc port-forward -n demo svc/llm-internal 8012:8012 & echo $$! > /tmp/port-forward-kserve.pid
 	sleep 3
 	-DOCROOT=$(BASE)/docroot \
-	 OLLAMAMODEL="llava:34b-v1.6" \
-	 OLLAMAURL=http://`oc get -n demo route/ollama -o jsonpath='{.spec.host}'`/api/generate \
+	 LLAVAURL=http://`oc get -n demo route/llava -o jsonpath='{.spec.host}'` \
 	 OPENAIPROMPT="You are tailored to provide concise threat assessments. Reply with the level of threat, either low, medium or high. Explanations for assessments are not provided, maintaining a focus on clear, concise classification without additional commentary." \
 	 PROMPTS=$(BASE)/../mocks/prompts.txt \
 	 SAVEMODELRESPONSES=false \

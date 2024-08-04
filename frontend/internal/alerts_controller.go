@@ -5,13 +5,11 @@ package internal
 // sends REST calls to the LLM.
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -22,13 +20,13 @@ import (
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/kwkoo/threat-detection-frontend/internal/prompts"
-	"github.com/sashabaranov/go-openai"
+	"github.com/kwkoo/threat-detection-frontend/llamacpp"
 )
 
 const llmRequestTimeoutSeconds = 60
 const llmChannelSize = 3
 
-const mockOllamaOutput = "/tmp/ollama.txt"
+const mockLlavaOutput = "/tmp/llava.txt"
 const mockOpenAIOutput = "/tmp/openai.txt"
 
 // Alert coming from the image-acquirer via MQTT
@@ -65,26 +63,23 @@ func (s alertEvent) copy() alertEvent {
 type AlertsController struct {
 	eventsPaused       atomic.Bool
 	sseCh              chan SSEEvent
-	ollamaURL          string
-	ollamaModel        string
-	keepAlive          string
+	llavaClient        llamacpp.Client
 	prompts            *prompts.PromptsContainer
-	openAIModel        string
+	threatAnalysisCl   *threatAnalysisClient
 	openAIPrompt       string
-	openAIURL          string
 	latestAlert        alertEvent
 	latestAlertMux     sync.RWMutex
 	imageAnalysis      AtomicString
 	threatAnalysis     AtomicString
 	llmCh              chan alertEvent
 	saveModelResponses bool
-	ollamaFile         *os.File
+	llavaFile          *os.File
 	openaiFile         *os.File
 }
 
 // Ensure that ch is a buffered channel - if the channel is not buffered,
 // sending events to this channel will fail
-func NewAlertsController(ch chan SSEEvent, ollamaURL, ollamaModel, keepAlive, promptsFile, openAIModel, openAIPrompt, openAIURL string) *AlertsController {
+func NewAlertsController(ch chan SSEEvent, llavaURL, promptsFile, openAIModel, openAIPrompt, openAIURL string) *AlertsController {
 	if cap(ch) < 1 {
 		log.Fatal("SSEEvent channel cannot be unbuffered")
 	}
@@ -94,30 +89,32 @@ func NewAlertsController(ch chan SSEEvent, ollamaURL, ollamaModel, keepAlive, pr
 		log.Fatal(err)
 	}
 
-	log.Printf("alerts controller initializing with ollamaURL=%s, ollamaModel=%s, keepAlive=%s, openAIModel=%s, openAIPrompt=%s, openAIURL=%s", ollamaURL, ollamaModel, keepAlive, openAIModel, openAIPrompt, openAIURL)
+	log.Printf("alerts controller initializing with llavaURL=%s, openAIModel=%s, openAIPrompt=%s, openAIURL=%s", llavaURL, openAIModel, openAIPrompt, openAIURL)
 
 	if openAIURL == "" {
-		log.Print("openAIURL is not set so we will not call it - will stream Ollama responses to client")
+		log.Print("openAIURL is not set so we will not call it - will stream Llava responses to client")
+	}
+
+	llavaClient, err := llamacpp.NewClient(llavaURL, llamacpp.WithRequestTimeout(llmRequestTimeoutSeconds*time.Second))
+	if err != nil {
+		log.Fatalf("could not instantiate llava client: %v", err)
 	}
 
 	c := AlertsController{
-		sseCh:        ch,
-		ollamaURL:    ollamaURL,
-		ollamaModel:  ollamaModel,
-		keepAlive:    keepAlive,
-		prompts:      prompts,
-		openAIModel:  openAIModel,
-		openAIPrompt: openAIPrompt,
-		openAIURL:    openAIURL,
-		llmCh:        make(chan alertEvent, llmChannelSize),
+		sseCh:            ch,
+		llavaClient:      *llavaClient,
+		prompts:          prompts,
+		threatAnalysisCl: newThreatAnalysisClient(openAIURL, openAIModel),
+		openAIPrompt:     openAIPrompt,
+		llmCh:            make(chan alertEvent, llmChannelSize),
 	}
 	return &c
 }
 
 func (controller *AlertsController) Shutdown() {
-	if controller.ollamaFile != nil {
-		controller.ollamaFile.Close()
-		controller.ollamaFile = nil
+	if controller.llavaFile != nil {
+		controller.llavaFile.Close()
+		controller.llavaFile = nil
 	}
 	if controller.openaiFile != nil {
 		controller.openaiFile.Close()
@@ -129,14 +126,16 @@ func (controller *AlertsController) Shutdown() {
 func (controller *AlertsController) SaveModelResponses() {
 	controller.saveModelResponses = true
 	var err error
-	controller.ollamaFile, err = os.Create(mockOllamaOutput)
+	controller.llavaFile, err = os.Create(mockLlavaOutput)
 	if err != nil {
-		log.Printf("could not create %s: %v", mockOllamaOutput, err)
+		log.Printf("could not create %s: %v", mockLlavaOutput, err)
 	}
+	llamacpp.WithDebugFile(controller.llavaFile)(&controller.llavaClient)
 	controller.openaiFile, err = os.Create(mockOpenAIOutput)
 	if err != nil {
 		log.Printf("could not create %s: %v", mockOpenAIOutput, err)
 	}
+	controller.threatAnalysisCl.debugFile = controller.openaiFile
 }
 
 // PromptHandler gets invoked when a REST call is made to list the available prompts or to set the prompt
@@ -325,28 +324,12 @@ func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 				Data:      []byte(event.prompt.GetJSONBytes()),
 			})
 
-			ollamaReq := struct {
-				Model     string   `json:"model"`
-				KeepAlive string   `json:"keep_alive"`
-				Stream    bool     `json:"stream"`
-				Prompt    string   `json:"prompt"`
-				Images    []string `json:"images,omitempty"`
-			}{
-				Model:     controller.ollamaModel,
-				KeepAlive: controller.keepAlive,
-				Stream:    true,
-				Prompt:    event.prompt.Descriptive,
-			}
+			llavaReq := controller.llavaClient.NewCompletionPayload(event.prompt.Descriptive)
 			if event.rawImage != nil {
-				ollamaReq.Images = []string{string(event.rawImage)}
+				llavaReq.AddBase64Image(string(event.rawImage))
 			}
-
-			payload, err := json.Marshal(ollamaReq)
-			if err != nil {
-				log.Printf("error trying to marshal JSON for LLM request: %v", err)
-				continue
-			}
-			controller.ollamaRequest(ctx, payload)
+			llavaReq.SetStream(true)
+			controller.llavaRequest(ctx, *llavaReq)
 			controller.sseCh <- SSEEvent{
 				EventType: "pause_events",
 				Data:      nil,
@@ -355,92 +338,50 @@ func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 	}
 }
 
-func (controller *AlertsController) ollamaRequest(parentCtx context.Context, payload []byte) {
-	ctx, cancel := context.WithTimeout(parentCtx, llmRequestTimeoutSeconds*time.Second)
-	defer cancel()
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, controller.ollamaURL, bytes.NewReader(payload))
-	if err != nil {
-		log.Printf("error creating request to %s: %v", controller.ollamaURL, err)
-		return
-	}
-
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		log.Printf("error making request to %s: %v", controller.ollamaURL, err)
-		return
-	}
-	log.Printf("LLM response status code %d", res.StatusCode)
-	if res.StatusCode != 200 {
-		log.Print("skipping processing of LLM response")
-		return
-	}
-	defer res.Body.Close()
+func (controller *AlertsController) llavaRequest(parentCtx context.Context, payload llamacpp.CompletionPayload) {
+	ch := make(chan llamacpp.CompletionResponse)
+	controller.llavaClient.Completion(parentCtx, ch, payload)
 	controller.sendToSSECh(SSEEvent{
-		EventType: "ollama_response_start",
+		EventType: "llava_response_start",
 		Data:      nil,
 	})
-
 	var b bytes.Buffer
-	scanner := bufio.NewScanner(res.Body)
-	scanner.Split(bufio.ScanLines)
-	for scanner.Scan() {
-		text := scanner.Text()
-		if controller.ollamaFile != nil {
-			controller.ollamaFile.WriteString(text)
-			controller.ollamaFile.Write([]byte{'\n'})
-		}
-		decodedResponse, err := decodeOllamaResponse(text)
-		if err != nil {
-			log.Print(err)
+	for resp := range ch {
+		if resp.Err != nil {
+			log.Printf("received error from llava: %v", resp.Err)
 			continue
 		}
-		b.WriteString(decodedResponse)
-
 		controller.sendToSSECh(SSEEvent{
-			EventType: "ollama_response",
-			Data:      []byte(text),
+			EventType: "llava_response",
+			Data:      []byte(resp.Content),
 		})
+		b.WriteString(resp.Content)
 	}
 	controller.sendToSSECh(SSEEvent{
-		EventType: "ollama_response_stop",
+		EventType: "llava_response_stop",
 		Data:      nil,
 	})
 
 	llmResponse := b.String()
 	controller.imageAnalysis.Store(llmResponse)
 
-	if controller.openAIURL != "" {
-		// make request to OpenAI API here, passing it the prompt and the response from Ollama
-		if err := controller.openAIRequest(parentCtx, llmResponse); err != nil {
+	if controller.threatAnalysisCl != nil {
+		// make request to OpenAI API here, passing it the prompt and the response from Llava
+		if err := controller.threatAnalysisRequest(parentCtx, llmResponse); err != nil {
 			log.Printf("error making openai request: %v", err)
 			return
 		}
 		return
 	}
-
 }
 
-func (controller *AlertsController) openAIRequest(ctx context.Context, text string) error {
-	config := openai.DefaultConfig("dummy")
-	config.BaseURL = controller.openAIURL
-	client := openai.NewClientWithConfig(config)
-	req := openai.ChatCompletionRequest{
-		Model:       controller.openAIModel,
-		Temperature: 0,
-		N:           1,
-		Messages: []openai.ChatCompletionMessage{
-			{
-				Role:    "user",
-				Content: controller.openAIPrompt + "\n\n" + text,
-			},
-		},
-	}
-
-	stream, err := client.CreateChatCompletionStream(ctx, req)
-	if err != nil {
-		return fmt.Errorf("error creating openai chat completion stream: %w", err)
-	}
-	defer stream.Close()
+func (controller *AlertsController) threatAnalysisRequest(ctx context.Context, text string) error {
+	ctx, cancelRequest := context.WithCancel(ctx)
+	ch := make(chan threatAnalysisResponse)
+	go func() {
+		controller.threatAnalysisCl.request(ctx, controller.openAIPrompt, text, ch)
+	}()
+	defer cancelRequest()
 	defer controller.sendToSSECh(SSEEvent{
 		EventType: "openai_response_stop",
 		Data:      nil,
@@ -455,39 +396,31 @@ func (controller *AlertsController) openAIRequest(ctx context.Context, text stri
 		EventType: "openai_response_start",
 		Data:      nil,
 	})
-	for {
-		resp, err := stream.Recv()
-		if errors.Is(err, io.EOF) {
-			return nil
+	for resp := range ch {
+		if resp.err != nil {
+			return resp.err
 		}
+		message := struct {
+			Model    string `json:"model"`
+			Response string `json:"response"`
+			Done     bool   `json:"true"`
+		}{
+			Model:    "openai",
+			Response: resp.content,
+			Done:     resp.done,
+		}
+		marshaled, err := json.Marshal(&message)
 		if err != nil {
-			return fmt.Errorf("error receiving openai stream response: %w", err)
+			log.Printf("error converting openai stream response to json: %v", err)
+			continue
 		}
-		if controller.openaiFile != nil {
-			json.NewEncoder(controller.openaiFile).Encode(resp)
-		}
-		for _, choice := range resp.Choices {
-			message := struct {
-				Model    string `json:"model"`
-				Response string `json:"response"`
-				Done     bool   `json:"true"`
-			}{
-				Model:    "openai",
-				Response: choice.Delta.Content,
-				Done:     choice.FinishReason == openai.FinishReasonStop,
-			}
-			marshaled, err := json.Marshal(&message)
-			if err != nil {
-				log.Printf("error converting openai stream response to json: %v", err)
-				continue
-			}
-			llmResponse.WriteString(message.Response)
-			controller.sendToSSECh((SSEEvent{
-				EventType: "openai_response",
-				Data:      marshaled,
-			}))
-		}
+		llmResponse.WriteString(message.Response)
+		controller.sendToSSECh((SSEEvent{
+			EventType: "openai_response",
+			Data:      marshaled,
+		}))
 	}
+	return nil
 }
 
 func (controller *AlertsController) sendToSSECh(event SSEEvent) error {
@@ -516,20 +449,4 @@ func (controller *AlertsController) setLatestAlert(newAlert alertEvent) {
 	controller.latestAlertMux.Lock()
 	controller.latestAlert = newAlert.copy()
 	controller.latestAlertMux.Unlock()
-}
-
-// extracts response field from JSON
-func decodeOllamaResponse(j string) (string, error) {
-	if j == "" {
-		return "", errors.New("unexpected response from ollama - did not contain JSON")
-	}
-
-	// parse res.Body as JSON - grab response field
-	ollamaResponse := struct {
-		Response string `json:"response"`
-	}{}
-	if err := json.Unmarshal([]byte(j), &ollamaResponse); err != nil {
-		return "", fmt.Errorf("error trying to decode ollama response: %v", err)
-	}
-	return ollamaResponse.Response, nil
 }

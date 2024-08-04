@@ -73,7 +73,7 @@ sequenceDiagram
 
 01. Deploy all components
 
-		make configure-infra deploy-llm deploy
+		make configure-infra deploy-mistral deploy
 	
 	This does the following:
 
@@ -86,7 +86,7 @@ sequenceDiagram
 	*   Deloys Minio
 	*   Uploads the mistral model to Minio
 	*   Deploy KServe / vLLM with mistral
-	*   Deploys the `image-acquirer`, `mosquitto`, `fontend`, `ollama` with `llava`
+	*   Deploys the `image-acquirer`, `mosquitto`, `fontend`, KServe / `llama.cpp` with `llava`
 
 01. If you wish to use a different video for the `image-acquirer`,
 
@@ -121,7 +121,7 @@ To run all components on your local computer with `docker compose`
 
 ## Frontend with mocks
 
-If you wish to make changes to the static content for the frontend, you can run the frontend with a mock `image-acquirer`, mock `ollama` and a mock `openai`
+If you wish to make changes to the static content for the frontend, you can run the frontend with a mock `image-acquirer`, mock `llava` and a mock `openai`
 
 	cd yaml/docker-compose
 

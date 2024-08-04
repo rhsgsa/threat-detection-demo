@@ -31,7 +31,7 @@ spec:
           exec python3 ./s3_utils.py
         env:
         - name: MODELS
-          value: /data/mistral.txt
+          value: "/data/mistral.txt,/data/llava.txt"
         - name: AWS_ACCESS_KEY_ID
           valueFrom:
             secretKeyRef:

@@ -14,7 +14,7 @@ import (
 	"github.com/kwkoo/threat-detection-frontend/internal"
 )
 
-type mockOllamaReq struct {
+type mockLlavaReq struct {
 	Model  string   `json:"model"`
 	Prompt string   `json:"prompt"`
 	Images []string `json:"images"`
@@ -31,9 +31,9 @@ type mocks struct {
 	ctx        context.Context    // for goroutines
 	cancel     context.CancelFunc // for goroutines
 	controller *internal.AlertsController
-	ollama     struct {
+	llava      struct {
 		httpServer      *httptest.Server
-		req             mockOllamaReq
+		req             mockLlavaReq
 		requestReceived chan struct{} // channel is closed when a request is received
 	}
 	openai struct {
@@ -49,9 +49,9 @@ type mocks struct {
 func newMocks(t *testing.T, promptsFile string) *mocks {
 	m := mocks{
 		t: t,
-		ollama: struct {
+		llava: struct {
 			httpServer      *httptest.Server
-			req             mockOllamaReq
+			req             mockLlavaReq
 			requestReceived chan struct{} // channel is closed when a request is received
 		}{},
 		openai: struct{ httpServer *httptest.Server }{},
@@ -64,19 +64,17 @@ func newMocks(t *testing.T, promptsFile string) *mocks {
 			events: []internal.SSEEvent{},
 		},
 	}
-	m.ollama.httpServer = httptest.NewServer(http.HandlerFunc(m.ollamaHandler))
+	m.llava.httpServer = httptest.NewServer(http.HandlerFunc(m.llavaHandler))
 	m.openai.httpServer = httptest.NewServer(http.HandlerFunc(m.openaiHandler))
 	m.controller = internal.NewAlertsController(
 		m.sseClient.ch,
-		m.ollama.httpServer.URL,
-		"dummy-model",
-		"-1s", // keepalive
+		m.llava.httpServer.URL,
 		promptsFile,
 		"/mnt/models",
 		"dummy prompt",
 		m.openai.httpServer.URL,
 	)
-	m.resetOllamaRequestReceivedChannel()
+	m.resetLlavaRequestReceivedChannel()
 	m.launchGoroutines()
 	return &m
 }
@@ -104,29 +102,29 @@ func (m *mocks) launchGoroutines() {
 func (m *mocks) close() {
 	time.Sleep(time.Second) // sleep to allow LLM HTTP client requests to complete
 	m.cancel()
-	m.ollama.httpServer.Close()
+	m.llava.httpServer.Close()
 	m.openai.httpServer.Close()
 	close(m.sseClient.ch)
 	m.wg.Wait()
 }
 
-func (m *mocks) ollamaHandler(w http.ResponseWriter, r *http.Request) {
+func (m *mocks) llavaHandler(w http.ResponseWriter, r *http.Request) {
 	defer func() {
-		if m.ollama.requestReceived == nil {
+		if m.llava.requestReceived == nil {
 			return
 		}
-		close(m.ollama.requestReceived)
-		m.ollama.requestReceived = nil
+		close(m.llava.requestReceived)
+		m.llava.requestReceived = nil
 	}()
-	m.t.Log("ollama handler called")
-	var req mockOllamaReq
+	m.t.Log("llava handler called")
+	var req mockLlavaReq
 	defer r.Body.Close()
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		m.t.Errorf("could not decode incoming mockOllamaReq: %v", err)
+		m.t.Errorf("could not decode incoming mockLlavaReq: %v", err)
 	}
-	m.ollama.req = req
+	m.llava.req = req
 
-	w.Write([]byte(`{"response":"dummy ollama response"}`))
+	w.Write([]byte(`{"response":"dummy llava response"}`))
 }
 
 func (m *mocks) openaiHandler(w http.ResponseWriter, r *http.Request) {
@@ -144,21 +142,21 @@ func (m *mocks) openaiHandler(w http.ResponseWriter, r *http.Request) {
 	writeSSEEvent(w, `{"id":"cmpl-dfdfa582006c4fd89e52adf0d0f32317","object":"chat.completion.chunk","created":1713497907,"model":"/mnt/models","choices":[{"index":0,"delta":{},"finish_reason":"stop","content_filter_results":{"hate":{"filtered":false},"self_harm":{"filtered":false},"sexual":{"filtered":false},"violence":{"filtered":false}}}]}`)
 }
 
-func (m *mocks) waitForOllamaRequest() {
-	if m.ollama.requestReceived == nil {
-		m.t.Error("ollama requestReceived channel is nil")
+func (m *mocks) waitForLlavaRequest() {
+	if m.llava.requestReceived == nil {
+		m.t.Error("llava requestReceived channel is nil")
 		return
 	}
-	m.t.Log("waiting for request to be received by ollama...")
-	<-m.ollama.requestReceived
-	m.t.Log("ollama request received")
+	m.t.Log("waiting for request to be received by llava...")
+	<-m.llava.requestReceived
+	m.t.Log("llava request received")
 }
 
-func (m *mocks) resetOllamaRequestReceivedChannel() {
-	if m.ollama.requestReceived != nil {
-		close(m.ollama.requestReceived)
+func (m *mocks) resetLlavaRequestReceivedChannel() {
+	if m.llava.requestReceived != nil {
+		close(m.llava.requestReceived)
 	}
-	m.ollama.requestReceived = make(chan struct{})
+	m.llava.requestReceived = make(chan struct{})
 }
 
 func (m *mocks) consumeSSEEvents(ctx context.Context) {

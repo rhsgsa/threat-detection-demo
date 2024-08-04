@@ -5,7 +5,6 @@ resources:
 - ../../base/frontend
 - ../../base/image-acquirer
 - ../../base/mqtt
-- ../../base/ollama
 - image-acquirer-configmap.yaml
 - image-acquirer-pvc.yaml
 
