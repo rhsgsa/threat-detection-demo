@@ -1,6 +1,16 @@
 package llamacpp
 
-import "encoding/base64"
+import (
+	"bytes"
+	"encoding/base64"
+	"fmt"
+	"image"
+	"image/jpeg"
+
+	"github.com/nfnt/resize"
+)
+
+const maxImageSize = 640
 
 type CompletionPayload struct {
 	Prompt      string   `json:"prompt"`
@@ -26,13 +36,35 @@ func NewCompletionPayload(prompt string) *CompletionPayload {
 
 func (payload *CompletionPayload) AddBase64Image(s string) {
 	if payload.ImageData == nil {
-		payload.ImageData = make([]Image, 1)
+		payload.ImageData = []Image{{Data: s}}
+	} else {
+		payload.ImageData = append(payload.ImageData, Image{Data: s})
 	}
-	payload.ImageData = append(payload.ImageData, Image{Data: s})
 }
 
-func (payload *CompletionPayload) AddImage(b []byte) {
+func (payload *CompletionPayload) AddImage(b []byte) error {
+	image, _, err := image.Decode(bytes.NewReader(b))
+	if err != nil {
+		return fmt.Errorf("error decoding image: %w", err)
+	}
+	imageSize := image.Bounds().Size()
+	if imageSize.X > maxImageSize || imageSize.Y > maxImageSize {
+		var newWidth, newHeight uint
+		if imageSize.X > imageSize.Y {
+			newWidth = maxImageSize
+		} else {
+			newHeight = maxImageSize
+		}
+		resizedImage := resize.Resize(newWidth, newHeight, image, resize.Lanczos3)
+		var buf bytes.Buffer
+		if err := jpeg.Encode(&buf, resizedImage, nil); err != nil {
+			return fmt.Errorf("error converting resized image to jpeg: %w", err)
+		}
+		b = buf.Bytes()
+	}
+
 	payload.AddBase64Image(base64.StdEncoding.EncodeToString(b))
+	return nil
 }
 
 func (payload *CompletionPayload) SetStops(s []string) {
@@ -41,9 +73,10 @@ func (payload *CompletionPayload) SetStops(s []string) {
 
 func (payload *CompletionPayload) AddStop(s string) {
 	if payload.Stop == nil {
-		payload.Stop = make([]string, 1)
+		payload.Stop = []string{s}
+	} else {
+		payload.Stop = append(payload.Stop, s)
 	}
-	payload.Stop = append(payload.Stop, s)
 }
 
 func (payload *CompletionPayload) SetStream(b bool) {
