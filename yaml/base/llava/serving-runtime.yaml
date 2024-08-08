@@ -5,50 +5,34 @@ metadata:
     opendatahub.io/apiProtocol: REST
     opendatahub.io/accelerator-name: migrated-gpu
     opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
-    opendatahub.io/template-display-name: llamacpp ServingRuntime for KServe
-    opendatahub.io/template-name: llamacpp
+    opendatahub.io/template-display-name: koboldcpp ServingRuntime for KServe
+    opendatahub.io/template-name: koboldcpp
     openshift.io/display-name: llava
   labels:
     opendatahub.io/dashboard: "true"
   name: llava
 spec:
-  annotations:
-    prometheus.io/path: /metrics
-    prometheus.io/port: "8080"
   multiModel: false
   supportedModelFormats:
   - name: gguf
     autoSelect: true
   containers:
   - name: kserve-container
-    image: ghcr.io/ggerganov/llama.cpp:server-cuda
+    image: quay.io/kwkoo/koboldcpp-openshift
     ports:
-    - containerPort: 8080
-    command:
-    - /bin/bash
-    - "-c"
-    - |
-      model="$(ls /mnt/models/ | head -1)"
-      if [ -z "$model" ]; then
-        echo "could not get model file"
-        exit 1
-      fi
-      echo "using model filename $model"
-      exec /llama-server --metrics -m "/mnt/models/$model" -ngl 999 --host 0.0.0.0 --port 8080 -c $MAX_TOKENS_CONTEXT -n $MAX_TOKENS_PREDICT
+    - containerPort: 5001
     env:
-    - name: "MAX_TOKENS_CONTEXT"
-      value: "4096"
-    - name: "MAX_TOKENS_PREDICT"
-      value: "1000"
+    - name: "EXTRA_ARGS"
+      value: "--gpulayers 999 --usecublas normal"
     livenessProbe:
      httpGet:
-       path: /health
-       port: 8080
+       path: /api/v1/info/version
+       port: 5001
      initialDelaySeconds: 600
     readinessProbe:
      httpGet:
-       path: /health
-       port: 8080
+       path: /api/v1/info/version
+       port: 5001
     volumeMounts:
     - name: dshm
       mountPath: /dev/shm

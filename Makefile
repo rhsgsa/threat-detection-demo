@@ -3,7 +3,7 @@ REMOTE_INSTALL_PROJ=$(PROJ)
 IMAGE_ACQUIRER=quay.io/rhsgsa/image-acquirer
 IMAGE_ACQUIRER_VERSION=0.85
 FRONTEND_IMAGE=quay.io/rhsgsa/threat-frontend
-FRONTEND_VERSION=1.96
+FRONTEND_VERSION=2.0
 MOCK_LLM_IMAGE=ghcr.io/kwkoo/mock-llm
 BUILDERNAME=multiarch-builder
 MODEL_NAME=20240709-small.pt
@@ -12,7 +12,8 @@ MODEL_URL=https://github.com/rhsgsa/yolo-toy-gun/raw/main/weights/$(MODEL_NAME)
 BASE:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 .PHONY: configure-infra
-configure-infra: configure-user-workload-monitoring deploy-nvidia deploy-kserve-dependencies deploy-oai deploy-minio upload-model
+configure-infra: configure-user-workload-monitoring deploy-nvidia \
+  deploy-kserve-dependencies deploy-oai deploy-minio upload-models
 	@echo "done"
 
 # deploys all components to a single OpenShift cluster
@@ -273,8 +274,8 @@ deploy-minio:
 	  MINIO_BROWSER_REDIRECT_URL="http://`oc get -n $(PROJ) route/minio-console -o jsonpath='{.spec.host}'`"
 
 
-.PHONY: upload-model
-upload-model:
+.PHONY: upload-models
+upload-models:
 	@echo "removing any previous jobs..."
 	-oc delete -n $(PROJ) -k $(BASE)/yaml/base/s3-job/
 	@/bin/echo -n "waiting for job to go away..."
@@ -314,7 +315,7 @@ clean-mistral:
 .PHONY: deploy-llava
 deploy-llava:
 	oc create ns $(PROJ) || echo "$(PROJ) namespace exists"
-	@echo "deploying mistral..."
+	@echo "deploying llava..."
 	oc apply -n $(PROJ) -k $(BASE)/yaml/base/llava/
 	@/bin/echo -n "waiting for llava inferenceservice to appear..."
 	@until oc get -n $(PROJ) inferenceservice/llava >/dev/null 2>/dev/null; do \
@@ -366,3 +367,19 @@ clean-remote-install:
 	-for s in `oc get clusterrolebinding -o jsonpath='{.items[?(@.subjects[0].name == "remote-installer")].metadata.name}'`; do \
 	  oc delete clusterrolebinding $$s; \
 	done
+
+.PHONY: console
+console:
+	@echo "https://`oc get -n openshift-console route/console -o jsonpath='{.spec.host}'`"
+
+.PHONY: frontend
+frontend:
+	@echo "http://`oc get -n $(PROJ) route/frontend -o jsonpath='{.spec.host}'`"
+
+.PHONY: minio
+minio:
+	@echo "http://`oc get -n $(PROJ) route/minio-console -o jsonpath='{.spec.host}'`"
+
+.PHONY: oai
+oai:
+	@echo "https://`oc get -n redhat-ods-applications route/rhods-dashboard -o jsonpath='{.spec.host}'`"

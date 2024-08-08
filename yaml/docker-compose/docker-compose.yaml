@@ -1,3 +1,6 @@
+# Note: This file is not valid anymore because we have moved Llava from Ollama
+# to Koboldcpp.
+
 services:
 
   image-acquirer:
@@ -29,7 +32,7 @@ services:
 
   frontend:
     container_name: frontend
-    image: "quay.io/rhsgsa/threat-frontend:1.96"
+    image: "quay.io/rhsgsa/threat-frontend:2.0"
     environment:
     - MQTTBROKER=tcp://mqtt:1883
     - PORT=8080

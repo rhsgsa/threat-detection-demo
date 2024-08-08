@@ -17,16 +17,21 @@ remote:
 	  kill `cat /tmp/port-forward-mqtt.pid`; \
 	  rm -f /tmp/port-forward-mqtt.pid; \
 	fi
-	oc port-forward -n demo svc/mosquitto 1883:1883 & echo $$! > /tmp/port-forward-mqtt.pid
-	oc port-forward -n demo svc/llm-internal 8012:8012 & echo $$! > /tmp/port-forward-kserve.pid
+	oc port-forward -n demo svc/mosquitto 1883:1883 & /bin/echo -n $$! > /tmp/port-forward-mqtt.pid
+	oc port-forward -n demo svc/mistral-internal 8012:8012 & /bin/echo -n $$! > /tmp/port-forward-mistral.pid
+	oc port-forward -n demo svc/llava-predictor-00001-private 8013:8012 & /bin/echo -n $$! > /tmp/port-forward-llava.pid
 	sleep 3
 	-DOCROOT=$(BASE)/docroot \
-	 LLAVAURL=http://`oc get -n demo route/llava -o jsonpath='{.spec.host}'` \
+	 MQTTBROKER=tcp://localhost:1883 \
+	 LLAVAURL=http://localhost:8013 \
+	 OPENAIURL=http://localhost:8012/v1 \
 	 OPENAIPROMPT="You are tailored to provide concise threat assessments. Reply with the level of threat, either low, medium or high. Explanations for assessments are not provided, maintaining a focus on clear, concise classification without additional commentary." \
 	 PROMPTS=$(BASE)/../mocks/prompts.txt \
-	 SAVEMODELRESPONSES=false \
+	 SAVEMODELRESPONSES=true \
 	 go run .
 	-kill `cat /tmp/port-forward-mqtt.pid`
 	-rm -f /tmp/port-forward-mqtt.pid
-	-kill `cat /tmp/port-forward-kserve.pid`
-	-rm -f /tmp/port-forward-kserve.pid
+	-kill `cat /tmp/port-forward-mistral.pid`
+	-rm -f /tmp/port-forward-mistral.pid
+	-kill `cat /tmp/port-forward-llava.pid`
+	-rm -f /tmp/port-forward-llava.pid

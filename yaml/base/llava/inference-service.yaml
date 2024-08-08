@@ -15,6 +15,9 @@ spec:
     model:
       modelFormat:
         name: gguf
+      env:
+      - name: EXTRA_ARGS
+        value: "--gpulayers 999 --usecublas mmq --flashattention" # model-specific
       resources:
         requests:
           cpu: "1"

@@ -24,24 +24,20 @@ spec:
     image: docker.io/vllm/vllm-openai:v0.4.0
     #image: docker.io/kserve/vllmserver:latest
     workingDir: /root
-    args:
-    - "--port"
-    - "8080"
-    - "--model"
-    - "/mnt/models"
     command:
-    - python3
-    - "-m"
-    - vllm.entrypoints.openai.api_server
-    - "--gpu-memory-utilization"
-    - "0.9"
-    - "--dtype=half"
-    - "--tensor-parallel-size"
-    - "2"
-    - "--max-model-len"
-    - "2048"
-    #- "--trust-remote-code"
-    #- vllm.entrypoints.api_server
+    - bash
+    - "-c"
+    - |
+      GPU_COUNT="$(echo -n $NVIDIA_VISIBLE_DEVICES | awk -F, '{ print NF }')"
+      if [ -z "$GPU_COUNT" ]; then
+        GPU_COUNT=1
+      fi
+      echo "number of gpus=$GPU_COUNT"
+      echo "extra args=$EXTRA_ARGS"
+      exec python3 -m vllm.entrypoints.openai.api_server \
+        --port 8080 \
+        --model /mnt/models \
+        --tensor-parallel-size $GPU_COUNT $EXTRA_ARGS
     ports:
     - containerPort: 8080
       protocol: TCP
@@ -64,7 +60,13 @@ spec:
       httpGet:
         path: /version
         port: 8080
-      initialDelaySeconds: 30
+      initialDelaySeconds: 150
+    startupProbe:
+      httpGet:
+        path: /version
+        port: 8080
+      failureThreshold: 60
+      periodSeconds: 10
   volumes:
   - name: home
     emptyDir: {}

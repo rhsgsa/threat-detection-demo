@@ -5,8 +5,8 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   labels:
-    name: llm-internal
-  name: llm-internal
+    name: mistral-internal
+  name: mistral-internal
 spec:
   endpoints:
   - port: "http"
@@ -15,14 +15,14 @@ spec:
   namespaceSelector: {}
   selector:
     matchLabels:
-      name: llm-internal
+      name: mistral-internal
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    name: llm-internal
-  name: llm-internal
+    name: mistral-internal
+  name: mistral-internal
 spec:
   ports:
   - name: http
@@ -30,5 +30,5 @@ spec:
     protocol: TCP
     targetPort: 8012
   selector:
-    serving.kserve.io/inferenceservice: llm
+    serving.kserve.io/inferenceservice: mistral
   type: ClusterIP

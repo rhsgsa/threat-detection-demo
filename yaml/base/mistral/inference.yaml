@@ -16,6 +16,9 @@ spec:
     model:
       modelFormat:
         name: vllm
+      env:
+      - name: EXTRA_ARGS
+        value: "--dtype=half" # model-specific
       resources:
         requests:
           cpu: "1"

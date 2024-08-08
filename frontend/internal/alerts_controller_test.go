@@ -17,17 +17,19 @@ import (
 // Test that the AlertsController makes a request to llava whenever an MQTT
 // message is received
 func TestMQTTToLlava(t *testing.T) {
+	// smallest jpeg image copied from: https://gist.github.com/trymbill/136dfd4bfc0736fae5b959430ec57373
+	const smallestJPEG = "/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AKp//2Q=="
 	m := newMocks(t, "")
 	defer m.close()
 
 	// simulate alert coming in from MQTT
-	m.controller.MQTTHandler(nil, newMockMQTTMessage(`{"annotated_image":"dummyannogtated","raw_image":"dummy","timestamp":1234}`))
+	m.controller.MQTTHandler(nil, newMockMQTTMessage(`{"annotated_image":"dummyannotated","raw_image":"`+smallestJPEG+`","timestamp":1234}`))
 	// wait for request to be received by llava
 	m.waitForLlavaRequest()
 
 	if m.llava.req.Images == nil || len(m.llava.req.Images) == 0 {
 		t.Error("llava did not receive any images")
-	} else if m.llava.req.Images[0] != "dummy" {
+	} else if m.llava.req.Images[0] != smallestJPEG {
 		t.Errorf(`llava received an image ("%s") different from what was expected`, m.llava.req.Images[0])
 	} else {
 		t.Log("llava received the raw image correctly")
@@ -88,10 +90,10 @@ func TestSetPrompt(t *testing.T) {
 	// we are using the default prompts so the descriptive prompts are set to
 	// the short prompts; that's why we're ok to compare llava's prompt with
 	// the short prompt
-	if m.llava.req.Prompt == "descriptiveprompt2" {
+	if strings.Contains(m.llava.req.Prompt, "descriptiveprompt2") {
 		t.Log("llava prompt was set correctly")
 	} else {
-		t.Errorf(`llava prompt was expected to be "descriptiveprompt2" but was "%s" instead`, m.llava.req.Prompt)
+		t.Errorf(`llava prompt was expected to contain "descriptiveprompt2" but was "%s" instead`, m.llava.req.Prompt)
 	}
 
 	// pause to allow mockSSEClient to consume the new prompt event

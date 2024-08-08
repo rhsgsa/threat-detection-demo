@@ -19,11 +19,18 @@ import (
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/kwkoo/threat-detection-frontend/internal/prompts"
-	"github.com/kwkoo/threat-detection-frontend/llamacpp"
+	"github.com/kwkoo/threat-detection-frontend/koboldcpp"
 )
 
 const llmRequestTimeoutSeconds = 60
 const llmChannelSize = 3
+
+// Template for Vicuna
+// https://github.com/LostRuins/koboldcpp/blob/concedo/kcpp_adapters/Vicuna.json
+const llavaPromptPrefix = "You are a helpful assistant in charge of security. Answer all queries in English.\n\nUSER: "
+const llavaPromptSuffix = "\nASSISTANT: "
+
+var llavaStops []string = []string{"USER: ", "ASSISTANT: "}
 
 // Alert coming from the image-acquirer via MQTT
 type alertMQTT struct {
@@ -59,7 +66,7 @@ func (s alertEvent) copy() alertEvent {
 type AlertsController struct {
 	eventsPaused       atomic.Bool
 	sseCh              chan SSEEvent
-	llavaClient        *llamacpp.Client
+	llavaClient        *koboldcpp.Client
 	prompts            *prompts.PromptsContainer
 	threatAnalysisCl   *threatAnalysisClient
 	openAIPrompt       string
@@ -83,13 +90,25 @@ func NewAlertsController(ch chan SSEEvent, llavaURL, promptsFile, openAIModel, o
 		log.Fatal(err)
 	}
 
-	log.Printf("alerts controller initializing with llavaURL=%s, openAIModel=%s, openAIPrompt=%s, openAIURL=%s", llavaURL, openAIModel, openAIPrompt, openAIURL)
+	log.Printf(
+		"alerts controller initializing with llavaURL=%s, openAIModel=%s, openAIPrompt=%s, openAIURL=%s",
+		llavaURL,
+		openAIModel,
+		openAIPrompt,
+		openAIURL,
+	)
 
 	if openAIURL == "" {
 		log.Print("openAIURL is not set so we will not call it - will stream Llava responses to client")
 	}
 
-	llavaClient, err := llamacpp.NewClient(llavaURL, llamacpp.WithRequestTimeout(llmRequestTimeoutSeconds*time.Second))
+	llavaClient, err := koboldcpp.NewClient(
+		llavaURL,
+		koboldcpp.WithRequestTimeout(llmRequestTimeoutSeconds*time.Second),
+		koboldcpp.WithPromptPrefix(llavaPromptPrefix),
+		koboldcpp.WithPromptSuffix(llavaPromptSuffix),
+		koboldcpp.WithStops(llavaStops),
+	)
 	if err != nil {
 		log.Fatalf("could not instantiate llava client: %v", err)
 	}
@@ -318,11 +337,11 @@ func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 				Data:      []byte(event.prompt.GetJSONBytes()),
 			})
 
-			llavaReq := controller.llavaClient.NewCompletionPayload(event.prompt.Descriptive)
+			llavaReq := controller.llavaClient.NewPayload(event.prompt.Descriptive)
+			llavaReq.SetTemperature(0.1)
 			if event.rawImage != nil {
-				llavaReq.AddBase64Image(string(event.rawImage))
+				llavaReq.AddBase64ImageWithResize(string(event.rawImage))
 			}
-			llavaReq.SetStream(true)
 			controller.llavaRequest(ctx, *llavaReq)
 			controller.sseCh <- SSEEvent{
 				EventType: "pause_events",
@@ -332,9 +351,9 @@ func (controller *AlertsController) LLMChannelProcessor(ctx context.Context) {
 	}
 }
 
-func (controller *AlertsController) llavaRequest(parentCtx context.Context, payload llamacpp.CompletionPayload) {
-	ch := make(chan llamacpp.CompletionResponse)
-	controller.llavaClient.Completion(parentCtx, ch, payload)
+func (controller *AlertsController) llavaRequest(parentCtx context.Context, payload koboldcpp.Payload) {
+	ch := make(chan koboldcpp.Response)
+	controller.llavaClient.Generate(parentCtx, ch, payload)
 	controller.sendToSSECh(SSEEvent{
 		EventType: "llava_response_start",
 		Data:      nil,
@@ -345,9 +364,16 @@ func (controller *AlertsController) llavaRequest(parentCtx context.Context, payl
 			log.Printf("received error from llava: %v", resp.Err)
 			continue
 		}
+
+		llavaEvent := struct {
+			Response string `json:"response"`
+		}{
+			Response: resp.Content,
+		}
+		eventBytes, _ := json.Marshal(llavaEvent)
 		controller.sendToSSECh(SSEEvent{
 			EventType: "llava_response",
-			Data:      []byte(resp.Content),
+			Data:      eventBytes,
 		})
 		b.WriteString(resp.Content)
 	}

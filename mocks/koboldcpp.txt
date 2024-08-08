@@ -1,0 +1,2052 @@
+event: message
+data: {"token": " In", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " image", "finish_reason": "null"}
+
+event: message
+data: {"token": ",", "finish_reason": "null"}
+
+event: message
+data: {"token": " I can", "finish_reason": "null"}
+
+event: message
+data: {"token": " observe", "finish_reason": "null"}
+
+event: message
+data: {"token": " that", "finish_reason": "null"}
+
+event: message
+data: {"token": " there", "finish_reason": "null"}
+
+event: message
+data: {"token": " is", "finish_reason": "null"}
+
+event: message
+data: {"token": " an", "finish_reason": "null"}
+
+event: message
+data: {"token": " individual", "finish_reason": "null"}
+
+event: message
+data: {"token": " who", "finish_reason": "null"}
+
+event: message
+data: {"token": " appears", "finish_reason": "null"}
+
+event: message
+data: {"token": " to", "finish_reason": "null"}
+
+event: message
+data: {"token": " be", "finish_reason": "null"}
+
+event: message
+data: {"token": " holding", "finish_reason": "null"}
+
+event: message
+data: {"token": " something", "finish_reason": "null"}
+
+event: message
+data: {"token": " small", "finish_reason": "null"}
+
+event: message
+data: {"token": " near", "finish_reason": "null"}
+
+event: message
+data: {"token": " their", "finish_reason": "null"}
+
+event: message
+data: {"token": " hand", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": " However", "finish_reason": "null"}
+
+event: message
+data: {"token": ",", "finish_reason": "null"}
+
+event: message
+data: {"token": " it", "finish_reason": "null"}
+
+event: message
+data: {"token": "'", "finish_reason": "null"}
+
+event: message
+data: {"token": "s", "finish_reason": "null"}
+
+event: message
+data: {"token": " not", "finish_reason": "null"}
+
+event: message
+data: {"token": " possible", "finish_reason": "null"}
+
+event: message
+data: {"token": " for", "finish_reason": "null"}
+
+event: message
+data: {"token": " me", "finish_reason": "null"}
+
+event: message
+data: {"token": " to", "finish_reason": "null"}
+
+event: message
+data: {"token": " definit", "finish_reason": "null"}
+
+event: message
+data: {"token": "ively", "finish_reason": "null"}
+
+event: message
+data: {"token": " determine", "finish_reason": "null"}
+
+event: message
+data: {"token": " if", "finish_reason": "null"}
+
+event: message
+data: {"token": " this", "finish_reason": "null"}
+
+event: message
+data: {"token": " object", "finish_reason": "null"}
+
+event: message
+data: {"token": " is", "finish_reason": "null"}
+
+event: message
+data: {"token": " indeed", "finish_reason": "null"}
+
+event: message
+data: {"token": " a", "finish_reason": "null"}
+
+event: message
+data: {"token": " gun", "finish_reason": "null"}
+
+event: message
+data: {"token": " or", "finish_reason": "null"}
+
+event: message
+data: {"token": " a", "finish_reason": "null"}
+
+event: message
+data: {"token": " kn", "finish_reason": "null"}
+
+event: message
+data: {"token": "ife", "finish_reason": "null"}
+
+event: message
+data: {"token": " based", "finish_reason": "null"}
+
+event: message
+data: {"token": " on", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " visual", "finish_reason": "null"}
+
+event: message
+data: {"token": " information", "finish_reason": "null"}
+
+event: message
+data: {"token": " provided", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": " The", "finish_reason": "null"}
+
+event: message
+data: {"token": " person", "finish_reason": "null"}
+
+event: message
+data: {"token": " seems", "finish_reason": "null"}
+
+event: message
+data: {"token": " to", "finish_reason": "null"}
+
+event: message
+data: {"token": " be", "finish_reason": "null"}
+
+event: message
+data: {"token": " standing", "finish_reason": "null"}
+
+event: message
+data: {"token": " ind", "finish_reason": "null"}
+
+event: message
+data: {"token": "o", "finish_reason": "null"}
+
+event: message
+data: {"token": "ors", "finish_reason": "null"}
+
+event: message
+data: {"token": " with", "finish_reason": "null"}
+
+event: message
+data: {"token": " a", "finish_reason": "null"}
+
+event: message
+data: {"token": " cas", "finish_reason": "null"}
+
+event: message
+data: {"token": "ual", "finish_reason": "null"}
+
+event: message
+data: {"token": " post", "finish_reason": "null"}
+
+event: message
+data: {"token": "ure", "finish_reason": "null"}
+
+event: message
+data: {"token": ",", "finish_reason": "null"}
+
+event: message
+data: {"token": " possibly", "finish_reason": "null"}
+
+event: message
+data: {"token": " gest", "finish_reason": "null"}
+
+event: message
+data: {"token": "uring", "finish_reason": "null"}
+
+event: message
+data: {"token": " as", "finish_reason": "null"}
+
+event: message
+data: {"token": " they", "finish_reason": "null"}
+
+event: message
+data: {"token": " speak", "finish_reason": "null"}
+
+event: message
+data: {"token": " or", "finish_reason": "null"}
+
+event: message
+data: {"token": " interact", "finish_reason": "null"}
+
+event: message
+data: {"token": " with", "finish_reason": "null"}
+
+event: message
+data: {"token": " someone", "finish_reason": "null"}
+
+event: message
+data: {"token": " else", "finish_reason": "null"}
+
+event: message
+data: {"token": " out", "finish_reason": "null"}
+
+event: message
+data: {"token": " of", "finish_reason": "null"}
+
+event: message
+data: {"token": " frame", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": " It", "finish_reason": "null"}
+
+event: message
+data: {"token": " would", "finish_reason": "null"}
+
+event: message
+data: {"token": " require", "finish_reason": "null"}
+
+event: message
+data: {"token": " additional", "finish_reason": "null"}
+
+event: message
+data: {"token": " context", "finish_reason": "null"}
+
+event: message
+data: {"token": " or", "finish_reason": "null"}
+
+event: message
+data: {"token": " clearer", "finish_reason": "null"}
+
+event: message
+data: {"token": " details", "finish_reason": "null"}
+
+event: message
+data: {"token": " to", "finish_reason": "null"}
+
+event: message
+data: {"token": " provide", "finish_reason": "null"}
+
+event: message
+data: {"token": " more", "finish_reason": "null"}
+
+event: message
+data: {"token": " accurate", "finish_reason": "null"}
+
+event: message
+data: {"token": " information", "finish_reason": "null"}
+
+event: message
+data: {"token": " about", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " nature", "finish_reason": "null"}
+
+event: message
+data: {"token": " of", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " item", "finish_reason": "null"}
+
+event: message
+data: {"token": " being", "finish_reason": "null"}
+
+event: message
+data: {"token": " held", "finish_reason": "null"}
+
+event: message
+data: {"token": " by", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " individual", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": "", "finish_reason": "stop"}
+
+event: message
+data: {"token": " In", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " image", "finish_reason": "null"}
+
+event: message
+data: {"token": ",", "finish_reason": "null"}
+
+event: message
+data: {"token": " I can", "finish_reason": "null"}
+
+event: message
+data: {"token": " observe", "finish_reason": "null"}
+
+event: message
+data: {"token": " that", "finish_reason": "null"}
+
+event: message
+data: {"token": " an", "finish_reason": "null"}
+
+event: message
+data: {"token": " individual", "finish_reason": "null"}
+
+event: message
+data: {"token": " is", "finish_reason": "null"}
+
+event: message
+data: {"token": " holding", "finish_reason": "null"}
+
+event: message
+data: {"token": " two", "finish_reason": "null"}
+
+event: message
+data: {"token": " to", "finish_reason": "null"}
+
+event: message
+data: {"token": "y", "finish_reason": "null"}
+
+event: message
+data: {"token": " guns", "finish_reason": "null"}
+
+event: message
+data: {"token": " with", "finish_reason": "null"}
+
+event: message
+data: {"token": " their", "finish_reason": "null"}
+
+event: message
+data: {"token": " hands", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": " The", "finish_reason": "null"}
+
+event: message
+data: {"token": " person", "finish_reason": "null"}
+
+event: message
+data: {"token": " appears", "finish_reason": "null"}
+
+event: message
+data: {"token": " to", "finish_reason": "null"}
+
+event: message
+data: {"token": " be", "finish_reason": "null"}
+
+event: message
+data: {"token": " ind", "finish_reason": "null"}
+
+event: message
+data: {"token": "o", "finish_reason": "null"}
+
+event: message
+data: {"token": "ors", "finish_reason": "null"}
+
+event: message
+data: {"token": ",", "finish_reason": "null"}
+
+event: message
+data: {"token": " possibly", "finish_reason": "null"}
+
+event: message
+data: {"token": " within", "finish_reason": "null"}
+
+event: message
+data: {"token": " an", "finish_reason": "null"}
+
+event: message
+data: {"token": " office", "finish_reason": "null"}
+
+event: message
+data: {"token": " environment", "finish_reason": "null"}
+
+event: message
+data: {"token": " given", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " presence", "finish_reason": "null"}
+
+event: message
+data: {"token": " of", "finish_reason": "null"}
+
+event: message
+data: {"token": " furn", "finish_reason": "null"}
+
+event: message
+data: {"token": "iture", "finish_reason": "null"}
+
+event: message
+data: {"token": " like", "finish_reason": "null"}
+
+event: message
+data: {"token": " ch", "finish_reason": "null"}
+
+event: message
+data: {"token": "airs", "finish_reason": "null"}
+
+event: message
+data: {"token": " and", "finish_reason": "null"}
+
+event: message
+data: {"token": " tables", "finish_reason": "null"}
+
+event: message
+data: {"token": ",", "finish_reason": "null"}
+
+event: message
+data: {"token": " as", "finish_reason": "null"}
+
+event: message
+data: {"token": " well", "finish_reason": "null"}
+
+event: message
+data: {"token": " as", "finish_reason": "null"}
+
+event: message
+data: {"token": " a", "finish_reason": "null"}
+
+event: message
+data: {"token": " television", "finish_reason": "null"}
+
+event: message
+data: {"token": " mounted", "finish_reason": "null"}
+
+event: message
+data: {"token": " on", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " wall", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": " There", "finish_reason": "null"}
+
+event: message
+data: {"token": "'", "finish_reason": "null"}
+
+event: message
+data: {"token": "s", "finish_reason": "null"}
+
+event: message
+data: {"token": " also", "finish_reason": "null"}
+
+event: message
+data: {"token": " a", "finish_reason": "null"}
+
+event: message
+data: {"token": " p", "finish_reason": "null"}
+
+event: message
+data: {"token": "otted", "finish_reason": "null"}
+
+event: message
+data: {"token": " plant", "finish_reason": "null"}
+
+event: message
+data: {"token": " visible", "finish_reason": "null"}
+
+event: message
+data: {"token": " in", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " background", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": " It", "finish_reason": "null"}
+
+event: message
+data: {"token": " seems", "finish_reason": "null"}
+
+event: message
+data: {"token": " like", "finish_reason": "null"}
+
+event: message
+data: {"token": " this", "finish_reason": "null"}
+
+event: message
+data: {"token": " could", "finish_reason": "null"}
+
+event: message
+data: {"token": " be", "finish_reason": "null"}
+
+event: message
+data: {"token": " a", "finish_reason": "null"}
+
+event: message
+data: {"token": " cas", "finish_reason": "null"}
+
+event: message
+data: {"token": "ual", "finish_reason": "null"}
+
+event: message
+data: {"token": " moment", "finish_reason": "null"}
+
+event: message
+data: {"token": " captured", "finish_reason": "null"}
+
+event: message
+data: {"token": " during", "finish_reason": "null"}
+
+event: message
+data: {"token": " work", "finish_reason": "null"}
+
+event: message
+data: {"token": " hours", "finish_reason": "null"}
+
+event: message
+data: {"token": " where", "finish_reason": "null"}
+
+event: message
+data: {"token": " someone", "finish_reason": "null"}
+
+event: message
+data: {"token": " might", "finish_reason": "null"}
+
+event: message
+data: {"token": " have", "finish_reason": "null"}
+
+event: message
+data: {"token": " brought", "finish_reason": "null"}
+
+event: message
+data: {"token": " these", "finish_reason": "null"}
+
+event: message
+data: {"token": " items", "finish_reason": "null"}
+
+event: message
+data: {"token": " for", "finish_reason": "null"}
+
+event: message
+data: {"token": " fun", "finish_reason": "null"}
+
+event: message
+data: {"token": " or", "finish_reason": "null"}
+
+event: message
+data: {"token": " entertain", "finish_reason": "null"}
+
+event: message
+data: {"token": "ment", "finish_reason": "null"}
+
+event: message
+data: {"token": " purposes", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": "", "finish_reason": "stop"}
+
+event: message
+data: {"token": " In", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " image", "finish_reason": "null"}
+
+event: message
+data: {"token": ",", "finish_reason": "null"}
+
+event: message
+data: {"token": " I can", "finish_reason": "null"}
+
+event: message
+data: {"token": " see", "finish_reason": "null"}
+
+event: message
+data: {"token": " an", "finish_reason": "null"}
+
+event: message
+data: {"token": " individual", "finish_reason": "null"}
+
+event: message
+data: {"token": " holding", "finish_reason": "null"}
+
+event: message
+data: {"token": " two", "finish_reason": "null"}
+
+event: message
+data: {"token": " items", "finish_reason": "null"}
+
+event: message
+data: {"token": " that", "finish_reason": "null"}
+
+event: message
+data: {"token": " res", "finish_reason": "null"}
+
+event: message
+data: {"token": "emble", "finish_reason": "null"}
+
+event: message
+data: {"token": " to", "finish_reason": "null"}
+
+event: message
+data: {"token": "y", "finish_reason": "null"}
+
+event: message
+data: {"token": " guns", "finish_reason": "null"}
+
+event: message
+data: {"token": " with", "finish_reason": "null"}
+
+event: message
+data: {"token": " orange", "finish_reason": "null"}
+
+event: message
+data: {"token": " tips", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": " The", "finish_reason": "null"}
+
+event: message
+data: {"token": " person", "finish_reason": "null"}
+
+event: message
+data: {"token": " is", "finish_reason": "null"}
+
+event: message
+data: {"token": " standing", "finish_reason": "null"}
+
+event: message
+data: {"token": " ind", "finish_reason": "null"}
+
+event: message
+data: {"token": "o", "finish_reason": "null"}
+
+event: message
+data: {"token": "ors", "finish_reason": "null"}
+
+event: message
+data: {"token": ",", "finish_reason": "null"}
+
+event: message
+data: {"token": " we", "finish_reason": "null"}
+
+event: message
+data: {"token": "aring", "finish_reason": "null"}
+
+event: message
+data: {"token": " s", "finish_reason": "null"}
+
+event: message
+data: {"token": "ung", "finish_reason": "null"}
+
+event: message
+data: {"token": "lass", "finish_reason": "null"}
+
+event: message
+data: {"token": "es", "finish_reason": "null"}
+
+event: message
+data: {"token": " and", "finish_reason": "null"}
+
+event: message
+data: {"token": " appears", "finish_reason": "null"}
+
+event: message
+data: {"token": " to", "finish_reason": "null"}
+
+event: message
+data: {"token": " be", "finish_reason": "null"}
+
+event: message
+data: {"token": " pos", "finish_reason": "null"}
+
+event: message
+data: {"token": "ing", "finish_reason": "null"}
+
+event: message
+data: {"token": " for", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " photo", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": " There", "finish_reason": "null"}
+
+event: message
+data: {"token": "'", "finish_reason": "null"}
+
+event: message
+data: {"token": "s", "finish_reason": "null"}
+
+event: message
+data: {"token": " no", "finish_reason": "null"}
+
+event: message
+data: {"token": " indic", "finish_reason": "null"}
+
+event: message
+data: {"token": "ation", "finish_reason": "null"}
+
+event: message
+data: {"token": " of", "finish_reason": "null"}
+
+event: message
+data: {"token": " real", "finish_reason": "null"}
+
+event: message
+data: {"token": " fire", "finish_reason": "null"}
+
+event: message
+data: {"token": "ar", "finish_reason": "null"}
+
+event: message
+data: {"token": "ms", "finish_reason": "null"}
+
+event: message
+data: {"token": " or", "finish_reason": "null"}
+
+event: message
+data: {"token": " weapons", "finish_reason": "null"}
+
+event: message
+data: {"token": " being", "finish_reason": "null"}
+
+event: message
+data: {"token": " present", "finish_reason": "null"}
+
+event: message
+data: {"token": ";", "finish_reason": "null"}
+
+event: message
+data: {"token": " it", "finish_reason": "null"}
+
+event: message
+data: {"token": " seems", "finish_reason": "null"}
+
+event: message
+data: {"token": " like", "finish_reason": "null"}
+
+event: message
+data: {"token": " a", "finish_reason": "null"}
+
+event: message
+data: {"token": " play", "finish_reason": "null"}
+
+event: message
+data: {"token": "ful", "finish_reason": "null"}
+
+event: message
+data: {"token": " or", "finish_reason": "null"}
+
+event: message
+data: {"token": " st", "finish_reason": "null"}
+
+event: message
+data: {"token": "aged", "finish_reason": "null"}
+
+event: message
+data: {"token": " scenario", "finish_reason": "null"}
+
+event: message
+data: {"token": " rather", "finish_reason": "null"}
+
+event: message
+data: {"token": " than", "finish_reason": "null"}
+
+event: message
+data: {"token": " one", "finish_reason": "null"}
+
+event: message
+data: {"token": " involving", "finish_reason": "null"}
+
+event: message
+data: {"token": " actual", "finish_reason": "null"}
+
+event: message
+data: {"token": " danger", "finish_reason": "null"}
+
+event: message
+data: {"token": " or", "finish_reason": "null"}
+
+event: message
+data: {"token": " threat", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": "", "finish_reason": "stop"}
+
+event: message
+data: {"token": " In", "finish_reason": "null"}
+
+event: message
+data: {"token": " this", "finish_reason": "null"}
+
+event: message
+data: {"token": " image", "finish_reason": "null"}
+
+event: message
+data: {"token": ",", "finish_reason": "null"}
+
+event: message
+data: {"token": " I can", "finish_reason": "null"}
+
+event: message
+data: {"token": " observe", "finish_reason": "null"}
+
+event: message
+data: {"token": " that", "finish_reason": "null"}
+
+event: message
+data: {"token": " there", "finish_reason": "null"}
+
+event: message
+data: {"token": " is", "finish_reason": "null"}
+
+event: message
+data: {"token": " an", "finish_reason": "null"}
+
+event: message
+data: {"token": " individual", "finish_reason": "null"}
+
+event: message
+data: {"token": " who", "finish_reason": "null"}
+
+event: message
+data: {"token": " appears", "finish_reason": "null"}
+
+event: message
+data: {"token": " to", "finish_reason": "null"}
+
+event: message
+data: {"token": " be", "finish_reason": "null"}
+
+event: message
+data: {"token": " holding", "finish_reason": "null"}
+
+event: message
+data: {"token": " two", "finish_reason": "null"}
+
+event: message
+data: {"token": " objects", "finish_reason": "null"}
+
+event: message
+data: {"token": ": one", "finish_reason": "null"}
+
+event: message
+data: {"token": " looks", "finish_reason": "null"}
+
+event: message
+data: {"token": " like", "finish_reason": "null"}
+
+event: message
+data: {"token": " a", "finish_reason": "null"}
+
+event: message
+data: {"token": " gun", "finish_reason": "null"}
+
+event: message
+data: {"token": "-", "finish_reason": "null"}
+
+event: message
+data: {"token": "sh", "finish_reason": "null"}
+
+event: message
+data: {"token": "aped", "finish_reason": "null"}
+
+event: message
+data: {"token": " object", "finish_reason": "null"}
+
+event: message
+data: {"token": " (", "finish_reason": "null"}
+
+event: message
+data: {"token": "poss", "finish_reason": "null"}
+
+event: message
+data: {"token": "ibly", "finish_reason": "null"}
+
+event: message
+data: {"token": " a", "finish_reason": "null"}
+
+event: message
+data: {"token": " to", "finish_reason": "null"}
+
+event: message
+data: {"token": "y", "finish_reason": "null"}
+
+event: message
+data: {"token": ")", "finish_reason": "null"}
+
+event: message
+data: {"token": " pointed", "finish_reason": "null"}
+
+event: message
+data: {"token": " towards", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " camera", "finish_reason": "null"}
+
+event: message
+data: {"token": ",", "finish_reason": "null"}
+
+event: message
+data: {"token": " and", "finish_reason": "null"}
+
+event: message
+data: {"token": " another", "finish_reason": "null"}
+
+event: message
+data: {"token": " item", "finish_reason": "null"}
+
+event: message
+data: {"token": " res", "finish_reason": "null"}
+
+event: message
+data: {"token": "emb", "finish_reason": "null"}
+
+event: message
+data: {"token": "ling", "finish_reason": "null"}
+
+event: message
+data: {"token": " a", "finish_reason": "null"}
+
+event: message
+data: {"token": " kn", "finish_reason": "null"}
+
+event: message
+data: {"token": "ife", "finish_reason": "null"}
+
+event: message
+data: {"token": " held", "finish_reason": "null"}
+
+event: message
+data: {"token": " close", "finish_reason": "null"}
+
+event: message
+data: {"token": " to", "finish_reason": "null"}
+
+event: message
+data: {"token": " their", "finish_reason": "null"}
+
+event: message
+data: {"token": " body", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": " The", "finish_reason": "null"}
+
+event: message
+data: {"token": " person", "finish_reason": "null"}
+
+event: message
+data: {"token": " seems", "finish_reason": "null"}
+
+event: message
+data: {"token": " to", "finish_reason": "null"}
+
+event: message
+data: {"token": " be", "finish_reason": "null"}
+
+event: message
+data: {"token": " ind", "finish_reason": "null"}
+
+event: message
+data: {"token": "o", "finish_reason": "null"}
+
+event: message
+data: {"token": "ors", "finish_reason": "null"}
+
+event: message
+data: {"token": " with", "finish_reason": "null"}
+
+event: message
+data: {"token": " a", "finish_reason": "null"}
+
+event: message
+data: {"token": " room", "finish_reason": "null"}
+
+event: message
+data: {"token": " visible", "finish_reason": "null"}
+
+event: message
+data: {"token": " behind", "finish_reason": "null"}
+
+event: message
+data: {"token": " them", "finish_reason": "null"}
+
+event: message
+data: {"token": ",", "finish_reason": "null"}
+
+event: message
+data: {"token": " which", "finish_reason": "null"}
+
+event: message
+data: {"token": " includes", "finish_reason": "null"}
+
+event: message
+data: {"token": " furn", "finish_reason": "null"}
+
+event: message
+data: {"token": "iture", "finish_reason": "null"}
+
+event: message
+data: {"token": " such", "finish_reason": "null"}
+
+event: message
+data: {"token": " as", "finish_reason": "null"}
+
+event: message
+data: {"token": " ch", "finish_reason": "null"}
+
+event: message
+data: {"token": "airs", "finish_reason": "null"}
+
+event: message
+data: {"token": " and", "finish_reason": "null"}
+
+event: message
+data: {"token": " a", "finish_reason": "null"}
+
+event: message
+data: {"token": " television", "finish_reason": "null"}
+
+event: message
+data: {"token": " screen", "finish_reason": "null"}
+
+event: message
+data: {"token": " mounted", "finish_reason": "null"}
+
+event: message
+data: {"token": " on", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " wall", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": " There", "finish_reason": "null"}
+
+event: message
+data: {"token": "'", "finish_reason": "null"}
+
+event: message
+data: {"token": "s", "finish_reason": "null"}
+
+event: message
+data: {"token": " also", "finish_reason": "null"}
+
+event: message
+data: {"token": " a", "finish_reason": "null"}
+
+event: message
+data: {"token": " door", "finish_reason": "null"}
+
+event: message
+data: {"token": "way", "finish_reason": "null"}
+
+event: message
+data: {"token": " leading", "finish_reason": "null"}
+
+event: message
+data: {"token": " into", "finish_reason": "null"}
+
+event: message
+data: {"token": " another", "finish_reason": "null"}
+
+event: message
+data: {"token": " space", "finish_reason": "null"}
+
+event: message
+data: {"token": " where", "finish_reason": "null"}
+
+event: message
+data: {"token": " more", "finish_reason": "null"}
+
+event: message
+data: {"token": " furn", "finish_reason": "null"}
+
+event: message
+data: {"token": "ish", "finish_reason": "null"}
+
+event: message
+data: {"token": "ings", "finish_reason": "null"}
+
+event: message
+data: {"token": " can", "finish_reason": "null"}
+
+event: message
+data: {"token": " be", "finish_reason": "null"}
+
+event: message
+data: {"token": " seen", "finish_reason": "null"}
+
+event: message
+data: {"token": " through", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " glass", "finish_reason": "null"}
+
+event: message
+data: {"token": " pan", "finish_reason": "null"}
+
+event: message
+data: {"token": "els", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": " It", "finish_reason": "null"}
+
+event: message
+data: {"token": "'", "finish_reason": "null"}
+
+event: message
+data: {"token": "s", "finish_reason": "null"}
+
+event: message
+data: {"token": " important", "finish_reason": "null"}
+
+event: message
+data: {"token": " to", "finish_reason": "null"}
+
+event: message
+data: {"token": " note", "finish_reason": "null"}
+
+event: message
+data: {"token": " that", "finish_reason": "null"}
+
+event: message
+data: {"token": " without", "finish_reason": "null"}
+
+event: message
+data: {"token": " additional", "finish_reason": "null"}
+
+event: message
+data: {"token": " information", "finish_reason": "null"}
+
+event: message
+data: {"token": ",", "finish_reason": "null"}
+
+event: message
+data: {"token": " it", "finish_reason": "null"}
+
+event: message
+data: {"token": "'", "finish_reason": "null"}
+
+event: message
+data: {"token": "s", "finish_reason": "null"}
+
+event: message
+data: {"token": " not", "finish_reason": "null"}
+
+event: message
+data: {"token": " possible", "finish_reason": "null"}
+
+event: message
+data: {"token": " for", "finish_reason": "null"}
+
+event: message
+data: {"token": " me", "finish_reason": "null"}
+
+event: message
+data: {"token": " to", "finish_reason": "null"}
+
+event: message
+data: {"token": " determine", "finish_reason": "null"}
+
+event: message
+data: {"token": " if", "finish_reason": "null"}
+
+event: message
+data: {"token": " these", "finish_reason": "null"}
+
+event: message
+data: {"token": " items", "finish_reason": "null"}
+
+event: message
+data: {"token": " are", "finish_reason": "null"}
+
+event: message
+data: {"token": " real", "finish_reason": "null"}
+
+event: message
+data: {"token": " weapons", "finish_reason": "null"}
+
+event: message
+data: {"token": " or", "finish_reason": "null"}
+
+event: message
+data: {"token": " merely", "finish_reason": "null"}
+
+event: message
+data: {"token": " props", "finish_reason": "null"}
+
+event: message
+data: {"token": " or", "finish_reason": "null"}
+
+event: message
+data: {"token": " to", "finish_reason": "null"}
+
+event: message
+data: {"token": "ys", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": "", "finish_reason": "stop"}
+
+event: message
+data: {"token": " In", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " image", "finish_reason": "null"}
+
+event: message
+data: {"token": ",", "finish_reason": "null"}
+
+event: message
+data: {"token": " I can", "finish_reason": "null"}
+
+event: message
+data: {"token": " observe", "finish_reason": "null"}
+
+event: message
+data: {"token": " that", "finish_reason": "null"}
+
+event: message
+data: {"token": " there", "finish_reason": "null"}
+
+event: message
+data: {"token": " is", "finish_reason": "null"}
+
+event: message
+data: {"token": " an", "finish_reason": "null"}
+
+event: message
+data: {"token": " individual", "finish_reason": "null"}
+
+event: message
+data: {"token": " standing", "finish_reason": "null"}
+
+event: message
+data: {"token": " ind", "finish_reason": "null"}
+
+event: message
+data: {"token": "o", "finish_reason": "null"}
+
+event: message
+data: {"token": "ors", "finish_reason": "null"}
+
+event: message
+data: {"token": " with", "finish_reason": "null"}
+
+event: message
+data: {"token": " their", "finish_reason": "null"}
+
+event: message
+data: {"token": " arms", "finish_reason": "null"}
+
+event: message
+data: {"token": " out", "finish_reason": "null"}
+
+event: message
+data: {"token": "st", "finish_reason": "null"}
+
+event: message
+data: {"token": "retch", "finish_reason": "null"}
+
+event: message
+data: {"token": "ed", "finish_reason": "null"}
+
+event: message
+data: {"token": " as", "finish_reason": "null"}
+
+event: message
+data: {"token": " if", "finish_reason": "null"}
+
+event: message
+data: {"token": " they", "finish_reason": "null"}
+
+event: message
+data: {"token": " were", "finish_reason": "null"}
+
+event: message
+data: {"token": " holding", "finish_reason": "null"}
+
+event: message
+data: {"token": " something", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": " However", "finish_reason": "null"}
+
+event: message
+data: {"token": ",", "finish_reason": "null"}
+
+event: message
+data: {"token": " it", "finish_reason": "null"}
+
+event: message
+data: {"token": "'", "finish_reason": "null"}
+
+event: message
+data: {"token": "s", "finish_reason": "null"}
+
+event: message
+data: {"token": " not", "finish_reason": "null"}
+
+event: message
+data: {"token": " clear", "finish_reason": "null"}
+
+event: message
+data: {"token": " from", "finish_reason": "null"}
+
+event: message
+data: {"token": " this", "finish_reason": "null"}
+
+event: message
+data: {"token": " angle", "finish_reason": "null"}
+
+event: message
+data: {"token": " whether", "finish_reason": "null"}
+
+event: message
+data: {"token": " those", "finish_reason": "null"}
+
+event: message
+data: {"token": " items", "finish_reason": "null"}
+
+event: message
+data: {"token": " are", "finish_reason": "null"}
+
+event: message
+data: {"token": " actually", "finish_reason": "null"}
+
+event: message
+data: {"token": " weapons", "finish_reason": "null"}
+
+event: message
+data: {"token": " like", "finish_reason": "null"}
+
+event: message
+data: {"token": " guns", "finish_reason": "null"}
+
+event: message
+data: {"token": " or", "finish_reason": "null"}
+
+event: message
+data: {"token": " kn", "finish_reason": "null"}
+
+event: message
+data: {"token": "ives", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": " The", "finish_reason": "null"}
+
+event: message
+data: {"token": " person", "finish_reason": "null"}
+
+event: message
+data: {"token": " appears", "finish_reason": "null"}
+
+event: message
+data: {"token": " to", "finish_reason": "null"}
+
+event: message
+data: {"token": " be", "finish_reason": "null"}
+
+event: message
+data: {"token": " we", "finish_reason": "null"}
+
+event: message
+data: {"token": "aring", "finish_reason": "null"}
+
+event: message
+data: {"token": " cas", "finish_reason": "null"}
+
+event: message
+data: {"token": "ual", "finish_reason": "null"}
+
+event: message
+data: {"token": " cl", "finish_reason": "null"}
+
+event: message
+data: {"token": "othing", "finish_reason": "null"}
+
+event: message
+data: {"token": " and", "finish_reason": "null"}
+
+event: message
+data: {"token": " s", "finish_reason": "null"}
+
+event: message
+data: {"token": "ung", "finish_reason": "null"}
+
+event: message
+data: {"token": "lass", "finish_reason": "null"}
+
+event: message
+data: {"token": "es", "finish_reason": "null"}
+
+event: message
+data: {"token": ",", "finish_reason": "null"}
+
+event: message
+data: {"token": " which", "finish_reason": "null"}
+
+event: message
+data: {"token": " might", "finish_reason": "null"}
+
+event: message
+data: {"token": " suggest", "finish_reason": "null"}
+
+event: message
+data: {"token": " a", "finish_reason": "null"}
+
+event: message
+data: {"token": " relax", "finish_reason": "null"}
+
+event: message
+data: {"token": "ed", "finish_reason": "null"}
+
+event: message
+data: {"token": " setting", "finish_reason": "null"}
+
+event: message
+data: {"token": " rather", "finish_reason": "null"}
+
+event: message
+data: {"token": " than", "finish_reason": "null"}
+
+event: message
+data: {"token": " one", "finish_reason": "null"}
+
+event: message
+data: {"token": " associated", "finish_reason": "null"}
+
+event: message
+data: {"token": " with", "finish_reason": "null"}
+
+event: message
+data: {"token": " danger", "finish_reason": "null"}
+
+event: message
+data: {"token": " or", "finish_reason": "null"}
+
+event: message
+data: {"token": " conflict", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": " There", "finish_reason": "null"}
+
+event: message
+data: {"token": " is", "finish_reason": "null"}
+
+event: message
+data: {"token": " also", "finish_reason": "null"}
+
+event: message
+data: {"token": " a", "finish_reason": "null"}
+
+event: message
+data: {"token": " television", "finish_reason": "null"}
+
+event: message
+data: {"token": " screen", "finish_reason": "null"}
+
+event: message
+data: {"token": " visible", "finish_reason": "null"}
+
+event: message
+data: {"token": " on", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " wall", "finish_reason": "null"}
+
+event: message
+data: {"token": " behind", "finish_reason": "null"}
+
+event: message
+data: {"token": " them", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": " It", "finish_reason": "null"}
+
+event: message
+data: {"token": " seems", "finish_reason": "null"}
+
+event: message
+data: {"token": " more", "finish_reason": "null"}
+
+event: message
+data: {"token": " likely", "finish_reason": "null"}
+
+event: message
+data: {"token": " that", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " objects", "finish_reason": "null"}
+
+event: message
+data: {"token": " being", "finish_reason": "null"}
+
+event: message
+data: {"token": " held", "finish_reason": "null"}
+
+event: message
+data: {"token": " could", "finish_reason": "null"}
+
+event: message
+data: {"token": " be", "finish_reason": "null"}
+
+event: message
+data: {"token": " props", "finish_reason": "null"}
+
+event: message
+data: {"token": " for", "finish_reason": "null"}
+
+event: message
+data: {"token": " some", "finish_reason": "null"}
+
+event: message
+data: {"token": " sort", "finish_reason": "null"}
+
+event: message
+data: {"token": " of", "finish_reason": "null"}
+
+event: message
+data: {"token": " performance", "finish_reason": "null"}
+
+event: message
+data: {"token": " or", "finish_reason": "null"}
+
+event: message
+data: {"token": " demonstr", "finish_reason": "null"}
+
+event: message
+data: {"token": "ation", "finish_reason": "null"}
+
+event: message
+data: {"token": " given", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " context", "finish_reason": "null"}
+
+event: message
+data: {"token": " provided", "finish_reason": "null"}
+
+event: message
+data: {"token": " by", "finish_reason": "null"}
+
+event: message
+data: {"token": " your", "finish_reason": "null"}
+
+event: message
+data: {"token": " description", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": "", "finish_reason": "stop"}
+
+event: message
+data: {"token": " In", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " image", "finish_reason": "null"}
+
+event: message
+data: {"token": ",", "finish_reason": "null"}
+
+event: message
+data: {"token": " I do", "finish_reason": "null"}
+
+event: message
+data: {"token": " not", "finish_reason": "null"}
+
+event: message
+data: {"token": " see", "finish_reason": "null"}
+
+event: message
+data: {"token": " any", "finish_reason": "null"}
+
+event: message
+data: {"token": " visible", "finish_reason": "null"}
+
+event: message
+data: {"token": " fire", "finish_reason": "null"}
+
+event: message
+data: {"token": "ar", "finish_reason": "null"}
+
+event: message
+data: {"token": "ms", "finish_reason": "null"}
+
+event: message
+data: {"token": " or", "finish_reason": "null"}
+
+event: message
+data: {"token": " sharp", "finish_reason": "null"}
+
+event: message
+data: {"token": " objects", "finish_reason": "null"}
+
+event: message
+data: {"token": " like", "finish_reason": "null"}
+
+event: message
+data: {"token": " kn", "finish_reason": "null"}
+
+event: message
+data: {"token": "ives", "finish_reason": "null"}
+
+event: message
+data: {"token": " that", "finish_reason": "null"}
+
+event: message
+data: {"token": " could", "finish_reason": "null"}
+
+event: message
+data: {"token": " be", "finish_reason": "null"}
+
+event: message
+data: {"token": " considered", "finish_reason": "null"}
+
+event: message
+data: {"token": " dangerous", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": " The", "finish_reason": "null"}
+
+event: message
+data: {"token": " person", "finish_reason": "null"}
+
+event: message
+data: {"token": " is", "finish_reason": "null"}
+
+event: message
+data: {"token": " holding", "finish_reason": "null"}
+
+event: message
+data: {"token": " an", "finish_reason": "null"}
+
+event: message
+data: {"token": " object", "finish_reason": "null"}
+
+event: message
+data: {"token": " that", "finish_reason": "null"}
+
+event: message
+data: {"token": " appears", "finish_reason": "null"}
+
+event: message
+data: {"token": " to", "finish_reason": "null"}
+
+event: message
+data: {"token": " be", "finish_reason": "null"}
+
+event: message
+data: {"token": " a", "finish_reason": "null"}
+
+event: message
+data: {"token": " small", "finish_reason": "null"}
+
+event: message
+data: {"token": " electronic", "finish_reason": "null"}
+
+event: message
+data: {"token": " device", "finish_reason": "null"}
+
+event: message
+data: {"token": " with", "finish_reason": "null"}
+
+event: message
+data: {"token": " anten", "finish_reason": "null"}
+
+event: message
+data: {"token": "na", "finish_reason": "null"}
+
+event: message
+data: {"token": "e", "finish_reason": "null"}
+
+event: message
+data: {"token": ",", "finish_reason": "null"}
+
+event: message
+data: {"token": " which", "finish_reason": "null"}
+
+event: message
+data: {"token": " might", "finish_reason": "null"}
+
+event: message
+data: {"token": " res", "finish_reason": "null"}
+
+event: message
+data: {"token": "emble", "finish_reason": "null"}
+
+event: message
+data: {"token": " a", "finish_reason": "null"}
+
+event: message
+data: {"token": " gun", "finish_reason": "null"}
+
+event: message
+data: {"token": " due", "finish_reason": "null"}
+
+event: message
+data: {"token": " to", "finish_reason": "null"}
+
+event: message
+data: {"token": " its", "finish_reason": "null"}
+
+event: message
+data: {"token": " shape", "finish_reason": "null"}
+
+event: message
+data: {"token": " but", "finish_reason": "null"}
+
+event: message
+data: {"token": " it", "finish_reason": "null"}
+
+event: message
+data: {"token": "'", "finish_reason": "null"}
+
+event: message
+data: {"token": "s", "finish_reason": "null"}
+
+event: message
+data: {"token": " clearly", "finish_reason": "null"}
+
+event: message
+data: {"token": " not", "finish_reason": "null"}
+
+event: message
+data: {"token": " one", "finish_reason": "null"}
+
+event: message
+data: {"token": " based", "finish_reason": "null"}
+
+event: message
+data: {"token": " on", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " context", "finish_reason": "null"}
+
+event: message
+data: {"token": " provided", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": " It", "finish_reason": "null"}
+
+event: message
+data: {"token": " looks", "finish_reason": "null"}
+
+event: message
+data: {"token": " more", "finish_reason": "null"}
+
+event: message
+data: {"token": " like", "finish_reason": "null"}
+
+event: message
+data: {"token": " a", "finish_reason": "null"}
+
+event: message
+data: {"token": " remote", "finish_reason": "null"}
+
+event: message
+data: {"token": " control", "finish_reason": "null"}
+
+event: message
+data: {"token": " or", "finish_reason": "null"}
+
+event: message
+data: {"token": " some", "finish_reason": "null"}
+
+event: message
+data: {"token": " kind", "finish_reason": "null"}
+
+event: message
+data: {"token": " of", "finish_reason": "null"}
+
+event: message
+data: {"token": " wireless", "finish_reason": "null"}
+
+event: message
+data: {"token": " communication", "finish_reason": "null"}
+
+event: message
+data: {"token": " device", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": " There", "finish_reason": "null"}
+
+event: message
+data: {"token": " is", "finish_reason": "null"}
+
+event: message
+data: {"token": " no", "finish_reason": "null"}
+
+event: message
+data: {"token": " indic", "finish_reason": "null"}
+
+event: message
+data: {"token": "ation", "finish_reason": "null"}
+
+event: message
+data: {"token": " of", "finish_reason": "null"}
+
+event: message
+data: {"token": " ag", "finish_reason": "null"}
+
+event: message
+data: {"token": "gression", "finish_reason": "null"}
+
+event: message
+data: {"token": " or", "finish_reason": "null"}
+
+event: message
+data: {"token": " harm", "finish_reason": "null"}
+
+event: message
+data: {"token": "ful", "finish_reason": "null"}
+
+event: message
+data: {"token": " intent", "finish_reason": "null"}
+
+event: message
+data: {"token": "ions", "finish_reason": "null"}
+
+event: message
+data: {"token": " from", "finish_reason": "null"}
+
+event: message
+data: {"token": " this", "finish_reason": "null"}
+
+event: message
+data: {"token": " individual", "finish_reason": "null"}
+
+event: message
+data: {"token": ";", "finish_reason": "null"}
+
+event: message
+data: {"token": " rather", "finish_reason": "null"}
+
+event: message
+data: {"token": ",", "finish_reason": "null"}
+
+event: message
+data: {"token": " they", "finish_reason": "null"}
+
+event: message
+data: {"token": " seem", "finish_reason": "null"}
+
+event: message
+data: {"token": " to", "finish_reason": "null"}
+
+event: message
+data: {"token": " be", "finish_reason": "null"}
+
+event: message
+data: {"token": " engaged", "finish_reason": "null"}
+
+event: message
+data: {"token": " in", "finish_reason": "null"}
+
+event: message
+data: {"token": " play", "finish_reason": "null"}
+
+event: message
+data: {"token": "ful", "finish_reason": "null"}
+
+event: message
+data: {"token": " behavior", "finish_reason": "null"}
+
+event: message
+data: {"token": ",", "finish_reason": "null"}
+
+event: message
+data: {"token": " possibly", "finish_reason": "null"}
+
+event: message
+data: {"token": " dan", "finish_reason": "null"}
+
+event: message
+data: {"token": "cing", "finish_reason": "null"}
+
+event: message
+data: {"token": " or", "finish_reason": "null"}
+
+event: message
+data: {"token": " performing", "finish_reason": "null"}
+
+event: message
+data: {"token": " for", "finish_reason": "null"}
+
+event: message
+data: {"token": " someone", "finish_reason": "null"}
+
+event: message
+data: {"token": " outside", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " frame", "finish_reason": "null"}
+
+event: message
+data: {"token": " of", "finish_reason": "null"}
+
+event: message
+data: {"token": " the", "finish_reason": "null"}
+
+event: message
+data: {"token": " photo", "finish_reason": "null"}
+
+event: message
+data: {"token": ".", "finish_reason": "null"}
+
+event: message
+data: {"token": "", "finish_reason": "stop"}
+

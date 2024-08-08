@@ -1,4 +1,4 @@
-package llamacpp
+package koboldcpp
 
 import (
 	"errors"
@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-const mockOutputFilename = "/tmp/llamacpp.txt"
+const mockOutputFilename = "/tmp/koboldcpp.txt"
 
 type Client struct {
 	url            *url.URL
@@ -16,7 +16,7 @@ type Client struct {
 	promptPrefix   string
 	promptSuffix   string
 	stop           []string
-	keepAlive      time.Duration
+	keepAlive      time.Duration // send empty responses to clients; does not affect connection to koboldcpp
 	debugFile      *os.File
 }
 
@@ -81,18 +81,14 @@ func WithStops(s []string) func(*Client) {
 	}
 }
 
-// Send empty responses to clients; does not affect connection to llama.cpp;
-// ignored for non-streaming requests.
 func WithKeepAlive(t time.Duration) func(*Client) {
 	return func(c *Client) {
 		c.keepAlive = t
 	}
 }
 
-// Create a CompletionPayload struct with the appropriate prompt prefix,
-// prompt suffix, and stops.
-func (client Client) NewCompletionPayload(prompt string) *CompletionPayload {
-	payload := NewCompletionPayload(client.promptPrefix + prompt + client.promptSuffix)
+func (client Client) NewPayload(prompt string) *Payload {
+	payload := NewPayload(client.promptPrefix + prompt + client.promptSuffix)
 	payload.SetStops(client.stop)
 	return payload
 }

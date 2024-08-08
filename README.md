@@ -73,7 +73,7 @@ sequenceDiagram
 
 01. Deploy all components
 
-		make configure-infra deploy-mistral deploy
+		make configure-infra deploy-llava deploy-mistral deploy
 	
 	This does the following:
 
@@ -84,9 +84,10 @@ sequenceDiagram
 	*   Deploys the OpenShift AI operator
 	*   Sets up OpenShift AI
 	*   Deloys Minio
-	*   Uploads the mistral model to Minio
+	*   Uploads the mistral and llava models to Minio
+	*   Deploy KServe / Koboldcpp with llava
 	*   Deploy KServe / vLLM with mistral
-	*   Deploys the `image-acquirer`, `mosquitto`, `fontend`, KServe / `llama.cpp` with `llava`
+	*   Deploys the `image-acquirer`, `mosquitto`, `fontend`
 
 01. If you wish to use a different video for the `image-acquirer`,
 
@@ -105,9 +106,7 @@ sequenceDiagram
 
 01. When all components are up, retrieve the frontend URL and access it with a web browser
 
-		frontend="$(oc get -n demo route/frontend -o jsonpath='{.spec.host}')"
-
-		echo "http://$frontend"
+		make frontend
 
 
 ## Running all components with `docker compose`
@@ -121,7 +120,7 @@ To run all components on your local computer with `docker compose`
 
 ## Frontend with mocks
 
-If you wish to make changes to the static content for the frontend, you can run the frontend with a mock `image-acquirer`, mock `llava` and a mock `openai`
+If you wish to make changes to the static content for the frontend, you can run the frontend with a mock `image-acquirer`, mock `llava` and a mock `mistral`
 
 	cd yaml/docker-compose
 

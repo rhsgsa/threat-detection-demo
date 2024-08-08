@@ -12,8 +12,12 @@ data:
     https://huggingface.co/alvinxjm/mistral_7b_threat_merged/resolve/main/tokenizer.model?download=true
     https://huggingface.co/alvinxjm/mistral_7b_threat_merged/raw/main/tokenizer_config.json
   llava.txt: |-
-    https://huggingface.co/cjpais/llava-v1.6-34B-gguf/resolve/main/llava-v1.6-34b.Q4_K_M.gguf
-    https://huggingface.co/cjpais/llava-v1.6-34B-gguf/resolve/main/mmproj-model-f16.gguf
+    https://huggingface.co/cjpais/llava-v1.6-vicuna-13b-gguf/resolve/main/mmproj-model-f16.gguf
+  # https://huggingface.co/cjpais/llava-1.6-mistral-7b-gguf/resolve/main/mmproj-model-f16.gguf
+  # https://huggingface.co/cjpais/llava-v1.6-vicuna-13b-gguf/resolve/main/mmproj-model-f16.gguf
+  # https://huggingface.co/cjpais/llava-v1.6-34B-gguf/resolve/main/mmproj-model-f16.gguf
+  # https://huggingface.co/cmp-nct/llava-1.6-gguf/resolve/main/mmproj-llava-34b-f16-q6_k.gguf
+
 kind: ConfigMap
 metadata:
   labels:

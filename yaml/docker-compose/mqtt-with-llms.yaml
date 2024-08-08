@@ -1,0 +1,36 @@
+services:
+
+  mqtt:
+    container_name: mqtt
+    image: "docker.io/library/eclipse-mosquitto:2.0.18-openssl"
+    ports:
+    - 1883:1883
+    volumes:
+    - ../../mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro,z
+
+  mock-llava:
+    container_name: mock-llava
+    image: "ghcr.io/kwkoo/mock-llm"
+    environment:
+    - PORT=8080
+    - SOURCE=/mocks/koboldcpp.txt
+    - LINESLEEPMSECS=50
+    - 'RESPONSESTOP="finish_reason": "stop"'
+    ports:
+    - 8013:8080
+    volumes:
+    - ../../mocks/koboldcpp.txt:/mocks/koboldcpp.txt:ro,z
+
+  mock-openai:
+    container_name: mock-openai
+    image: "ghcr.io/kwkoo/mock-llm"
+    environment:
+    - PORT=8012
+    - SOURCE=/mocks/threatanalysis.txt
+    - LINESLEEPMSECS=50
+    - 'RESPONSEPREFIX=data: '
+    - RESPONSESTOP="finish_reason":"stop"
+    ports:
+    - 8012:8012
+    volumes:
+    - ../../mocks/threatanalysis.txt:/mocks/threatanalysis.txt:ro,z

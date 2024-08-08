@@ -48,12 +48,12 @@ services:
 
   frontend:
     container_name: frontend
-    image: "quay.io/rhsgsa/threat-frontend:1.96"
+    image: "quay.io/rhsgsa/threat-frontend:2.0"
     environment:
     - MQTTBROKER=tcp://mqtt:1883
     - PORT=8080
     - CORS=*
-    #- DOCROOT=
+    - DOCROOT=/var/www/html
     - ALERTSTOPIC=alerts
     - LLAVAURL=http://mock-llava:8080
     - OPENAIURL=http://mock-openai:8012/v1
@@ -62,37 +62,38 @@ services:
     ports:
     - 8080:8080
     volumes:
-    #- react:/var/www/html
+    - react:/var/www/html
     - ../../mocks/prompts.txt:/mocks/prompts.txt:ro,z
     depends_on:
     - mqtt
-    #- build_react
+    - build_react
 
   mock-llava:
     container_name: mock-llava
     image: "ghcr.io/kwkoo/mock-llm"
     environment:
-    - PORT=11434
-    - SOURCE=/mocks/ollama.txt
+    - PORT=8080
+    - SOURCE=/mocks/koboldcpp.txt
     - LINESLEEPMSECS=50
+    - 'RESPONSESTOP="finish_reason": "stop"'
     ports:
-    - 11434:11434
+    - 8013:8080
     volumes:
-    - ../../mocks/ollama.txt:/mocks/ollama.txt:ro,z
+    - ../../mocks/koboldcpp.txt:/mocks/koboldcpp.txt:ro,z
 
   mock-openai:
     container_name: mock-openai
     image: "ghcr.io/kwkoo/mock-llm"
     environment:
     - PORT=8012
-    - SOURCE=/mocks/openai.txt
+    - SOURCE=/mocks/threatanalysis.txt
     - LINESLEEPMSECS=50
     - 'RESPONSEPREFIX=data: '
     - RESPONSESTOP="finish_reason":"stop"
     ports:
     - 8012:8012
     volumes:
-    - ../../mocks/openai.txt:/mocks/openai.txt:ro,z
+    - ../../mocks/threatanalysis.txt:/mocks/threatanalysis.txt:ro,z
 
 volumes:
   react:

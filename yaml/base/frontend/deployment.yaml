@@ -18,7 +18,7 @@ spec:
         app: frontend
     spec:
       containers:
-      - image: quay.io/rhsgsa/threat-frontend:1.96
+      - image: quay.io/rhsgsa/threat-frontend:2.0
         name: frontend
         env:
         - name: MQTTBROKER
@@ -32,7 +32,7 @@ spec:
         - name: ALERTSTOPIC
           value: alerts
         - name: LLAVAURL
-          value: http://llava:8080
+          value: http://llava-predictor-00001-private:8012
         - name: PROMPTS
           value: "/frontend/config/prompts.txt"
         - name: OPENAIMODEL
@@ -40,7 +40,7 @@ spec:
         - name: OPENAIPROMPT
           value: "You are tailored to provide concise threat assessments. Reply with the level of threat, either low, medium or high. Treat all knives as high threat in the environment. Explanations for assessments are not provided, maintaining a focus on clear, concise classification without additional commentary."
         - name: OPENAIURL
-          value: http://llm-internal:8012/v1	
+          value: http://mistral-internal:8012/v1	
         ports:
         - name: http
           containerPort: 8080

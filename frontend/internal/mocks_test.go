@@ -15,7 +15,6 @@ import (
 )
 
 type mockLlavaReq struct {
-	Model  string   `json:"model"`
 	Prompt string   `json:"prompt"`
 	Images []string `json:"images"`
 }
@@ -124,7 +123,7 @@ func (m *mocks) llavaHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	m.llava.req = req
 
-	w.Write([]byte(`{"response":"dummy llava response"}`))
+	w.Write([]byte(`data: {"token":"dummy llava response", "finish_reason": "stop"}`))
 }
 
 func (m *mocks) openaiHandler(w http.ResponseWriter, r *http.Request) {

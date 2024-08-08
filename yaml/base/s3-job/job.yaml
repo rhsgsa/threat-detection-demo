@@ -28,10 +28,22 @@ spec:
           mc mb minio/models
 
           echo "uploading model to bucket..."
-          exec python3 ./s3_utils.py
+          python3 ./s3_utils.py
+
+          # we cannot upload the 34b model the usual way because it is too large
+          cd /scratch
+          echo "downloading llava model (${LLAVA_URL})..."
+          curl -LO "$LLAVA_URL"
+          mc put *.gguf minio/models/llava/
         env:
         - name: MODELS
           value: "/data/mistral.txt,/data/llava.txt"
+        # https://huggingface.co/cjpais/llava-1.6-mistral-7b-gguf/resolve/main/llava-v1.6-mistral-7b.Q6_K.gguf
+        # https://huggingface.co/cjpais/llava-v1.6-vicuna-13b-gguf/resolve/main/llava-v1.6-vicuna-13b.Q6_K.gguf
+        # https://huggingface.co/cjpais/llava-v1.6-34B-gguf/resolve/main/llava-v1.6-34b.Q4_K_M.gguf
+        # https://huggingface.co/cmp-nct/llava-1.6-gguf/resolve/main/ggml-yi-34b-f16-q_5_k.gguf
+        - name: LLAVA_URL
+          value: "https://huggingface.co/cjpais/llava-v1.6-vicuna-13b-gguf/resolve/main/llava-v1.6-vicuna-13b.Q6_K.gguf"
         - name: AWS_ACCESS_KEY_ID
           valueFrom:
             secretKeyRef:
@@ -50,10 +62,14 @@ spec:
         - name: data
           mountPath: /data
           readOnly: true
+        - name: scratch
+          mountPath: /scratch
         resources: {}
       restartPolicy: Never
       volumes:
       - name: data
         configMap:
           name: setup-s3
+      - name: scratch
+        emptyDir: {}
 status: {}
